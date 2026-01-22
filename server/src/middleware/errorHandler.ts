@@ -4,9 +4,9 @@ type HttpError = Error & { status?: number; statusCode?: number };
 
 export const errorHandler: ErrorRequestHandler = (
   err: HttpError,
-  req,
+  _req,
   res,
-  next,
+  _next,
 ) => {
   console.error("Ooops, error", err.stack);
 
