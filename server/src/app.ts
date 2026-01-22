@@ -1,8 +1,9 @@
 import { errorHandler } from "./middleware/errorHandler";
 import { unknownEndpoint } from "./middleware/unknownEndpoint";
 import cors from "cors";
-import express, { type Request, type Response } from "express";
+import express from "express";
 import morgan from "morgan";
+import { getHealthCheck } from "./controllers/apiController";
 
 const app = express();
 
@@ -11,9 +12,7 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(cors());
 
-app.get("/", (_req: Request, res: Response) => {
-  res.send("Hello from the server!");
-});
+app.get("/", getHealthCheck);
 
 app.use(unknownEndpoint);
 app.use(errorHandler);
