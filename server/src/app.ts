@@ -1,9 +1,12 @@
-import express, { type Request, type Response } from "express";
-import cors from "cors";
 import { errorHandler } from "./middleware/errorHandler";
 import { unknownEndpoint } from "./middleware/unknownEndpoint";
+import cors from "cors";
+import express, { type Request, type Response } from "express";
+import morgan from "morgan";
 
 const app = express();
+
+app.use(morgan("dev"));
 
 app.use(express.json());
 app.use(cors());
