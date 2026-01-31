@@ -1,0 +1,33 @@
+.under-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-block: 0.75rem;
+  border-top: 1px solid var(--text-light-xs);
+
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.875rem;
+}
+
+.copyright {
+  display: flex;
+  gap: 0.5rem;
+
+  @media only screen and (max-width: 480px) {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+
+.footer-links {
+  display: flex;
+  gap: 1rem;
+
+  & a {
+    transition: transform 0.25s ease-out;
+  }
+
+  & a:hover {
+    transform: scale(1.125);
+  }
+}

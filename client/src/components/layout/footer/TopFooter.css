@@ -1,0 +1,44 @@
+.top-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  @media only screen and (max-width: 480px) {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+.footer-logo {
+  display: flex;
+  gap: 0.5rem;
+
+  & h3 {
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+}
+
+.top-footer-links {
+  display: flex;
+  gap: 3rem;
+}
+
+.footer-link-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-size: 0.725rem;
+  color: rgba(255, 255, 255, 0.75);
+
+  & h4 {
+    font-size: 0.975rem;
+    color: white;
+  }
+
+  & a:hover {
+    cursor: pointer;
+    color: white;
+  }
+}

@@ -1,42 +1,85 @@
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html,
 body {
   max-width: 100vw;
-  overflow-x: hidden;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  min-height: 100dvh;
+  height: 100%;
+  width: 100%;
+  font-size: 1rem;
+  font-family: var(--font-outfit), sans-serif;
+  background-color: var(--primary);
+  color: var(--text-light);
+
+  min-height: 100dvh;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+main {
+  flex-grow: 1;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-geist), sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+:root {
+  --text-light: #f3f4fa;
+  --text-light-xs: rgba(243, 244, 250, 0.5);
+  --text-dark: #1e1e2f;
+  --text-dark-xs: rgba(30, 30, 47, 0.875);
+
+  --primary: #1e1e2f;
+  --primary-50: #f3f4fa;
+  --primary-100: #e8edf7;
+  --primary-200: #d6ddef;
+  --primary-300: #bcc6e5;
+  --primary-400: #a1a9d8;
+  --primary-500: #898ecb;
+  --primary-600: #7071bb;
+  --primary-700: #605fa3;
+  --primary-800: #4f4f84;
+  --primary-900: #44456b;
+  --primary-950: #1e1e2f;
+  --primary-extra: #1a1a1a;
+
+  --secondary: #c2d5c4;
+  --secondary-50: #f5f8f5;
+  --secondary-100: #e8f0e9;
+  --secondary-200: #c2d5c4;
+  --secondary-300: #aec7b1;
+  --secondary-400: #83a587;
+  --secondary-500: #608764;
+  --secondary-600: #4c6d50;
+  --secondary-700: #3e5741;
+  --secondary-800: #344736;
+  --secondary-900: #2c3b2e;
+  --secondary-950: #151e17;
+
+  --accent: #3a86ff;
+  --accent-50: #eef6ff;
+  --accent-100: #d9eaff;
+  --accent-200: #bcdbff;
+  --accent-300: #8ec6ff;
+  --accent-400: #59a5ff;
+  --accent-500: #3a86ff;
+  --accent-600: #1b60f5;
+  --accent-700: #144be1;
+  --accent-800: #173db6;
+  --accent-900: #19388f;
+  --accent-950: #142357;
 }
