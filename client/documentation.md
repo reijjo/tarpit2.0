@@ -22,9 +22,7 @@ Static assets directory for images, fonts, and other media files.
 
 ## 🎯 `src/app/`
 
-> **Note**: Using Next.js 15 App Router with route groups for logical organization
-
-### Special Files
+### Files
 
 | File            | Purpose                    |
 | --------------- | -------------------------- |
@@ -85,7 +83,8 @@ TypeScript definitions:
 
 ## Installed packages
 
-### Lucide Icons
+<details>
+<summary><strong>Lucide Icons</strong></summary>
 
 Icons for the project <https://lucide.dev/>
 
@@ -103,3 +102,5 @@ function App() {
   );
 }
 ```
+
+</details>
