@@ -6,12 +6,12 @@ export class AppError extends Error {
   // If false, it's a bug/crash we didn't expect.
   public readonly isOperational: boolean;
 
-  constructor(message: string, statusCode: number) {
+  constructor(message: string, statusCode: number, isOperational = true) {
     // Call the parent Error class with the message
     super(message);
 
     this.statusCode = statusCode;
-    this.isOperational = true;
+    this.isOperational = isOperational;
 
     // Fixes the prototype chain when extending built-in Error in TypeScript
     Object.setPrototypeOf(this, new.target.prototype);

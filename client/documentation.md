@@ -1,7 +1,5 @@
 # 📖 Frontend Documentation
 
----
-
 ## 📁 Project Structure
 
 ```
