@@ -1,6 +1,7 @@
 import { test, expect } from "bun:test";
+import { AppError } from "src/utils/AppError";
 
-import { AppError } from "../utils/AppError";
+
 
 test("AppError creates error with status code", () => {
   const error = new AppError("Not found", 404);
