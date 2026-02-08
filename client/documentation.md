@@ -112,7 +112,7 @@ function App() {
 <details>
 <summary><strong>Vitest & testing-library</strong></summary>
 
-Icons for the project <https://vitest.dev/>
+For unit tests <https://vitest.dev/>
 
 - `bun add -D vitest @testing-library/react @testing-library/jest-dom @vitejs/plugin-react`
 
@@ -214,5 +214,83 @@ bun run test:cover
 
 <details>
 <summary><strong>Playwright</strong></summary>
+
+For end-to-end tests <https://playwright.dev/>
+
+- `bun add -D @playwright/test`
+- `bunx playwright install --with-deps`
+
+Check that install was ok `bunx playwright --version`
+
+Create `playwright.config.ts` file in the root of the `client/` folder:
+
+```ts
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./e2e",
+  testMatch: "**/*.spec.ts",
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+  reporter: "html",
+
+  use: {
+    baseURL: "http://localhost:3000",
+    trace: "on-first-retry",
+    screenshot: "only-on-failure",
+  },
+
+  projects: [
+    {
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
+    },
+  ],
+
+  webServer: {
+    command: "bun dev",
+    url: "http://localhost:3000",
+    reuseExistingServer: !process.env.CI,
+    timeout: 120_000,
+  },
+});
+```
+
+Add the scripts to the `package.json` file:
+
+```json
+{
+  ...
+  "scripts": {
+    "dev": "bun --bun next dev",
+    "build": "bun --bun next build",
+    "start": "bun --bun next start",
+    "lint": "eslint",
+    "test": "vitest",
+    "test:cover": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed"
+  },
+  ...
+}
+```
+
+Create and example test `example.spec.ts` in the `client/e2e` folder:
+
+```ts
+import { test, expect } from "@playwright/test";
+
+test("homepage has title", async ({ page }) => {
+  await page.goto("/");
+
+  // Expect page to have a heading
+  await expect(page.locator("h1")).toBeVisible();
+});
+```
+
+And run the test with one of the e2e scripts
 
 </details>
