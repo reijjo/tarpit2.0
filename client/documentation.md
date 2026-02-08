@@ -1,5 +1,7 @@
 # 📖 Frontend Documentation
 
+### Frontend
+
 ## 📁 Project Structure
 
 ```
@@ -100,5 +102,117 @@ function App() {
   );
 }
 ```
+
+</details>
+
+---
+
+### Testing
+
+<details>
+<summary><strong>Vitest & testing-library</strong></summary>
+
+Icons for the project <https://vitest.dev/>
+
+- `bun add -D vitest @testing-library/react @testing-library/jest-dom @vitejs/plugin-react`
+
+Create `vitest.config.ts` file in the root of the `client/` folder
+
+```ts
+import react from "@vitejs/plugin-react";
+import path from "path";
+
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    globals: true,
+    environment: "jsdom",
+    include: ["src/**/*.spec.ts", "src/**/*.spec.tsx"],
+    exclude: ["**/node_modules/**", "**/dist/**"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json", "html"],
+      include: ["src/**/*.{ts,tsx}"],
+      exclude: [
+        "src/**/*.spec.{ts,tsx}",
+        "src/**/*.test.{ts,tsx}",
+        "src/**/*.d.ts",
+        "src/app/**/page.tsx",
+        "src/app/**/layout.tsx",
+        "src/app/**/error.tsx",
+      ],
+    },
+    setupFiles: ["./vitest.setup.ts"],
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
+});
+```
+
+Create `vitest.setup.ts` file in the root of the `client/` folder
+
+```ts
+import "@testing-library/jest-dom";
+```
+
+Create a testfile for example for footer: `Footer.spec.ts`:
+
+```ts
+import Footer from "./Footer";
+import { render, screen } from "@testing-library/react";
+import { it, expect, describe } from "vitest";
+
+describe("FOOTER", () => {
+  it("renders the footer component", () => {
+    render(<Footer />);
+
+    const footerElement = screen.getByRole("contentinfo");
+    expect(footerElement).toBeInTheDocument();
+  });
+});
+
+```
+
+Add script to `package.json`
+
+```json
+{
+  ...
+  "scripts": {
+    "dev": "bun --bun next dev",
+    "build": "bun --bun next build",
+    "start": "bun --bun next start",
+    "lint": "eslint",
+    "test": "vitest",
+    "test:cover": "vitest run --coverage"
+  },
+  ...
+}
+
+```
+
+Usage:
+
+```bash
+bun run test
+```
+
+- The test should work now.
+
+```bash
+bun run test:cover
+```
+
+- Shows the coverage of tests
+
+</details>
+
+<details>
+<summary><strong>Playwright</strong></summary>
 
 </details>

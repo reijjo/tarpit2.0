@@ -142,3 +142,8 @@ vite.config.ts.timestamp-*
 .agent
 .agent/*
 **/.cursorrules
+
+# Other files
+**/dist/
+*.spec.js
+*.spec.jsx
