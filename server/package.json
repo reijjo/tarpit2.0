@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "clean": "rm -rf dist && echo 'All cleaned!'",
-    "dev": "bun --watch src/index.ts"
+    "dev": "bun --watch src/index.ts",
+    "test:watch": "bun test --watch"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^6.0.2",
@@ -13,7 +14,8 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/morgan": "^1.9.10",
-    "morgan": "^1.10.1"
+    "morgan": "^1.10.1",
+    "prettier": "^3.8.1"
   },
   "peerDependencies": {
     "typescript": "^5.9.3"

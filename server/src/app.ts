@@ -3,6 +3,7 @@ import { unknownEndpoint } from "./middleware/unknownEndpoint";
 import cors from "cors";
 import express from "express";
 import morgan from "morgan";
+
 import { getHealthCheck } from "./controllers/apiController";
 
 const app = express();

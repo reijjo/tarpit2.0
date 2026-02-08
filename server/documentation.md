@@ -229,6 +229,24 @@ app.use(express.json());
 </details>
 
 <details>
+<summary><strong>Morgan</strong></summary>
+
+Request logger
+
+```bash
+bun add -D morgan @types/morgan"
+```
+
+```ts
+import morgan from "morgan";
+
+const app = express();
+app.use(morgan("dev"));
+```
+
+</details>
+
+<details>
 <summary><strong>PostgreSQL Client (pg)</strong></summary>
 
 PostgreSQL database client
@@ -285,3 +303,53 @@ const userSchema = z.object({
 ```
 
 </details>
+
+## Testing with `bun:test`
+
+Run tests with `bun test`
+
+- Run tests in watch mode `bun test --watch` or you can add a script to `package.json``
+
+```json
+{
+	...
+	  "scripts": {
+    "clean": "rm -rf dist && echo 'All cleaned!'",
+    "dev": "bun --watch src/index.ts",
+		"test:watch": "bun test --watch",
+  },
+	...
+}
+```
+
+Create `bunfig.toml` file in the root of the `server/` folder
+```toml
+[test]
+coverage = true
+coverageSkipTestFiles = true
+coverageReporter = ["text", "lcov"]
+coverageDir = "src/tests/coverage"
+coveragePathIgnorePatterns = [
+  "**/node_modules/**",
+  "**/dist/**",
+  "**/*.spec.{ts,js}",
+  "**/*.test.{ts,js}"
+]
+```
+- This shows coverage for the tests
+
+Example text (`tests/example.spec.ts`)
+
+```ts
+import { test, expect, describe } from "bun:test";
+
+describe("math", () => {
+  test("add", () => {
+    expect(2 + 2).toEqual(4);
+  });
+
+  test("multiply", () => {
+    expect(2 * 2).toEqual(4);
+  });
+});
+```

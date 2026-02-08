@@ -147,3 +147,6 @@ vite.config.ts.timestamp-*
 **/dist/
 *.spec.js
 *.spec.jsx
+**/dist/
+**/*.spec.js
+**/*.test.js
