@@ -107,7 +107,7 @@ jobs:
         if: always()
         with:
           name: backend-coverage
-          path: server/tests/coverage/
+          path: server/src/tests/coverage/
 
   # E2E runs last and only if unit tests pass
   e2e:
