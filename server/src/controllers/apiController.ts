@@ -8,5 +8,5 @@ export const getHealthCheck = (_req: Request, res: Response) => {
     environment: process.env.NODE_ENV || "development",
   };
 
-  res.send(health);
+  res.status(200).send(health);
 };
