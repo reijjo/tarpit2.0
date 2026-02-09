@@ -1,18 +1,19 @@
-import { test, expect } from "bun:test";
+import { test, expect, describe } from "bun:test";
+
 import { AppError } from "src/utils/AppError";
 
+describe("APP_ERROR", () => {
+  test("AppError creates error with status code", () => {
+    const error = new AppError("Not found", 404);
 
+    expect(error.message).toBe("Not found");
+    expect(error.statusCode).toBe(404);
+    expect(error.isOperational).toBe(true);
+  });
 
-test("AppError creates error with status code", () => {
-  const error = new AppError("Not found", 404);
+  test("AppError marks non-operational errors", () => {
+    const error = new AppError("Server crash", 500, false);
 
-  expect(error.message).toBe("Not found");
-  expect(error.statusCode).toBe(404);
-  expect(error.isOperational).toBe(true);
-});
-
-test("AppError marks non-operational errors", () => {
-  const error = new AppError("Server crash", 500, false);
-
-  expect(error.isOperational).toBe(false);
+    expect(error.isOperational).toBe(false);
+  });
 });

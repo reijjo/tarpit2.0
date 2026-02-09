@@ -314,15 +314,18 @@ Run tests with `bun test`
 {
 	...
 	  "scripts": {
-    "clean": "rm -rf dist && echo 'All cleaned!'",
+    "clean": "find . -type d -name 'dist' -exec rm -rf {} + 2>/dev/null || true && echo 'All cleaned!'",
+    "clean:full": "rm -rf dist node_modules bun.lockb && find . -type d -name 'dist' -exec rm -rf {} + 2>/dev/null || true && bun install && echo 'Full clean complete!'",
     "dev": "bun --watch src/index.ts",
-		"test:watch": "bun test --watch",
+    "test:watch": "bun test --watch",
+    "test": "bun clean && bun test"
   },
 	...
 }
 ```
 
 Create `bunfig.toml` file in the root of the `server/` folder
+
 ```toml
 [test]
 coverage = true
@@ -336,6 +339,7 @@ coveragePathIgnorePatterns = [
   "**/*.test.{ts,js}"
 ]
 ```
+
 - This shows coverage for the tests
 
 Example text (`tests/example.spec.ts`)
