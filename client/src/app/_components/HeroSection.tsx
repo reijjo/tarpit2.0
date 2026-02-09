@@ -1,0 +1,29 @@
+import "./HeroSection.css";
+
+import { LinkButton } from "@/components/ui/button/LinkButton";
+
+export default function HeroSection() {
+  return (
+    <section className="hero-section">
+      <div className="hero-wrapper wrapper">
+        <div className="hero-text">
+          <p className="like-h5">
+            Discover the Bet Tracking Platform that everyone Loves
+          </p>
+          <div className="hero-slogan">
+            <h1>Track your bets online without annoying excel sheets!</h1>
+            <p>
+              But we have all the best features from Excel sheets to analyze and
+              track your bets on the go!
+            </p>
+          </div>
+          <div className="hero-buttons">
+            <LinkButton href="/register" size="lg">
+              Sign up here!
+            </LinkButton>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
