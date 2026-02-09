@@ -4,7 +4,7 @@
   display: flex;
   background-image:
     linear-gradient(to bottom, rgb(from var(--primary) r g b / 0.9)),
-    url("../../../public/images/homepage/hero-opti.jpg");
+    url("/images/homepage/hero-opti.jpg");
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;

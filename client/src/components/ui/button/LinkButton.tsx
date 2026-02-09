@@ -1,8 +1,9 @@
 import "./Button.css";
-import Link from "next/link";
+import Link, { LinkProps } from "next/link";
 import { AnchorHTMLAttributes } from "react";
 
-interface LinkButtonProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
+interface LinkButtonProps
+  extends LinkProps, AnchorHTMLAttributes<HTMLAnchorElement> {
   href: string;
   variant?: "primary" | "secondary" | "outline" | "ghost";
   size?: "sm" | "md" | "lg";
