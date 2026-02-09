@@ -1,11 +1,17 @@
 [test]
+root = "src"
+smol = true
 coverage = true
 coverageSkipTestFiles = true
 coverageReporter = ["text", "lcov"]
-coverageDir = "src/tests/coverage"
+coverageDir = "testcoverage"
 coveragePathIgnorePatterns = [
   "**/node_modules/**",
   "**/dist/**",
   "**/*.spec.{ts,js}",
-  "**/*.test.{ts,js}"
+  "**/*.test.{ts,js}",
+	"dist/**",
+  "build/**",
+  ".next/**",
 ]
+preload = ["./src/tests/setup/test-setup.ts"]
