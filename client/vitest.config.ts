@@ -21,6 +21,7 @@ export default defineConfig({
         "src/app/**/page.tsx",
         "src/app/**/layout.tsx",
         "src/app/**/error.tsx",
+        "src/app/**/not-found.tsx",
       ],
     },
     setupFiles: ["./vitest.setup.ts"],
