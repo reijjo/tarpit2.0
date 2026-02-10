@@ -1,0 +1,39 @@
+.dashboard-feature {
+  position: relative;
+
+  padding-bottom: 2rem;
+
+  background: linear-gradient(
+    to bottom,
+    var(--primary) 0%,
+    var(--primary) 50%,
+    var(--primary-800) 50%,
+    var(--primary-800) 100%
+  );
+
+  & > div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  & img {
+    object-fit: contain;
+    max-width: 1000px;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--box-shadow-l);
+  }
+}
+
+.dashboard-feature-text {
+  display: flex;
+  font-size: 1.25rem;
+  gap: 0.25rem;
+  text-align: center;
+  text-wrap: balance;
+}
