@@ -13,6 +13,12 @@ nav {
   align-items: center;
 }
 
+.nav-logo {
+  text-transform: uppercase;
+  display: flex;
+  gap: 0.5rem;
+}
+
 .nav-buttons {
   display: flex;
   gap: 1rem;
