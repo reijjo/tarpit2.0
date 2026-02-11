@@ -1,15 +1,12 @@
 import "./Features.css";
-import DashboardFeature from "./features/Dashboard";
+import AddbetFeature from "./features/AddbetFeature";
+import DashboardFeature from "./features/DashboardFeature";
 
 export default function Features() {
   return (
     <section className="features-section">
       <DashboardFeature />
-      <article className="add-bet-feature">
-        <div className="add-bet-feature-wrapper wrapper">
-          <p>ADD BET COMIING</p>
-        </div>
-      </article>
+      <AddbetFeature />
     </section>
   );
 }

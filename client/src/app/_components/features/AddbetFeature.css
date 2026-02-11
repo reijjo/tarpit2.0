@@ -1,0 +1,51 @@
+.add-bet-feature {
+  background-color: var(--primary-800);
+  padding-block: 2rem;
+}
+
+.add-bet-feature-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  font-size: 1.25rem;
+}
+
+.add-bet-image-container {
+  position: relative;
+  display: flex;
+  gap: 1rem;
+  height: auto;
+  place-items: center;
+  width: max-content;
+  max-width: 100%;
+  margin-inline: auto;
+
+  @media screen and (width <= 1150px) {
+    flex-direction: column;
+  }
+
+  & p {
+    align-self: center;
+    text-wrap: balance;
+    text-align: center;
+    max-width: 400px;
+  }
+
+  &:last-child p {
+    order: 1;
+
+    @media screen and (width <= 1150px) {
+      order: 0;
+    }
+  }
+
+  & img {
+    object-fit: contain;
+    width: max-content;
+    max-width: 100%;
+    height: auto;
+    max-height: 250px;
+    border-radius: 8px;
+    box-shadow: var(--box-shadow-l);
+  }
+}

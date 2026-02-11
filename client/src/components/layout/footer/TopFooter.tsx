@@ -21,11 +21,6 @@ export default function TopFooter() {
           <a>FAQ</a>
           <a>Support Me</a>
         </div>
-        <div className="footer-link-group">
-          <h4>Legal</h4>
-          <a>Terms</a>
-          <a>Privacy</a>
-        </div>
       </div>
     </div>
   );
