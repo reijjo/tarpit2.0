@@ -13,13 +13,14 @@
 .add-bet-image-container {
   position: relative;
   display: flex;
-  gap: 2rem;
+  gap: 1rem;
   height: auto;
   place-items: center;
   width: max-content;
+  max-width: 100%;
   margin-inline: auto;
 
-  @media screen and (max-width: 1150px) {
+  @media screen and (width <= 1150px) {
     flex-direction: column;
   }
 
@@ -33,7 +34,7 @@
   &:last-child p {
     order: 1;
 
-    @media screen and (max-width: 1150px) {
+    @media screen and (width <= 1150px) {
       order: 0;
     }
   }
@@ -41,6 +42,7 @@
   & img {
     object-fit: contain;
     width: max-content;
+    max-width: 100%;
     height: auto;
     max-height: 250px;
     border-radius: 8px;

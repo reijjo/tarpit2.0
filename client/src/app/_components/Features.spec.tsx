@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
 
 describe("FEATURES", () => {
-  it("dashboard features", () => {
+  it("renders dashboard features", () => {
     render(<Features />);
 
     const dashboardFeatureElement = screen.getByText(
@@ -12,7 +12,7 @@ describe("FEATURES", () => {
     expect(dashboardFeatureElement).toBeInTheDocument();
   });
 
-  it("add bet features", () => {
+  it("renders add bet features", () => {
     render(<Features />);
 
     const addBetFeatureElement = screen.getByText(/you can also add/i);

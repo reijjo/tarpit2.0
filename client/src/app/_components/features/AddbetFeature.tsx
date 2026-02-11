@@ -1,7 +1,7 @@
 import "./AddbetFeature.css";
 import Image from "next/image";
 
-export default function AddBetFeature() {
+export default function AddbetFeature() {
   return (
     <article className="add-bet-feature">
       <div className="add-bet-feature-wrapper wrapper">
@@ -15,7 +15,7 @@ export default function AddBetFeature() {
             src="/images/homepage/add1.png"
             width={800}
             height={450}
-            alt="add-bet-feature"
+            alt="Add bet types"
           />
         </div>
         <div className="add-bet-image-container">
@@ -28,7 +28,7 @@ export default function AddBetFeature() {
             src="/images/homepage/add2.png"
             width={800}
             height={450}
-            alt="add-bet-feature"
+            alt="Add bet finish"
           />
         </div>
       </div>
