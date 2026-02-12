@@ -1,5 +1,10 @@
 .add-bet-feature {
-  background-color: var(--primary-800);
+  background: var(--primary-800);
+  background-image: radial-gradient(
+    at 50% 50%,
+    rgb(from var(--secondary-500) r g b / 0.5) 0,
+    transparent 70%
+  );
   padding-block: 4rem;
 }
 
