@@ -1,0 +1,57 @@
+.why-register-feature {
+  background:
+    linear-gradient(
+      to bottom,
+      rgb(from var(--primary) r g b / 0.85),
+      rgb(from var(--primary) r g b / 0.35)
+    ),
+    url("/images/homepage/soccer-wide.jpeg");
+  background-position: center;
+  background-size: cover;
+  padding: 2rem;
+}
+
+.why-register-feature-wrapper {
+  text-align: center;
+  gap: 2rem;
+  display: flex;
+  flex-direction: column;
+
+  & h2 {
+    text-transform: uppercase;
+  }
+}
+
+.why-register-boxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  place-items: center;
+
+  @media screen and (width <= 1000px) {
+    grid-template-columns: 1fr;
+    width: 100%;
+    margin-inline: auto;
+  }
+}
+
+.why-register-box {
+  border: 1px solid var(--text-light-muted);
+  border-radius: 8px;
+
+  font-size: 1.25rem;
+  text-align: center;
+  text-wrap: balance;
+  width: 80%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  gap: 1rem;
+  padding: 2rem;
+  background-color: rgb(from var(--primary) r g b / 0.75);
+  box-shadow: var(--box-shadow-xl);
+  backdrop-filter: blur(2px);
+}
