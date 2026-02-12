@@ -35,14 +35,14 @@ const featureCards: Array<{
 
 export default function FeatureCards() {
   return (
-    <article className="feature-cards ">
+    <article className="feature-cards">
       <div className="feature-cards-wrapper wrapper">
         {featureCards.map((card) => {
           const Icon = card.icon;
           return (
             <div key={card.id} className="feature-card">
               <div className="feature-card-header">
-                <Icon size={32} strokeWidth={1.5} aria-hidden />
+                <Icon size={24} strokeWidth={1.5} aria-hidden />
                 <h4>{card.header}</h4>
               </div>
               <p>{card.text}</p>

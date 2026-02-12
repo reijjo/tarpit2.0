@@ -21,6 +21,10 @@ body {
   height: 100%;
   display: flex;
   flex-direction: column;
+
+  @media screen and (width <= 580) {
+    font-size: 0.875rem;
+  }
 }
 
 main {

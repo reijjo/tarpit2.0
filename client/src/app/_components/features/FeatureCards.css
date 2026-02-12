@@ -9,8 +9,12 @@
 
 .feature-cards-wrapper {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(40%, 1fr));
-  gap: 3rem;
+  grid-template-columns: repeat(2, minmax(200px, 1fr));
+  gap: 4rem;
+
+  @media screen and (width <= 900px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .feature-card {
@@ -22,13 +26,19 @@
   gap: 1rem;
   background-color: rgba(255, 255, 255, 0.025);
   box-shadow: var(--box-shadow-xl);
+  text-wrap: balance;
 
   & h4 {
     text-transform: uppercase;
+  }
+
+  @media screen and (width <= 580px) {
+    padding: 1rem 2rem;
   }
 }
 
 .feature-card-header {
   display: flex;
+  align-items: center;
   gap: 1rem;
 }
