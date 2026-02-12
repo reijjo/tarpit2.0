@@ -18,4 +18,11 @@ describe("FEATURES", () => {
     const addBetFeatureElement = screen.getByText(/you can also add/i);
     expect(addBetFeatureElement).toBeInTheDocument();
   });
+
+  it("renders why register boxes", () => {
+    render(<Features />);
+
+    const whyIcons = screen.getAllByRole("img");
+    expect(whyIcons).toHaveLength(3);
+  });
 });
