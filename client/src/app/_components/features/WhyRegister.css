@@ -2,8 +2,8 @@
   background:
     linear-gradient(
       to bottom,
-      rgb(from var(--primary) r g b / 0.85),
-      rgb(from var(--primary) r g b / 0.35)
+      rgb(from var(--primary) r g b / 100%) 0,
+      rgb(from var(--primary) r g b / 25%)
     ),
     url("/images/homepage/soccer-wide.jpeg");
   background-position: center;
@@ -36,7 +36,7 @@
 }
 
 .why-register-box {
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgb(255 255 255 / 25%);
   border-radius: 8px;
 
   font-size: 1.25rem;

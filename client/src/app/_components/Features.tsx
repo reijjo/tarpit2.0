@@ -1,4 +1,3 @@
-import "./Features.css";
 import AddbetFeature from "./features/AddbetFeature";
 import DashboardFeature from "./features/DashboardFeature";
 import FeatureCards from "./features/FeatureCards";

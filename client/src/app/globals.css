@@ -22,7 +22,7 @@ body {
   display: flex;
   flex-direction: column;
 
-  @media screen and (width <= 580) {
+  @media screen and (width <= 580px) {
     font-size: 0.875rem;
   }
 }
@@ -95,9 +95,9 @@ a {
 
 :root {
   --text-light: var(--primary-50);
-  --text-light-muted: rgb(from var(--primary-50) r g b / 0.75);
+  --text-light-muted: rgb(from var(--primary-50) r g b / 75%);
   --text-dark: var(--primary-950);
-  --text-dark-muted: rgb(from var(--primary-950) r g b / 0.75);
+  --text-dark-muted: rgb(from var(--primary-950) r g b / 75%);
 
   --box-shadow-s:
     0 4px 16px rgba(0, 0, 0, 0.075), 0 8px 32px rgba(0, 0, 0, 0.025);
