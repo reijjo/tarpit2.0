@@ -52,5 +52,6 @@
   gap: 1rem;
   padding: 2rem;
   background-color: rgb(from var(--primary) r g b / 0.75);
-  box-shadow: var(--box-shadow-l);
+  box-shadow: var(--box-shadow-xl);
+  backdrop-filter: blur(2px);
 }

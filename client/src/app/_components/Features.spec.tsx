@@ -22,7 +22,13 @@ describe("FEATURES", () => {
   it("renders why register boxes", () => {
     render(<Features />);
 
-    const whyIcons = screen.getAllByRole("img");
-    expect(whyIcons).toHaveLength(3);
+    expect(screen.getByText(/why you should register/i)).toBeInTheDocument();
+    expect(screen.getByText(/keep track of your bets/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/analytics improves your betting/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/you learn your betting strengths/i),
+    ).toBeInTheDocument();
   });
 });
