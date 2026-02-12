@@ -1,4 +1,5 @@
 import Features from "./Features";
+import FeatureCards from "./features/FeatureCards";
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
 
@@ -30,5 +31,12 @@ describe("FEATURES", () => {
     expect(
       screen.getByText(/you learn your betting strengths/i),
     ).toBeInTheDocument();
+  });
+
+  it("renders feature cards", () => {
+    render(<FeatureCards />);
+
+    const headers = screen.getAllByRole("heading", { level: 4 });
+    expect(headers).toHaveLength(4);
   });
 });

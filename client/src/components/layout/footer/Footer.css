@@ -5,7 +5,7 @@ footer {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  border-top: 1px solid var(--text-light-muted);
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
   background: linear-gradient(to right, var(--primary-950), var(--primary-800));
 }
 

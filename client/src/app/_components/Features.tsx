@@ -1,6 +1,7 @@
 import "./Features.css";
 import AddbetFeature from "./features/AddbetFeature";
 import DashboardFeature from "./features/DashboardFeature";
+import FeatureCards from "./features/FeatureCards";
 import WhyRegister from "./features/WhyRegister";
 
 export default function Features() {
@@ -9,6 +10,7 @@ export default function Features() {
       <DashboardFeature />
       <AddbetFeature />
       <WhyRegister />
+      <FeatureCards />
     </section>
   );
 }
