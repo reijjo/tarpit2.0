@@ -21,6 +21,16 @@ src/
 | app.ts   | Handle routes & middleware |
 | index.ts | Starts the server          |
 
+### Runtime middleware order in `app.ts`
+
+1. `morgan(isProduction ? "combined" : "dev")`
+2. `express.json()`
+3. `helmet()`
+4. `cors()`
+5. Route handlers (for now: `GET /`)
+6. `unknownEndpoint`
+7. `errorHandler`
+
 ## 🎮 `src/controllers/`
 
 Controller functions that handle API requests and responses.
@@ -234,7 +244,7 @@ app.use(express.json());
 Request logger
 
 ```bash
-bun add -D morgan @types/morgan"
+bun add -d morgan @types/morgan
 ```
 
 ```ts
@@ -242,6 +252,23 @@ import morgan from "morgan";
 
 const app = express();
 app.use(morgan("dev"));
+```
+
+</details>
+
+<details>
+<summary><strong>Helmet</strong></summary>
+
+Secure HTTP headers middleware.
+
+```bash
+bun add helmet
+```
+
+```ts
+import helmet from "helmet";
+
+app.use(helmet());
 ```
 
 </details>

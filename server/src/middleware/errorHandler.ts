@@ -19,10 +19,10 @@ export const errorHandler: ErrorRequestHandler = (
   let message = "Internal Server Error";
 
   if (err instanceof AppError && err.isOperational) {
-    return res.status(err.statusCode).send(err.message);
+    return res.status(err.statusCode).json(err.message);
   }
 
   console.error("Unexpected error", err);
 
-  res.status(status).send(message);
+  res.status(status).json(message);
 };
