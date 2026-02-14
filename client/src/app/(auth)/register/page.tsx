@@ -14,7 +14,7 @@ export default function RegisterPage() {
           alt="Penkit"
           fill
           sizes="50vw"
-          loading="eager"
+          priority
           style={{
             objectFit: "cover",
           }}

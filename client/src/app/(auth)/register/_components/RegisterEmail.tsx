@@ -11,8 +11,6 @@ export default function RegisterEmail() {
     success: false,
   });
 
-  console.log("FORM STATE", formState);
-
   return (
     <form className="register-email-form" action={formAction}>
       <div className="form-headers">

@@ -29,7 +29,7 @@ export default function TextInput({
           {errors.map((error, index) => (
             <small key={index} className="error-message" role="alert">
               <CircleX strokeWidth={1} size={16} />
-              <p>{error}</p>
+              <span>{error}</span>
             </small>
           ))}
         </div>

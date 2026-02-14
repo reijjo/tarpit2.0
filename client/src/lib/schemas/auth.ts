@@ -6,7 +6,7 @@ export const RegisterSchema = z.object({
     .string()
     .trim()
     .toLowerCase()
-    .regex(/^[a-zA-Z0-9_.-]+$/, "Only numbers, letters, and ._- allowed")
+    .regex(/^[a-z0-9_.-]+$/, "Only numbers, letters, and ._- allowed")
     .min(3, "Min 3 characters on username")
     .max(20, "Max 20 characters on username"),
   password: z
