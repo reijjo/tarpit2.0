@@ -1,0 +1,36 @@
+.register-email-form {
+  padding: 2rem;
+  z-index: 5;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  width: min(600px, 95%);
+}
+
+.form-headers {
+  text-align: center;
+  text-transform: uppercase;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  & h1 {
+    font-size: 2rem;
+  }
+
+  & h2 {
+    font-size: 1rem;
+    font-weight: 400;
+  }
+}
+
+.register-btn {
+  width: min(300px, 100%);
+  height: 2.5rem;
+}
+
+.email-field {
+  width: min(300px, 100%);
+}

@@ -105,7 +105,37 @@ function App() {
 
 </details>
 
----
+<details>
+<summary><strong>Zod</strong></summary>
+
+Schema validation <https://zod.dev/>
+
+- `bun add zod`
+- Usage:
+
+```tsx
+import { z } from "zod";
+
+// Define schema
+const userSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+});
+
+// Validate data
+const result = userSchema.safeParse({
+  email: "user@example.com",
+  password: "password123",
+});
+
+if (!result.success) {
+  console.error(result.error.errors);
+} else {
+  console.log(result.data); // Validated data
+}
+```
+
+</details>
 
 ### Testing
 
