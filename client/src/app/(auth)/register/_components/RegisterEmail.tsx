@@ -15,7 +15,7 @@ export default function RegisterEmail() {
     <form className="register-email-form" action={formAction}>
       <div className="form-headers">
         <h1>Create your account</h1>
-        <h3>Start tracking your bets at tärpit</h3>
+        <h2>Start tracking your bets at tärpit</h2>
       </div>
       <TextInput
         label="email"

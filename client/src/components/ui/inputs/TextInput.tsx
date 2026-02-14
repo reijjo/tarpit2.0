@@ -23,7 +23,7 @@ export default function TextInput({
   return (
     <div className={`${className} text-input`}>
       <label htmlFor={id}>{label}</label>
-      <input type={type} name={name} id={id} {...rest} />
+      <input {...rest} type={type} name={name} id={id} />
       {errors.length > 0 && (
         <div className="error-messages">
           {errors.map((error, index) => (
