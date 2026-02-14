@@ -1,9 +1,11 @@
 "use client";
 import "./RegisterEmail.css";
 import { registerEmail } from "@/lib/actions/auth";
+import Link from "next/link";
 import { useActionState } from "react";
 
 import { Button } from "@/components/ui/button/Button";
+import { DividerWithText } from "@/components/ui/divider/DividerWithText";
 import TextInput from "@/components/ui/inputs/TextInput";
 
 export default function RegisterEmail() {
@@ -12,24 +14,42 @@ export default function RegisterEmail() {
   });
 
   return (
-    <form className="register-email-form" action={formAction}>
-      <div className="form-headers">
-        <h1>Create your account</h1>
-        <h2>Start tracking your bets at tärpit</h2>
-      </div>
-      <TextInput
-        label="email"
-        name="email"
-        id="email"
-        type="email"
-        placeholder="Enter your email"
-        className="email-field"
-        errors={formState.errors?.email ?? []}
-      />
+    <div className="register-container">
+      <form className="register-email-form" action={formAction}>
+        <div className="form-headers">
+          <h1>Create your account</h1>
+          <h2>Start tracking your bets at tärpit</h2>
+        </div>
+        <TextInput
+          label="email"
+          name="email"
+          id="email"
+          type="email"
+          placeholder="Enter your email"
+          className="email-field"
+          required
+          errors={formState.errors?.email ?? []}
+        />
 
-      <Button className="register-btn" type="submit" disabled={isPending}>
-        {isPending ? "Checking email..." : "Register"}
+        <Button className="register-btn" type="submit" disabled={isPending}>
+          {isPending ? "Checking email..." : "Use this email"}
+        </Button>
+      </form>
+      <DividerWithText text="or login with" width="min(300px, 100%)" />
+      <Button
+        variant="outline"
+        className="register-btn"
+        disabled
+        aria-label="Google login coming soon"
+      >
+        Google
       </Button>
-    </form>
+      <div className="form-footer">
+        <p>Already have an account?</p>
+        <Link className="login-link" href="/login">
+          Log in!
+        </Link>
+      </div>
+    </div>
   );
 }

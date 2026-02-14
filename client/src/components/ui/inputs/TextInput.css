@@ -46,10 +46,10 @@
     box-shadow: 0 0 0 3px rgb(from var(--error-500) r g b / 20%);
   }
 
-  /* & input:valid:not(:placeholder-shown) {
+  & input:valid:not(:placeholder-shown) {
     border-color: var(--success-500);
     box-shadow: 0 0 0 3px rgb(from var(--success-500) r g b / 18%);
-  } */
+  }
 
   & input:disabled {
     opacity: 0.6;
@@ -65,7 +65,7 @@
 
 .error-message {
   color: var(--error-200);
-  padding-left: 0.5rem;
+  padding-left: 0.25rem;
   display: flex;
   align-items: center;
   gap: 0.25rem;
