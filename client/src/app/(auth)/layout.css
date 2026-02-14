@@ -21,6 +21,7 @@
 
   @media screen and (width <= 800px) {
     position: absolute;
+    inset: 0;
     z-index: 1;
   }
 }
@@ -39,6 +40,7 @@
 
   & a {
     color: var(--accent-200);
+    text-decoration: underline;
 
     &:hover {
       color: var(--accent-300);

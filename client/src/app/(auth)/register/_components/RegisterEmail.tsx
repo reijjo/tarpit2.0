@@ -27,6 +27,7 @@ export default function RegisterEmail() {
           type="email"
           placeholder="Enter your email"
           className="email-field"
+          required
           errors={formState.errors?.email ?? []}
         />
 
@@ -35,7 +36,12 @@ export default function RegisterEmail() {
         </Button>
       </form>
       <DividerWithText text="or login with" width="min(300px, 100%)" />
-      <Button variant="outline" className="register-btn" disabled>
+      <Button
+        variant="outline"
+        className="register-btn"
+        disabled
+        aria-label="Google login coming soon"
+      >
         Google
       </Button>
       <div className="form-footer">
