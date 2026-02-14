@@ -2,6 +2,10 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 0;
+
+  @media screen and (width <= 800px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .form-container {
@@ -14,10 +18,30 @@
     rgb(from var(--primary-500) r g b / 50%) 0,
     transparent 80%
   );
+
+  @media screen and (width <= 800px) {
+    position: absolute;
+    z-index: 1;
+  }
 }
 
 .image-container {
   position: relative;
   width: 100%;
   height: 100%;
+}
+
+.form-footer {
+  display: flex;
+  gap: 0.25rem;
+  font-size: 0.925rem;
+  padding-top: 0.5rem;
+
+  & a {
+    color: var(--accent-200);
+
+    &:hover {
+      color: var(--accent-300);
+    }
+  }
 }
