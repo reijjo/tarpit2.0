@@ -3,7 +3,6 @@ import { registerCredentials } from "@/lib/actions/auth";
 import { useActionState } from "react";
 
 import { Button } from "@/components/ui/button/Button";
-import { LinkButton } from "@/components/ui/button/LinkButton";
 import { TextInput } from "@/components/ui/inputs/TextInput";
 
 type RegisterCredentialsProps = {
