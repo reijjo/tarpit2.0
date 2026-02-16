@@ -2,16 +2,30 @@
 import "./RegisterEmail.css";
 import { registerEmail } from "@/lib/actions/auth";
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 
 import { Button } from "@/components/ui/button/Button";
 import { DividerWithText } from "@/components/ui/divider/DividerWithText";
-import TextInput from "@/components/ui/inputs/TextInput";
+import { TextInput } from "@/components/ui/inputs/TextInput";
 
-export default function RegisterEmail() {
+type RegisterEmailProps = {
+  email: string;
+  onSuccess: (email: string) => void;
+};
+
+export default function RegisterEmail({
+  email,
+  onSuccess,
+}: RegisterEmailProps) {
   const [formState, formAction, isPending] = useActionState(registerEmail, {
     success: false,
   });
+
+  useEffect(() => {
+    if (formState.success && formState.email) {
+      onSuccess(formState.email);
+    }
+  }, [formState, onSuccess, formState.email, email]);
 
   return (
     <div className="register-container">
@@ -29,6 +43,7 @@ export default function RegisterEmail() {
           className="email-field"
           required
           errors={formState.errors?.email ?? []}
+          defaultValue={email}
         />
 
         <Button className="register-btn" type="submit" disabled={isPending}>

@@ -20,7 +20,6 @@ export async function registerEmail(
       errors: fieldErrors,
     };
   } else {
-    console.log("ZOD SUCCESS", result.data);
-    return { success: true };
+    return { success: true, email: result.data.email };
   }
 }
