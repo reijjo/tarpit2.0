@@ -34,11 +34,9 @@
 
 .form-footer {
   display: flex;
-
   gap: 0.25rem;
   font-size: 0.925rem;
   padding-block: 0.5rem;
-
   align-items: baseline;
   justify-content: center;
 

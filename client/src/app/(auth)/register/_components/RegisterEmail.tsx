@@ -1,5 +1,5 @@
 "use client";
-import "./RegisterEmail.css";
+import "./Register.css";
 import { registerEmail } from "@/lib/actions/auth";
 import Link from "next/link";
 import { useActionState, useEffect } from "react";

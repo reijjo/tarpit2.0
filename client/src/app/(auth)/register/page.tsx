@@ -34,6 +34,7 @@ export default function RegisterPage() {
           fill
           sizes="50vw"
           priority={step === 1}
+          rel={step === 2 ? "preload" : undefined}
           style={{
             objectFit: "cover",
           }}

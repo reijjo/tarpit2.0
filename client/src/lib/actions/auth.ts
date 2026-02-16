@@ -32,10 +32,7 @@ export async function registerCredentials(
   const password = data.get("password");
   const email = data.get("email");
 
-  const result = RegisterSchema.pick({
-    username: true,
-    password: true,
-  }).safeParse({ username, password });
+  const result = RegisterSchema.safeParse({ username, password, email });
 
   if (!result.success) {
     const { fieldErrors } = z.flattenError(result.error);
@@ -48,7 +45,7 @@ export async function registerCredentials(
     };
   } else {
     const newUser: RegisterUserData = {
-      email: String(email),
+      email: result.data.email,
       username: result.data.username,
       password: result.data.password,
     };
@@ -57,6 +54,6 @@ export async function registerCredentials(
     // try {} catch (err) {}
     console.log("Creating user with data:", newUser);
 
-    return { success: true };
+    return { success: true, message: "User created successfully!" };
   }
 }

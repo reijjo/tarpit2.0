@@ -1,4 +1,4 @@
-import "./RegisterEmail.css";
+import "./Register.css";
 import { registerCredentials } from "@/lib/actions/auth";
 import { useActionState } from "react";
 
@@ -55,6 +55,9 @@ export default function RegisterCredentials({
           errors={formState.errors?.password ?? []}
           defaultValue={formState.password}
         />
+        {formState.message && (
+          <p className="form-message">{formState.message}</p>
+        )}
         <Button className="register-btn" type="submit" disabled={isPending}>
           {isPending ? "Creating User..." : "Register"}
         </Button>
