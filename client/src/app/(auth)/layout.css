@@ -36,11 +36,16 @@
   display: flex;
   gap: 0.25rem;
   font-size: 0.925rem;
-  padding-top: 0.5rem;
+  padding-block: 0.5rem;
+  align-items: baseline;
+  justify-content: center;
 
-  & a {
+  & .login-link {
     color: var(--accent-200);
     text-decoration: underline;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
 
     &:hover {
       color: var(--accent-300);

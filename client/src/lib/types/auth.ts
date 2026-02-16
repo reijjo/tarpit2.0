@@ -6,4 +6,13 @@ export type RegisterState = {
   };
   success: boolean;
   message?: string;
+  email?: string;
+  username?: string;
+  password?: string;
+};
+
+export type RegisterUserData = {
+  email: string;
+  username: string;
+  password: string;
 };

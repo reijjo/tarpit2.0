@@ -1,21 +1,35 @@
 "use client";
-import "./RegisterEmail.css";
+import "./Register.css";
 import { registerEmail } from "@/lib/actions/auth";
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 
 import { Button } from "@/components/ui/button/Button";
 import { DividerWithText } from "@/components/ui/divider/DividerWithText";
-import TextInput from "@/components/ui/inputs/TextInput";
+import { TextInput } from "@/components/ui/inputs/TextInput";
 
-export default function RegisterEmail() {
+type RegisterEmailProps = {
+  email: string;
+  onSuccess: (email: string) => void;
+};
+
+export default function RegisterEmail({
+  email,
+  onSuccess,
+}: RegisterEmailProps) {
   const [formState, formAction, isPending] = useActionState(registerEmail, {
     success: false,
   });
 
+  useEffect(() => {
+    if (formState.success && formState.email) {
+      onSuccess(formState.email);
+    }
+  }, [formState, onSuccess]);
+
   return (
     <div className="register-container">
-      <form className="register-email-form" action={formAction}>
+      <form className="register-form" action={formAction}>
         <div className="form-headers">
           <h1>Create your account</h1>
           <h2>Start tracking your bets at tärpit</h2>
@@ -26,9 +40,11 @@ export default function RegisterEmail() {
           id="email"
           type="email"
           placeholder="Enter your email"
-          className="email-field"
+          autoComplete="on"
+          className="register-form-field"
           required
           errors={formState.errors?.email ?? []}
+          defaultValue={email}
         />
 
         <Button className="register-btn" type="submit" disabled={isPending}>

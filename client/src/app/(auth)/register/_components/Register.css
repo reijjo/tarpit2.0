@@ -16,7 +16,7 @@
   }
 }
 
-.register-email-form {
+.register-form {
   z-index: 5;
   margin-inline: auto;
   display: flex;
@@ -48,6 +48,6 @@
   height: 2.5rem;
 }
 
-.email-field {
+.register-form-field {
   width: min(300px, 100%);
 }

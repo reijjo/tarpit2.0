@@ -11,7 +11,7 @@ type TextInputProps = {
   className?: string;
 } & InputHTMLAttributes<HTMLInputElement>;
 
-export default function TextInput({
+export const TextInput = ({
   label,
   name,
   id,
@@ -19,7 +19,7 @@ export default function TextInput({
   className = "",
   errors,
   ...rest
-}: TextInputProps) {
+}: TextInputProps) => {
   return (
     <div className={`${className} text-input`}>
       <label htmlFor={id}>{label}</label>
@@ -36,4 +36,4 @@ export default function TextInput({
       )}
     </div>
   );
-}
+};
