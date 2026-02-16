@@ -9,18 +9,19 @@ export default function RegisterPage() {
   const [step, setStep] = useState<1 | 2>(1);
   const [email, setEmail] = useState("");
 
-  const handleEmailSuccess = (email: string) => {
-    setEmail(email);
+  const handleEmailSuccess = (validatedEmail: string) => {
+    setEmail(validatedEmail);
     setStep(2);
   };
 
   return (
     <>
       <div className="form-container">
-        {step === 1 && (
+        {step === 1 ? (
           <RegisterEmail email={email} onSuccess={handleEmailSuccess} />
+        ) : (
+          <RegisterCredentials email={email} goBack={() => setStep(1)} />
         )}
-        {step === 2 && <RegisterCredentials goBack={() => setStep(1)} />}
       </div>
       <div className="image-container">
         <Image
@@ -32,7 +33,7 @@ export default function RegisterPage() {
           alt={step === 1 ? "Penkit" : "Tennis"}
           fill
           sizes="50vw"
-          priority
+          priority={step === 1}
           style={{
             objectFit: "cover",
           }}

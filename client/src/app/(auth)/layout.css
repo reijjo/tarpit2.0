@@ -34,13 +34,20 @@
 
 .form-footer {
   display: flex;
+
   gap: 0.25rem;
   font-size: 0.925rem;
-  padding-top: 0.5rem;
+  padding-block: 0.5rem;
 
-  & a {
+  align-items: baseline;
+  justify-content: center;
+
+  & .login-link {
     color: var(--accent-200);
     text-decoration: underline;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
 
     &:hover {
       color: var(--accent-300);

@@ -2,7 +2,7 @@
 import * as z from "zod";
 
 import { RegisterSchema } from "../schemas/auth";
-import { RegisterState } from "../types/auth";
+import { RegisterState, RegisterUserData } from "../types/auth";
 
 export async function registerEmail(
   _prevState: RegisterState,
@@ -21,5 +21,42 @@ export async function registerEmail(
     };
   } else {
     return { success: true, email: result.data.email };
+  }
+}
+
+export async function registerCredentials(
+  _prevState: RegisterState,
+  data: FormData,
+): Promise<RegisterState> {
+  const username = data.get("username");
+  const password = data.get("password");
+  const email = data.get("email");
+
+  const result = RegisterSchema.pick({
+    username: true,
+    password: true,
+  }).safeParse({ username, password });
+
+  if (!result.success) {
+    const { fieldErrors } = z.flattenError(result.error);
+
+    return {
+      success: false,
+      errors: fieldErrors,
+      username: String(username || ""),
+      password: "",
+    };
+  } else {
+    const newUser: RegisterUserData = {
+      email: String(email),
+      username: result.data.username,
+      password: result.data.password,
+    };
+
+    // API call here
+    // try {} catch (err) {}
+    console.log("Creating user with data:", newUser);
+
+    return { success: true };
   }
 }

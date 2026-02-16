@@ -25,11 +25,11 @@ export default function RegisterEmail({
     if (formState.success && formState.email) {
       onSuccess(formState.email);
     }
-  }, [formState, onSuccess, formState.email, email]);
+  }, [formState, onSuccess]);
 
   return (
     <div className="register-container">
-      <form className="register-email-form" action={formAction}>
+      <form className="register-form" action={formAction}>
         <div className="form-headers">
           <h1>Create your account</h1>
           <h2>Start tracking your bets at tärpit</h2>
@@ -40,7 +40,8 @@ export default function RegisterEmail({
           id="email"
           type="email"
           placeholder="Enter your email"
-          className="email-field"
+          autoComplete="on"
+          className="register-form-field"
           required
           errors={formState.errors?.email ?? []}
           defaultValue={email}
