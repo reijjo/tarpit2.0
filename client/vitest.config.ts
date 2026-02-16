@@ -24,7 +24,7 @@ export default defineConfig({
         "src/app/**/not-found.tsx",
       ],
     },
-    setupFiles: ["./vitest.setup.ts"],
+    setupFiles: ["./src/test/setup/vitest.setup.ts"],
   },
   resolve: {
     alias: {

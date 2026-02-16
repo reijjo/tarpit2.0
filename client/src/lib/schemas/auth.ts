@@ -1,7 +1,7 @@
 import * as z from "zod";
 
 export const RegisterSchema = z.object({
-  email: z.email("Invalid email").trim().toLowerCase(),
+  email: z.string().trim().toLowerCase().email("Invalid email"),
   username: z
     .string()
     .trim()
