@@ -22,7 +22,7 @@ DB_PORT=5432
 DB_TEST_PORT=5433
 DB_NAME=<db_name>
 DB_TEST_NAME=<db_test_name>
-POSTGRES_USER=<postres_user>
+POSTGRES_USER=<postgres_user>
 POSTGRES_PASSWORD=<postgres_password>
 
 # Prisma connection strings

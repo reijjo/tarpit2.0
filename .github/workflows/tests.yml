@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main, dev]
 
+concurrency:
+  group: tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   # Fast tests run in parallel first
   frontend-unit:
@@ -48,9 +52,33 @@ jobs:
   backend:
     name: Backend Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: ./server
+
+    env:
+      NODE_ENV: test
+      DB_URL: ${{ secrets.DB_TEST_URL }}
+      DB_TEST_URL: ${{ secrets.DB_TEST_URL }}
+      DB_TEST_NAME: ${{ secrets.DB_TEST_NAME }}
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.DB_TEST_NAME }}
+        ports:
+          - "5432:5432"
+        options: >-
+          --health-cmd "pg_isready -U $POSTGRES_USER -d $DB_TEST_NAME
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
 
     steps:
       - uses: actions/checkout@v4
@@ -72,6 +100,9 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Apply Prisma migrations
+        run: bunx prisma migrate deploy
+
       - name: Run tests with coverage
         run: bun run test
 
@@ -80,7 +111,7 @@ jobs:
         if: always()
         with:
           name: backend-coverage
-          path: server/src/tests/coverage/
+          path: server/testcoverage/
 
   # E2E runs last and only if unit tests pass
   e2e:
