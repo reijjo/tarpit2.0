@@ -4,11 +4,15 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "clean": "find . -type d -name 'dist' -exec rm -rf {} + 2>/dev/null || true && echo 'All cleaned!'",
-    "clean:full": "rm -rf dist node_modules bun.lockb && find . -type d -name 'dist' -exec rm -rf {} + 2>/dev/null || true && bun install && echo 'Full clean complete!'",
+    "clean": "rm -rf dist 2>/dev/null || true && echo 'All cleaned!'",
+    "clean:full": "rm -rf dist node_modules bun.lockb 2>/dev/null || true && bun install && echo 'Full clean complete!'",
     "dev": "bun --watch src/index.ts",
     "test:watch": "bun test --watch",
-    "test": "bun clean && bun test"
+    "test": "bun clean && bun test",
+    "db:migrate": "bunx prisma migrate dev",
+    "db:generate": "bunx prisma generate",
+    "db:studio": "bunx prisma studio",
+    "prepare": "prisma generate"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^6.0.2",
@@ -16,15 +20,20 @@
     "@types/cors": "^2.8.19",
     "@types/express": "4.17.21",
     "@types/morgan": "^1.9.10",
+    "@types/pg": "^8.16.0",
     "morgan": "^1.10.1",
-    "prettier": "^3.8.1"
+    "prettier": "^3.8.1",
+    "prisma": "^7.4.0"
   },
   "peerDependencies": {
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.4.0",
+    "@prisma/client": "^7.4.0",
     "cors": "^2.8.6",
     "express": "4.21.2",
-    "helmet": "^8.1.0"
+    "helmet": "^8.1.0",
+    "pg": "^8.18.0"
   }
 }

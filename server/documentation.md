@@ -274,20 +274,98 @@ app.use(helmet());
 </details>
 
 <details>
-<summary><strong>PostgreSQL Client (pg)</strong></summary>
+<summary><strong>Prisma</strong></summary>
 
-PostgreSQL database client
+Prisma ORM for PostgreSQL schema, migrations, and typed client: <https://www.prisma.io/>
 
 ```bash
-npm install pg
-npm install -D @types/pg
+bun add @prisma/client @prisma/adapter-pg
+bun add -D prisma
+bunx prisma init --datasource-provider postgresql
 ```
 
-```typescript
-import { Pool } from "pg";
+`prisma.config.ts` uses `DB_URL`:
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+```ts
+import "dotenv/config";
+import { defineConfig } from "prisma/config";
+
+export default defineConfig({
+  schema: "prisma/schema.prisma",
+  migrations: {
+    path: "prisma/migrations",
+  },
+  datasource: {
+    url: process.env["DB_URL"],
+  },
+});
+```
+
+`prisma/schema.prisma` (Prisma 7 compatible):
+
+```prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+```
+
+Create/apply migration and regenerate Prisma Client:
+
+```bash
+bunx prisma migrate dev --name init
+bunx prisma generate
+```
+
+### Prisma client
+
+Create Prisma client in `src/utils/prisma.ts`:
+
+```ts
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "@prisma/client";
+
+const connectionString = process.env.DB_URL;
+
+if (!connectionString) {
+  throw new Error("DB_URL environment variable is not set");
+}
+
+const globalForPrisma = globalThis as { prisma?: PrismaClient };
+
+const createPrismaClient = () => {
+  const adapter = new PrismaPg({ connectionString });
+  return new PrismaClient({ adapter });
+};
+
+const prisma = globalForPrisma.prisma ?? createPrismaClient();
+
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma;
+}
+
+export { prisma };
+```
+
+`src/index.ts` should connect and disconnect Prisma safely:
+
+```ts
+await prisma.$connect();
+
+process.on("SIGTERM", async () => {
+  await prisma.$disconnect();
 });
 ```
 
