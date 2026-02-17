@@ -59,7 +59,6 @@ jobs:
 
     env:
       NODE_ENV: test
-      DB_URL: ${{ secrets.DB_URL }}
       DB_TEST_URL: ${{ secrets.DB_TEST_URL }}
       DB_TEST_NAME: ${{ secrets.DB_TEST_NAME }}
       POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
@@ -73,12 +72,12 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB: ${{ secrets.DB_TEST_NAME }}
         ports:
-          - "5433:5432"
-        # options: >-
-        #   --health-cmd "pg_isready -h 127.0.0.1 -p 5432 -U $POSTGRES_USER"
-        #   --health-interval 5s
-        #   --health-timeout 5s
-        #   --health-retries 10
+          - "5432:5432"
+        options: >-
+          --health-cmd "pg_isready -h 127.0.0.1 -p 5432 -U $POSTGRES_USER"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
 
     steps:
       - uses: actions/checkout@v4
@@ -103,9 +102,9 @@ jobs:
       - name: Validate required CI config
         run: |
           [ -n "$DB_TEST_URL" ] || { echo "Missing secret DB_TEST_URL"; exit 1; }
-          [ -n "$POSTGRES_USER" ] || { echo "Missing variable POSTGRES_USER"; exit 1; }
-          [ -n "$POSTGRES_PASSWORD" ] || { echo "Missing variable POSTGRES_PASSWORD"; exit 1; }
-          [ -n "$DB_TEST_NAME" ] || { echo "Missing variable DB_TEST_NAME"; exit 1; }
+          [ -n "$POSTGRES_USER" ] || { echo "Missing secret POSTGRES_USER"; exit 1; }
+          [ -n "$POSTGRES_PASSWORD" ] || { echo "Missing secret POSTGRES_PASSWORD"; exit 1; }
+          [ -n "$DB_TEST_NAME" ] || { echo "Missing secret DB_TEST_NAME"; exit 1; }
 
       - name: Apply Prisma migrations
         run: bunx prisma migrate deploy
