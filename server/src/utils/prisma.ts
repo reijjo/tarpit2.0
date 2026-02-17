@@ -1,11 +1,12 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
-import { DB_URL } from "./config";
 
-const connectionString = DB_URL;
+import { DATABASE_URL } from "./config";
+
+const connectionString = DATABASE_URL;
 
 if (!connectionString) {
-  throw new Error("DB_URL environment variable is not set");
+  throw new Error("DATABASE_URL environment variable is not set");
 }
 
 const globalForPrisma = globalThis as { prisma?: PrismaClient };
