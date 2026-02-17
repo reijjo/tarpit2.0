@@ -4,8 +4,8 @@ A full-stack bet tracking application built with Next.js and Express, allowing u
 
 ## 🛠️ Tech Stack
 
-**Frontend:** Next.js 16+, React 19+, TypeScript  
-**Backend:** Express, TypeScript, PostgreSQL  
+**Frontend:** Next.js 16+, React 19+, TypeScript
+**Backend:** Express, TypeScript, PostgreSQL
 **Runtime:** Bun
 
 ---
@@ -75,11 +75,13 @@ NEXT_PUBLIC_API_URL=http://localhost:3001
 PORT=3001
 NODE_ENV=development
 
-DB_NAME=tarpit_v2
-DB_TEST_NAME=tarpit_test_v2
+DB_NAME=<db_name>
+DB_TEST_NAME=<db_test_name>
+POSTGRES_USER=<postgres_user>
+POSTGRES_PASSWORD=<postgres_password>
 
-DB_URL=postgresql://repe:Repe_123@localhost:5432/tarpit_v2
-DB_TEST_URL=postgresql://repe:Repe_123@localhost:5433/tarpit_test_v2
+DB_URL=postgresql://<postgres_user>:<postgres_password>@localhost:5432/<db_name>
+DB_TEST_URL=postgresql://<postgres_user>:<postgres_password>@localhost:5433/<db_test_name>
 ```
 
 ---

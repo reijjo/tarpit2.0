@@ -1,7 +1,8 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
+import { DB_URL } from "./config";
 
-const connectionString = process.env.DB_URL;
+const connectionString = DB_URL;
 
 if (!connectionString) {
   throw new Error("DB_URL environment variable is not set");

@@ -20,14 +20,14 @@ NODE_ENV=development
 # Dockerized PostgreSQL
 DB_PORT=5432
 DB_TEST_PORT=5433
-DB_NAME=tarpit_v2
-DB_TEST_NAME=tarpit_test_v2
-POSTGRES_USER=repe
-POSTGRES_PASSWORD=Repe_123
+DB_NAME=<db_name>
+DB_TEST_NAME=<db_test_name>
+POSTGRES_USER=<postres_user>
+POSTGRES_PASSWORD=<postgres_password>
 
 # Prisma connection strings
-DB_URL=postgresql://repe:Repe_123@localhost:5432/tarpit_v2
-DB_TEST_URL=postgresql://repe:Repe_123@localhost:5433/tarpit_test_v2
+DB_URL=postgresql://<postgres_user>:<postgres_password>@localhost:5432/<db_name>
+DB_TEST_URL=postgresql://<postgres_user>:<postgres_password>@localhost:5433/<db_test_name>
 ```
 
 ## 2. Start and Stop Database Services
@@ -60,10 +60,10 @@ docker compose -f compose.yml down -v --remove-orphans
 
 ```bash
 # Dev DB
-docker compose -f compose.yml exec postgres psql -U repe -d tarpit_v2
+docker compose -f compose.yml exec postgres psql -U <postgres_user> -d <db_name>
 
 # Test DB
-docker compose -f compose.yml exec postgres_test psql -U repe -d tarpit_test_v2
+docker compose -f compose.yml exec postgres_test psql -U <postgres_user> -d <db_test_name>
 ```
 
 Useful psql commands:
@@ -124,7 +124,7 @@ When backend starts successfully, you should see:
 Run backend:
 
 ```bash
-cd /Users/reijjo/workspace/projects/fullstack/react_node/tarpit2.0/server
+cd server
 bun dev
 ```
 

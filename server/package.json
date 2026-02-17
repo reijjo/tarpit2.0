@@ -4,12 +4,13 @@
   "type": "module",
   "private": true,
   "scripts": {
+		"postinstall": "prisma generate",
     "clean": "find . -type d -name 'dist' -exec rm -rf {} + 2>/dev/null || true && echo 'All cleaned!'",
     "clean:full": "rm -rf dist node_modules bun.lockb && find . -type d -name 'dist' -exec rm -rf {} + 2>/dev/null || true && bun install && echo 'Full clean complete!'",
     "dev": "bun --watch src/index.ts",
     "test:watch": "bun test --watch",
     "test": "bun clean && bun test",
-		"db:migrate": "bunx prisma migrate dev",
+    "db:migrate": "bunx prisma migrate dev",
     "db:generate": "bunx prisma generate",
     "db:studio": "bunx prisma studio"
   },
