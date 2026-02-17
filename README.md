@@ -4,8 +4,8 @@ A full-stack bet tracking application built with Next.js and Express, allowing u
 
 ## 🛠️ Tech Stack
 
-**Frontend:** Next.js 16+, React 19+, TypeScript
-**Backend:** Express, TypeScript, PostgreSQL
+**Frontend:** Next.js 16+, React 19+, TypeScript  
+**Backend:** Express, TypeScript, PostgreSQL  
 **Runtime:** Bun
 
 ---
@@ -13,7 +13,7 @@ A full-stack bet tracking application built with Next.js and Express, allowing u
 ## 📋 Prerequisites
 
 - [Bun](https://bun.sh/) (latest version)
-- PostgreSQL (v14+)
+- Docker Desktop (for local PostgreSQL + Adminer)
 
 ---
 
@@ -38,12 +38,26 @@ Navigate to the `server/` folder:
 
 ```bash
 cd server/
-mv .env.example .env  # Configure environment variables
 bun install
 bun dev
 ```
 
 The backend will run on `http://localhost:3001`
+
+---
+
+## 🗄️ Database Setup
+
+Local PostgreSQL + Adminer + Prisma setup is documented in:
+
+- [DATABASE.md](./DATABASE.md)
+
+Quick start:
+
+```bash
+cd server/
+docker compose -f compose.yml up -d
+```
 
 ---
 
@@ -59,8 +73,13 @@ NEXT_PUBLIC_API_URL=http://localhost:3001
 
 ```env
 PORT=3001
-DATABASE_URL=postgresql://user:password@localhost:5432/tarpit
 NODE_ENV=development
+
+DB_NAME=tarpit_v2
+DB_TEST_NAME=tarpit_test_v2
+
+DB_URL=postgresql://repe:Repe_123@localhost:5432/tarpit_v2
+DB_TEST_URL=postgresql://repe:Repe_123@localhost:5433/tarpit_test_v2
 ```
 
 ---
@@ -76,7 +95,7 @@ cd client/
 bun test
 ```
 
-- Run tests in watch mode:
+Run tests in watch mode:
 
 ```bash
 bun test:watch
@@ -104,6 +123,7 @@ bun test
 
 - [Frontend Documentation](./client/documentation.md)
 - [Backend Documentation](./server/documentation.md)
+- [Database Setup](./DATABASE.md)
 
 ---
 
