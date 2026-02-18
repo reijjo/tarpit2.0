@@ -9,15 +9,15 @@ import * as z from "zod";
 import { AppError } from "../utils/AppError";
 
 export const errorHandler: ErrorRequestHandler = (
-  err: Error | AppError,
+  err: Error | AppError | z.ZodError,
   _req: Request,
   res: Response,
   _next: NextFunction,
 ) => {
-  console.error("Ooops, error", err.stack);
-
   if (err instanceof AppError && err.isOperational) {
-    return res.status(err.statusCode).json(err.message);
+    return res
+      .status(err.statusCode)
+      .json({ error: err.message, success: false });
   }
 
   if (err instanceof z.ZodError) {
@@ -25,7 +25,8 @@ export const errorHandler: ErrorRequestHandler = (
     return res.status(400).json({ success: false, errors: fieldErrors });
   }
 
+  console.error("Ooops, error", err.stack);
   console.error("Unexpected error", err);
 
-  res.status(500).json("Internal Server Error");
+  res.status(500).json({ error: "Internal Server Error", success: false });
 };

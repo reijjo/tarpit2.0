@@ -33,7 +33,7 @@ export const findExistingUser = async (
       }
 
       const user = await prisma.user.findUnique({
-        where: { email },
+        where: { email: result.data.email },
       });
 
       if (user) {
@@ -42,16 +42,16 @@ export const findExistingUser = async (
     }
 
     if (username) {
-      const result = RegisterSchema.pick({ username: true }).safeParse(
+      const result = RegisterSchema.pick({ username: true }).safeParse({
         username,
-      );
+      });
 
       if (!result.success) {
         throw result.error;
       }
 
       const user = await prisma.user.findUnique({
-        where: { username },
+        where: { username: result.data.username },
       });
 
       if (user) {
