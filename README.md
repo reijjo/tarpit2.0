@@ -59,6 +59,14 @@ cd server/
 docker compose -f compose.yml up -d
 ```
 
+This starts:
+
+- `postgres` (dev DB)
+- `postgres_test` (test DB)
+- `adminer` on `http://localhost:8080`
+
+Use the same Adminer URL for both databases.
+
 ---
 
 ## 🔑 Environment Variables
@@ -75,6 +83,8 @@ NEXT_PUBLIC_API_URL=http://localhost:3001
 PORT=3001
 NODE_ENV=development
 
+DB_PORT=5432
+DB_TEST_PORT=5433
 DB_NAME=<db_name>
 DB_TEST_NAME=<db_test_name>
 POSTGRES_USER=<postgres_user>
@@ -118,6 +128,8 @@ bun test:e2e
 cd server/
 bun test
 ```
+
+Backend tests run with `NODE_ENV=test` and target `DB_TEST_URL`.
 
 ---
 
