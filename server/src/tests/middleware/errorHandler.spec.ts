@@ -19,7 +19,7 @@ describe("ERROR_HANDLER", () => {
     errorHandler(error, req, res, next);
 
     expect(res.statusCode).toBe(404);
-    expect(res.body).toBe("Not found");
+    expect(res.body).toEqual({ error: "Not found", success: false });
   });
 
   test("handles non-operational errors as 500", () => {
@@ -31,7 +31,7 @@ describe("ERROR_HANDLER", () => {
     errorHandler(error, req, res, next);
 
     expect(res.statusCode).toBe(500);
-    expect(res.body).toBe("Internal Server Error");
+    expect(res.body).toEqual({ error: "Internal Server Error", success: false });
   });
 
   test("handles non-operational AppError", () => {
@@ -43,6 +43,6 @@ describe("ERROR_HANDLER", () => {
     errorHandler(error, req, res, next);
 
     expect(res.statusCode).toBe(500);
-    expect(res.body).toBe("Internal Server Error");
+    expect(res.body).toEqual({ error: "Internal Server Error", success: false });
   });
 });
