@@ -1,0 +1,20 @@
+meta {
+  name: find -weird params
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:3001/users/find?shit=show
+  body: none
+  auth: inherit
+}
+
+params:query {
+  shit: show
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

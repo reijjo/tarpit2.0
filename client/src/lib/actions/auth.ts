@@ -20,7 +20,12 @@ export async function registerEmail(
       errors: fieldErrors,
     };
   } else {
-    return { success: true, email: result.data.email };
+    try {
+      return { success: true, email: result.data.email.toLowerCase().trim() };
+    } catch (err) {
+      console.log("ERROOOR", err);
+      return { success: false };
+    }
   }
 }
 

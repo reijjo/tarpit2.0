@@ -7,9 +7,9 @@
     ".git"
   ],
   "size": 0.00014400482177734375,
-  "filesCount": 1,
+  "filesCount": 2,
   "presets": {
     "requestType": "http",
-    "requestUrl": "localhost:3001"
+    "requestUrl": "http://localhost:3001"
   }
 }
