@@ -1,0 +1,20 @@
+meta {
+  name: /find?username
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:3001/users/find?username=repe
+  body: none
+  auth: inherit
+}
+
+params:query {
+  username: repe
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

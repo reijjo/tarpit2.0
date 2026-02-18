@@ -1,5 +1,4 @@
-import { describe, expect, it } from "vitest";
-
+import { RegisterSchema } from "./auth";
 import {
   invalidEmailPayloads,
   invalidPasswordCases,
@@ -7,8 +6,7 @@ import {
   passwordBoundaryCases,
   usernameBoundaryCases,
 } from "@/test/fixtures/auth";
-
-import { RegisterSchema } from "./auth";
+import { describe, expect, it } from "vitest";
 
 describe("RegisterSchema", () => {
   it("accepts and normalizes a valid register payload", () => {
@@ -26,20 +24,23 @@ describe("RegisterSchema", () => {
     }
   });
 
-  it.each(invalidUsernamePayloads)("rejects username payload: %s", (username) => {
-    const result = RegisterSchema.safeParse({
-      email: "test@example.com",
-      username,
-      password: "Password1!",
-    });
+  it.each(invalidUsernamePayloads)(
+    "rejects username payload: %s",
+    (username) => {
+      const result = RegisterSchema.safeParse({
+        email: "test@example.com",
+        username,
+        password: "Password1!",
+      });
 
-    expect(result.success).toBe(false);
+      expect(result.success).toBe(false);
 
-    if (!result.success) {
-      const messages = result.error.issues.map((issue) => issue.message);
-      expect(messages).toContain("Only numbers, letters, and ._- allowed");
-    }
-  });
+      if (!result.success) {
+        const messages = result.error.issues.map((issue) => issue.message);
+        expect(messages).toContain("Only numbers, letters, and ._- allowed");
+      }
+    },
+  );
 
   it.each(invalidEmailPayloads)("rejects email payload: %s", (email) => {
     const result = RegisterSchema.safeParse({
@@ -76,24 +77,24 @@ describe("RegisterSchema", () => {
 
   it.each(usernameBoundaryCases)(
     "handles username boundary: $label",
-    ({ value, isValid, expectedError, normalized }) => {
+    (testCase) => {
       const result = RegisterSchema.safeParse({
         email: "test@example.com",
-        username: value,
+        username: testCase.value,
         password: "Password1!",
       });
 
-      expect(result.success).toBe(isValid);
+      expect(result.success).toBe(testCase.isValid);
 
-      if (isValid && result.success) {
-        expect(result.data.username).toBe(normalized);
+      if (testCase.isValid && result.success && "normalized" in testCase) {
+        expect(result.data.username).toBe(testCase.normalized);
       }
 
-      if (!isValid && !result.success) {
+      if (!testCase.isValid && !result.success) {
         const messages = result.error.issues.map((issue) => issue.message);
 
-        if (expectedError) {
-          expect(messages).toContain(expectedError);
+        if ("expectedError" in testCase) {
+          expect(messages).toContain(testCase.expectedError);
         }
       }
     },
@@ -101,21 +102,18 @@ describe("RegisterSchema", () => {
 
   it.each(passwordBoundaryCases)(
     "handles password boundary: $label",
-    ({ value, isValid, expectedError }) => {
+    (testCase) => {
       const result = RegisterSchema.safeParse({
         email: "test@example.com",
         username: "valid_user",
-        password: value,
+        password: testCase.value,
       });
 
-      expect(result.success).toBe(isValid);
+      expect(result.success).toBe(testCase.isValid);
 
-      if (!isValid && !result.success) {
+      if (!testCase.isValid && !result.success && "expectedError" in testCase) {
         const messages = result.error.issues.map((issue) => issue.message);
-
-        if (expectedError) {
-          expect(messages).toContain(expectedError);
-        }
+        expect(messages).toContain(testCase.expectedError);
       }
     },
   );

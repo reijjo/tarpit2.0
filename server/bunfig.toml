@@ -10,8 +10,6 @@ coveragePathIgnorePatterns = [
   "**/dist/**",
   "**/*.spec.{ts,js}",
   "**/*.test.{ts,js}",
-	"dist/**",
   "build/**",
   ".next/**",
 ]
-preload = ["./src/tests/setup/test-setup.ts"]
