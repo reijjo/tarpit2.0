@@ -1,7 +1,15 @@
 import * as z from "zod";
 
+const normalizeEmail = (value: unknown) => {
+  if (typeof value !== "string") {
+    return value;
+  }
+
+  return value.trim().toLowerCase();
+};
+
 export const RegisterSchema = z.object({
-  email: z.email("Invalid email"),
+  email: z.preprocess(normalizeEmail, z.email("Invalid email")),
   username: z
     .string()
     .trim()

@@ -16,9 +16,6 @@ export const errorHandler: ErrorRequestHandler = (
 ) => {
   console.error("Ooops, error", err.stack);
 
-  let status = 500;
-  let message = "Internal Server Error";
-
   if (err instanceof AppError && err.isOperational) {
     return res.status(err.statusCode).json(err.message);
   }
@@ -30,5 +27,5 @@ export const errorHandler: ErrorRequestHandler = (
 
   console.error("Unexpected error", err);
 
-  res.status(status).json(message);
+  res.status(500).json("Internal Server Error");
 };

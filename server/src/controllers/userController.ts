@@ -3,7 +3,7 @@ import { type NextFunction, type Request, type Response } from "express";
 import { AppError } from "src/utils/AppError";
 import { prisma } from "src/utils/prisma";
 import { RegisterSchema } from "src/utils/schemas/auth";
-import type { RegisterUserData } from "src/utils/types/types";
+import type { RegisterData } from "src/utils/schemas/auth";
 
 // GET
 // Find existing user
@@ -12,7 +12,7 @@ export const findExistingUser = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const { email, username } = req.query as Omit<RegisterUserData, "password">;
+  const { email, username } = req.query as Omit<RegisterData, "password">;
 
   if (!email && !username) {
     return next(new AppError("Invalid query", 400));
@@ -24,7 +24,7 @@ export const findExistingUser = async (
 
   try {
     if (email) {
-      const result = await RegisterSchema.pick({ email: true }).safeParseAsync({
+      const result = RegisterSchema.pick({ email: true }).safeParse({
         email,
       });
 
@@ -42,7 +42,13 @@ export const findExistingUser = async (
     }
 
     if (username) {
-      RegisterSchema.pick({ username: true }).safeParse(username);
+      const result = RegisterSchema.pick({ username: true }).safeParse(
+        username,
+      );
+
+      if (!result.success) {
+        throw result.error;
+      }
 
       const user = await prisma.user.findUnique({
         where: { username },
