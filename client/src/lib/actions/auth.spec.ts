@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   invalidEmailPayloads,
@@ -7,10 +7,39 @@ import {
   usernameBoundaryCases,
 } from "@/test/fixtures/auth";
 import { createFormData } from "@/test/utils/formData";
+import type { RegisterState, RegisterUserData } from "../types/auth";
+
+const { checkDuplicateEmailMock, createUserMock } = vi.hoisted(() => ({
+  checkDuplicateEmailMock: vi.fn<
+    (value: string) => Promise<RegisterState>
+  >(),
+  createUserMock: vi.fn<
+    (credentials: RegisterUserData) => Promise<RegisterState>
+  >(),
+}));
+
+vi.mock("../api/auth", () => ({
+  checkDuplicateEmail: checkDuplicateEmailMock,
+}));
+
+vi.mock("../api/user", () => ({
+  createUser: createUserMock,
+}));
 
 import { registerCredentials, registerEmail } from "./auth";
 
 describe("auth actions", () => {
+  beforeEach(() => {
+    checkDuplicateEmailMock.mockReset();
+    createUserMock.mockReset();
+
+    checkDuplicateEmailMock.mockResolvedValue({ success: true });
+    createUserMock.mockResolvedValue({
+      success: true,
+      message: "User created successfully!",
+    });
+  });
+
   describe("registerEmail", () => {
     it("returns normalized email when valid", async () => {
       const formData = createFormData({

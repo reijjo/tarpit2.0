@@ -1,10 +1,12 @@
 import { type NextFunction, type Request, type Response } from "express";
+import { success } from "zod";
 
 import { AppError } from "src/utils/AppError";
 import { prisma } from "src/utils/prisma";
 import { RegisterSchema } from "src/utils/schemas/auth";
 import type { RegisterData } from "src/utils/schemas/auth";
 
+// /users/find?
 // GET
 // Find existing user
 export const findExistingUser = async (
@@ -65,6 +67,7 @@ export const findExistingUser = async (
   }
 };
 
+// /users/:id
 // GET
 // Find user by Id
 export const findUserById = (
@@ -72,3 +75,21 @@ export const findUserById = (
   res: Response,
   next: NextFunction,
 ) => {};
+
+// /users
+// POST
+// Create new user
+export const createUser = (req: Request, res: Response, next: NextFunction) => {
+  const { email, username, password } = req.body;
+
+  if (!email || !username || !password) {
+    return next(new AppError("Missing fields", 400));
+  }
+
+  try {
+    // Multiple checks
+    res.status(201).json({ success: true, message: "User backend jeaa!" });
+  } catch (err) {
+    next(err);
+  }
+};

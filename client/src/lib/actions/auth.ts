@@ -1,6 +1,9 @@
 "use server";
 import * as z from "zod";
 
+import { checkDuplicateEmail } from "../api/auth";
+import { createUser } from "../api/user";
+
 import { RegisterSchema } from "../schemas/auth";
 import { RegisterState, RegisterUserData } from "../types/auth";
 
@@ -12,6 +15,8 @@ export async function registerEmail(
 
   const result = RegisterSchema.pick({ email: true }).safeParse({ email });
 
+  console.log("result", result);
+
   if (!result.success) {
     const { fieldErrors } = z.flattenError(result.error);
 
@@ -21,6 +26,8 @@ export async function registerEmail(
     };
   } else {
     try {
+      const checkDuplicate = await checkDuplicateEmail(result.data.email);
+      console.log("checkduplicate", checkDuplicate);
       return { success: true, email: result.data.email.toLowerCase().trim() };
     } catch (err) {
       console.log("ERROOOR", err);
@@ -55,10 +62,12 @@ export async function registerCredentials(
       password: result.data.password,
     };
 
-    // API call here
-    // try {} catch (err) {}
-    console.log("Creating user with data:", newUser);
-
-    return { success: true, message: "User created successfully!" };
+    try {
+      const user = await createUser(newUser);
+      return { success: true, message: user.message };
+    } catch (err) {
+      console.log("ERROOOR", err);
+      return { success: false };
+    }
   }
 }
