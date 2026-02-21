@@ -1,5 +1,6 @@
 import { errorHandler } from "./middleware/errorHandler";
 import { unknownEndpoint } from "./middleware/unknownEndpoint";
+import { authRouter } from "./routes/authRoute";
 import { userRouter } from "./routes/userRoute";
 import cors from "cors";
 import express from "express";
@@ -18,6 +19,7 @@ app.use(helmet());
 app.use(cors());
 
 app.get("/", getHealthCheck);
+app.use("/auth", authRouter);
 app.use("/users", userRouter);
 
 app.use(unknownEndpoint);

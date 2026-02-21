@@ -25,15 +25,11 @@ export default function RegisterPage() {
       </div>
       <div className="image-container">
         <Image
-          src={
-            step === 1
-              ? "/images/login-register/penkit-opti.webp"
-              : "/images/login-register/tennis-opti.webp"
-          }
-          alt={step === 1 ? "Penkit" : "Tennis"}
+          src="/images/login-register/penkit-opti.webp"
+          alt="Penkit"
           fill
           sizes="50vw"
-          priority={step === 1}
+          priority
           style={{
             objectFit: "cover",
           }}

@@ -1,11 +1,11 @@
 meta {
-  name: /find?email
+  name: /available?email
   type: http
   seq: 2
 }
 
 get {
-  url: http://localhost:3001/users/find?email=repe@repe.com
+  url: http://localhost:3001/auth/available?email=repe@repe.com
   body: none
   auth: inherit
 }

@@ -51,7 +51,7 @@ describe("RegisterPage", () => {
     expect(screen.getByTestId("step-2-email")).toHaveTextContent(
       "saved@example.com",
     );
-    expect(screen.getByAltText("Tennis")).toBeInTheDocument();
+    expect(screen.getByAltText("Penkit")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "go-back" }));
 
