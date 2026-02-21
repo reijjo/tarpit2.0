@@ -87,7 +87,7 @@ export async function registerCredentials(
       return { success: true, message: user.message };
     } catch (err) {
       console.log("ERROOOR", err);
-      return { success: false, error: "WHATS THIS" };
+      return { success: false, error: "Registration failed. Please try again" };
     }
   }
 }

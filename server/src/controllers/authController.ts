@@ -107,7 +107,7 @@ export const createUser = async (
       cost: 10,
     });
 
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data: {
         email: okData.email,
         username: okData.username,
@@ -115,14 +115,12 @@ export const createUser = async (
       },
     });
 
-    console.log("user", user);
-
     res.status(201).json({
       success: true,
       message: "Check your email to validate your account.",
     });
   } catch (err) {
-    console.log("regiser error", err);
+    console.log("register error", err);
     next(err);
   }
 };

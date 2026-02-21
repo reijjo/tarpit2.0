@@ -6,7 +6,7 @@ const AUTH_URL = `${config.BACKEND_URL}/auth`;
 
 // auth/available
 // GET
-// Check if username is available
+// Check if email/username is available
 const checkDuplicateField = async (
   field: "email" | "username",
   value: string,
@@ -17,7 +17,6 @@ const checkDuplicateField = async (
     );
     if (!res.ok) {
       const errorBody = await res.json().catch(() => ({}));
-      console.log("ERRORBODY", errorBody);
       return { success: false, error: errorBody.error ?? "Request failed" };
     }
     return res.json();
@@ -35,7 +34,7 @@ export const checkDuplicateUsername = (value: string) =>
 
 // auth/register
 // POST
-// Cretea new user
+// Create new user
 export const createUser = async (
   credentials: RegisterUserData,
 ): Promise<RegisterState> => {
@@ -49,7 +48,7 @@ export const createUser = async (
     const data = await res.json();
 
     if (!res.ok) {
-      return { success: false, error: data.error };
+      return { success: false, error: data.error ?? "Request failed." };
     }
     return data;
   } catch (err) {
