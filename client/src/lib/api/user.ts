@@ -11,9 +11,15 @@ export const createUser = async (
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(credentials),
     });
-    return res.json();
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      return { success: false, message: data.message };
+    }
+    return data;
   } catch (err) {
     console.error("Error: ", err);
-    return { success: false, message: "Network error" };
+    return { success: false, error: "Network error" };
   }
 };

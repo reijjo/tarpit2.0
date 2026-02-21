@@ -4,6 +4,8 @@ import { useActionState } from "react";
 
 import { Button } from "@/components/ui/button/Button";
 import { TextInput } from "@/components/ui/inputs/TextInput";
+import { FormErrorMessage } from "@/components/ui/messages/FormErrorMessage";
+import { FormSuccessMessage } from "@/components/ui/messages/FormSuccessMessage";
 
 type RegisterCredentialsProps = {
   goBack: () => void;
@@ -56,9 +58,14 @@ export default function RegisterCredentials({
           defaultValue={formState.password}
         />
         {formState.message && (
-          <p className="form-message">{formState.message}</p>
+          <FormSuccessMessage message={formState.message} />
         )}
-        <Button className="register-btn" type="submit" disabled={isPending}>
+        {formState.error && <FormErrorMessage message={formState.error} />}
+        <Button
+          className="register-btn"
+          type="submit"
+          disabled={isPending || formState.success}
+        >
           {isPending ? "Creating User..." : "Register"}
         </Button>
       </form>

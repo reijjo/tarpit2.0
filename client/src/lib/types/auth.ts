@@ -1,11 +1,11 @@
-export type RegisterState = {
+import { ApiResponse } from "./apiResponse";
+
+export type RegisterState = ApiResponse & {
   errors?: {
     email?: string[];
     username?: string[];
     password?: string[];
   };
-  success: boolean;
-  message?: string;
   email?: string;
   username?: string;
   password?: string;

@@ -15,6 +15,7 @@ export const errorHandler: ErrorRequestHandler = (
   _next: NextFunction,
 ) => {
   if (err instanceof AppError && err.isOperational) {
+    console.log("err", err);
     return res
       .status(err.statusCode)
       .json({ error: err.message, success: false });
@@ -25,7 +26,6 @@ export const errorHandler: ErrorRequestHandler = (
     return res.status(400).json({ success: false, errors: fieldErrors });
   }
 
-  console.error("Ooops, error", err.stack);
   console.error("Unexpected error", err);
 
   res.status(500).json({ error: "Internal Server Error", success: false });

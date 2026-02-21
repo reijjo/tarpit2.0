@@ -1,31 +1,59 @@
 import { config } from "../utils/envConfig";
 
-import type { RegisterState } from "../types/auth";
+import type { RegisterState, RegisterUserData } from "../types/auth";
 
-export const checkDuplicateEmail = async (
+const AUTH_URL = `${config.BACKEND_URL}/auth`;
+
+// auth/available
+// GET
+// Check if username is available
+const checkDuplicateField = async (
+  field: "email" | "username",
   value: string,
 ): Promise<RegisterState> => {
   try {
     const res = await fetch(
-      `${config.BACKEND_URL}/users/find?email=${encodeURIComponent(value)}`,
+      `${AUTH_URL}/available?${field}=${encodeURIComponent(value)}`,
     );
+    if (!res.ok) {
+      const errorBody = await res.json().catch(() => ({}));
+      console.log("ERRORBODY", errorBody);
+      return { success: false, error: errorBody.error ?? "Request failed" };
+    }
     return res.json();
   } catch (err) {
     console.error("Error", err);
-    return { success: false, message: "Network error" };
+    return { success: false, error: "Network error" };
   }
 };
 
-export const checkDuplicateUsername = async (
-  value: string,
+export const checkDuplicateEmail = (value: string) =>
+  checkDuplicateField("email", value);
+
+export const checkDuplicateUsername = (value: string) =>
+  checkDuplicateField("username", value);
+
+// auth/register
+// POST
+// Cretea new user
+export const createUser = async (
+  credentials: RegisterUserData,
 ): Promise<RegisterState> => {
   try {
-    const res = await fetch(
-      `${config.BACKEND_URL}/users/find?username=${encodeURIComponent(value)}`,
-    );
-    return res.json();
+    const res = await fetch(`${AUTH_URL}/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(credentials),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      return { success: false, error: data.error };
+    }
+    return data;
   } catch (err) {
-    console.error("Error", err);
-    return { success: false, message: "Network error" };
+    console.error("Error: ", err);
+    return { success: false, error: "Network error" };
   }
 };

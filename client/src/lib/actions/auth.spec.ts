@@ -9,20 +9,22 @@ import {
 import { createFormData } from "@/test/utils/formData";
 import type { RegisterState, RegisterUserData } from "../types/auth";
 
-const { checkDuplicateEmailMock, createUserMock } = vi.hoisted(() => ({
+const { checkDuplicateEmailMock, checkDuplicateUsernameMock, createUserMock } =
+  vi.hoisted(() => ({
   checkDuplicateEmailMock: vi.fn<
+    (value: string) => Promise<RegisterState>
+  >(),
+  checkDuplicateUsernameMock: vi.fn<
     (value: string) => Promise<RegisterState>
   >(),
   createUserMock: vi.fn<
     (credentials: RegisterUserData) => Promise<RegisterState>
   >(),
-}));
+  }));
 
 vi.mock("../api/auth", () => ({
   checkDuplicateEmail: checkDuplicateEmailMock,
-}));
-
-vi.mock("../api/user", () => ({
+  checkDuplicateUsername: checkDuplicateUsernameMock,
   createUser: createUserMock,
 }));
 
@@ -31,9 +33,11 @@ import { registerCredentials, registerEmail } from "./auth";
 describe("auth actions", () => {
   beforeEach(() => {
     checkDuplicateEmailMock.mockReset();
+    checkDuplicateUsernameMock.mockReset();
     createUserMock.mockReset();
 
     checkDuplicateEmailMock.mockResolvedValue({ success: true });
+    checkDuplicateUsernameMock.mockResolvedValue({ success: true });
     createUserMock.mockResolvedValue({
       success: true,
       message: "User created successfully!",
@@ -134,6 +138,27 @@ describe("auth actions", () => {
         }
       },
     );
+
+    it("returns field error when username is already taken", async () => {
+      checkDuplicateUsernameMock.mockResolvedValue({
+        success: false,
+        error: "Username already registered",
+      });
+
+      const formData = createFormData({
+        email: "test@example.com",
+        username: "valid_user",
+        password: "Password1!",
+      });
+
+      const result = await registerCredentials({ success: false }, formData);
+
+      expect(result.success).toBe(false);
+      expect(result.errors?.username).toEqual(["Username already registered"]);
+      expect(result.username).toBe("valid_user");
+      expect(result.password).toBe("");
+      expect(createUserMock).not.toHaveBeenCalled();
+    });
 
     it.each(passwordBoundaryCases)(
       "handles password boundary in credentials flow: $label",

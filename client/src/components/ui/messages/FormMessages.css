@@ -1,0 +1,20 @@
+.form-messages {
+  padding-left: 0.25rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem;
+
+  & svg {
+    flex-shrink: 0;
+    margin-top: 0.075rem;
+  }
+}
+
+.error-message {
+  color: var(--error-200);
+}
+
+.success-message {
+  color: var(--success-200);
+}

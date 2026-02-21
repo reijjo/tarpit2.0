@@ -21,6 +21,8 @@ export default function RegisterEmail({
     success: false,
   });
 
+  console.log("formstate email", formState);
+
   useEffect(() => {
     if (formState.success && formState.email) {
       onSuccess(formState.email);
