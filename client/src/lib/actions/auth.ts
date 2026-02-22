@@ -24,22 +24,32 @@ export async function registerEmail(
       success: false,
       errors: fieldErrors,
     };
-  } else {
-    try {
-      const checkDuplicate = await checkDuplicateEmail(result.data.email);
-      if (!checkDuplicate.success) {
-        return {
-          success: false,
-          errors: {
-            email: [checkDuplicate.message ?? "Email already registered"],
-          },
-        };
-      }
-      return { success: true, email: result.data.email.toLowerCase().trim() };
-    } catch (err) {
-      console.log("ERROOOR", err);
-      return { success: false };
+  }
+
+  try {
+    const checkDuplicate = await checkDuplicateEmail(result.data.email);
+    if (!checkDuplicate.success) {
+      return {
+        success: false,
+        errors: {
+          email: [
+            checkDuplicate.error ??
+              checkDuplicate.message ??
+              "Email already registered",
+          ],
+        },
+      };
     }
+
+    return { success: true, email: result.data.email };
+  } catch (error) {
+    console.error("Error checking duplicate email:", error);
+    return {
+      success: false,
+      errors: {
+        email: ["Could not validate email right now. Please try again."],
+      },
+    };
   }
 }
 
@@ -62,15 +72,21 @@ export async function registerCredentials(
       username: String(username || ""),
       password: "",
     };
-  } else {
+  }
+
+  try {
     const checkDuplicate = await checkDuplicateUsername(result.data.username);
     if (!checkDuplicate.success) {
       return {
         success: false,
         errors: {
-          username: [checkDuplicate.error ?? "Username already registered"],
+          username: [
+            checkDuplicate.error ??
+              checkDuplicate.message ??
+              "Username already registered",
+          ],
         },
-        username: String(username || ""),
+        username: result.data.username,
         password: "",
       };
     }
@@ -81,13 +97,27 @@ export async function registerCredentials(
       password: result.data.password,
     };
 
-    try {
-      const user = await createUser(newUser);
-      console.log("USER", user);
-      return { success: true, message: user.message };
-    } catch (err) {
-      console.log("ERROOOR", err);
-      return { success: false, error: "Registration failed. Please try again" };
+    const user = await createUser(newUser);
+    if (!user.success) {
+      return {
+        success: false,
+        error: user.error ?? "Registration failed. Please try again",
+        username: result.data.username,
+        password: "",
+      };
     }
+
+    return {
+      success: true,
+      message: user.message ?? "Check your email to validate your account.",
+    };
+  } catch (error) {
+    console.error("Error creating user:", error);
+    return {
+      success: false,
+      error: "Registration failed. Please try again",
+      username: result.data.username,
+      password: "",
+    };
   }
 }
