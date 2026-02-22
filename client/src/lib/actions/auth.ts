@@ -101,7 +101,7 @@ export async function registerCredentials(
     if (!user.success) {
       return {
         success: false,
-        error: user.error ?? user.message ?? "Registration failed. Please try again",
+        error: user.error ?? "Registration failed. Please try again",
         username: result.data.username,
         password: "",
       };

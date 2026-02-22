@@ -1,25 +1,23 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-
+import { registerCredentials, registerEmail } from "./auth";
 import {
   invalidEmailPayloads,
   invalidUsernamePayloads,
   passwordBoundaryCases,
   usernameBoundaryCases,
 } from "@/test/fixtures/auth";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
 import { createFormData } from "@/test/utils/formData";
+
 import type { RegisterState, RegisterUserData } from "../types/auth";
 
 const { checkDuplicateEmailMock, checkDuplicateUsernameMock, createUserMock } =
   vi.hoisted(() => ({
-  checkDuplicateEmailMock: vi.fn<
-    (value: string) => Promise<RegisterState>
-  >(),
-  checkDuplicateUsernameMock: vi.fn<
-    (value: string) => Promise<RegisterState>
-  >(),
-  createUserMock: vi.fn<
-    (credentials: RegisterUserData) => Promise<RegisterState>
-  >(),
+    checkDuplicateEmailMock: vi.fn<(value: string) => Promise<RegisterState>>(),
+    checkDuplicateUsernameMock:
+      vi.fn<(value: string) => Promise<RegisterState>>(),
+    createUserMock:
+      vi.fn<(credentials: RegisterUserData) => Promise<RegisterState>>(),
   }));
 
 vi.mock("../api/auth", () => ({
@@ -28,8 +26,6 @@ vi.mock("../api/auth", () => ({
   createUser: createUserMock,
 }));
 
-import { registerCredentials, registerEmail } from "./auth";
-
 describe("auth actions", () => {
   let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 
@@ -37,7 +33,9 @@ describe("auth actions", () => {
     checkDuplicateEmailMock.mockReset();
     checkDuplicateUsernameMock.mockReset();
     createUserMock.mockReset();
-    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    consoleErrorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
 
     checkDuplicateEmailMock.mockResolvedValue({ success: true });
     checkDuplicateUsernameMock.mockResolvedValue({ success: true });
@@ -94,7 +92,9 @@ describe("auth actions", () => {
     });
 
     it("returns fallback field error when duplicate check throws", async () => {
-      checkDuplicateEmailMock.mockRejectedValue(new Error("service unavailable"));
+      checkDuplicateEmailMock.mockRejectedValue(
+        new Error("service unavailable"),
+      );
 
       const formData = createFormData({
         email: "test@example.com",
@@ -266,7 +266,7 @@ describe("auth actions", () => {
         field: "password",
       },
       {
-        label: "SQL-like password payload",
+        label: "all lowercase with special chars (missing uppercase)",
         payload: {
           email: "test@example.com",
           username: "valid_user",
