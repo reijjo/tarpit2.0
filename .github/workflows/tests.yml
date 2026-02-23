@@ -187,19 +187,6 @@ jobs:
         working-directory: ./server
         run: bunx prisma migrate deploy
 
-      # Start backend in background, Playwright will handle the frontend
-      - name: Start backend server
-        working-directory: ./server
-        run: bun run dev &
-
-      - name: Wait for backend
-        run: |
-          for i in $(seq 1 15); do
-            curl -sf http://localhost:3001 && echo "Backend ready!" && break
-            echo "Waiting for backend... ($i/15)"
-            sleep 2
-          done
-
       - name: Cache Playwright browsers
         uses: actions/cache@v4
         id: playwright-cache

@@ -26,7 +26,7 @@ app.use("/users", userRouter);
 console.log("NODE_ENV", process.env.NODE_ENV);
 
 if (process.env.NODE_ENV === "test") {
-  console.log("Test router registered at /test");
+  const { default: testRouter } = await import("./routes/testRoute");
   app.use("/test", testRouter);
 }
 

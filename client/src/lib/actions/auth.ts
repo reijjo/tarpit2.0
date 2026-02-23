@@ -28,7 +28,6 @@ export async function registerEmail(
 
   try {
     const checkDuplicate = await checkDuplicateEmail(result.data.email);
-    console.log("Check dup", checkDuplicate);
     if (!checkDuplicate.success) {
       return {
         success: false,
@@ -77,11 +76,7 @@ export async function registerCredentials(
       return {
         success: false,
         errors: {
-          username: [
-            checkDuplicate.error ??
-              checkDuplicate.message ??
-              "Username already registered",
-          ],
+          username: [checkDuplicate.error ?? "Username already registered"],
         },
         username: result.data.username,
         password: "",

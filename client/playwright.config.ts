@@ -25,6 +25,7 @@ export default defineConfig({
   webServer: [
     {
       command: "NODE_ENV=test bun run dev", // Your backend
+      cwd: "../server",
       url: "http://localhost:3001",
       reuseExistingServer: !process.env.CI, // Reuse in local dev, fresh in CI
       timeout: 30000,

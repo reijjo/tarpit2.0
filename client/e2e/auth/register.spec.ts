@@ -2,14 +2,19 @@ import { test, expect, request } from "@playwright/test";
 
 const resetDb = async () => {
   const ctx = await request.newContext();
-  await ctx.delete("http://localhost:3001/test/reset");
+  const response = await ctx.delete("http://localhost:3001/test/reset");
+  if (!response.ok()) {
+    throw new Error(
+      `Failed to reset DB: ${response.status()} ${response.statusText()}`,
+    );
+  }
   await ctx.dispose();
 };
 
 test.describe("REGISTER PAGE", () => {
   test.beforeEach(async ({ page }) => {
-    const test = await resetDb();
-    console.log("TEST DELETE", test);
+    const testdb = await resetDb();
+    console.log("TEST DELETE", testdb);
     await page.goto("/register");
   });
 
