@@ -1,15 +1,13 @@
-import "./layout.css";
-
 import Footer from "@/components/layout/footer/Footer";
 import Navbar from "@/components/layout/navbar/Navbar";
 
-export default function AuthLayout({
+export default function PublicLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <main className="auth-layout">
+    <main className="public-layout">
       <Navbar />
       {children}
       <Footer />

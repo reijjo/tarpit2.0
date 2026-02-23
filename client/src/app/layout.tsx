@@ -4,9 +4,6 @@ import "./layout.css";
 import type { Metadata } from "next";
 import { Outfit, Geist } from "next/font/google";
 
-import Footer from "@/components/layout/footer/Footer";
-import Navbar from "@/components/layout/navbar/Navbar";
-
 const outfit = Outfit({
   variable: "--font-outfit",
   subsets: ["latin"],
@@ -33,9 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${outfit.variable} ${geistMono.variable}`}>
-        <Navbar />
         {children}
-        <Footer />
       </body>
     </html>
   );
