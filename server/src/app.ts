@@ -22,7 +22,9 @@ app.get("/", getHealthCheck);
 app.use("/auth", authRouter);
 app.use("/users", userRouter);
 
-console.log("🔍 NODE_ENV:", process.env.NODE_ENV);
+if (process.env.NODE_ENV !== "production") {
+  console.log("🔍 NODE_ENV:", process.env.NODE_ENV);
+}
 
 if (process.env.NODE_ENV === "test") {
   const { default: testRouter } = await import("./routes/testRoute");

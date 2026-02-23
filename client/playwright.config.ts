@@ -28,14 +28,14 @@ export default defineConfig({
       command: "bun run dev:test",
       cwd: path.resolve(__dirname, "../server"), // ✅ Absolute path, no ambiguity
       url: "http://localhost:3001",
-      reuseExistingServer: true, // ✅ Always reuse if running (you start dev:test manually or Playwright does)
+      reuseExistingServer: !process.env.CI,
       timeout: 60000, // ✅ More time for migrations to run first
     },
     {
       command: "bun run dev",
       cwd: path.resolve(__dirname), // ✅ Explicit client path
       url: "http://localhost:3000",
-      reuseExistingServer: true,
+      reuseExistingServer: !process.env.CI,
       timeout: 30000,
     },
   ],
