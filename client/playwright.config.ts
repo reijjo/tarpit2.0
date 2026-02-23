@@ -3,7 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
   testDir: "./e2e",
   testMatch: "**/*.spec.ts",
-  fullyParallel: true,
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
@@ -22,10 +22,18 @@ export default defineConfig({
     },
   ],
 
-  webServer: {
-    command: "bun dev",
-    url: "http://localhost:3000",
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-  },
+  webServer: [
+    {
+      command: "NODE_ENV=test bun run dev", // Your backend
+      url: "http://localhost:3001",
+      reuseExistingServer: !process.env.CI, // Reuse in local dev, fresh in CI
+      timeout: 30000,
+    },
+    {
+      command: "bun run dev", // Your Next.js frontend
+      url: "http://localhost:3000",
+      reuseExistingServer: !process.env.CI,
+      timeout: 30000,
+    },
+  ],
 });

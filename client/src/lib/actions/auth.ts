@@ -28,15 +28,12 @@ export async function registerEmail(
 
   try {
     const checkDuplicate = await checkDuplicateEmail(result.data.email);
+    console.log("Check dup", checkDuplicate);
     if (!checkDuplicate.success) {
       return {
         success: false,
         errors: {
-          email: [
-            checkDuplicate.error ??
-              checkDuplicate.message ??
-              "Email already registered",
-          ],
+          email: [checkDuplicate.error ?? "Email already registered"],
         },
       };
     }
