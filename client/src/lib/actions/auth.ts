@@ -32,11 +32,7 @@ export async function registerEmail(
       return {
         success: false,
         errors: {
-          email: [
-            checkDuplicate.error ??
-              checkDuplicate.message ??
-              "Email already registered",
-          ],
+          email: [checkDuplicate.error ?? "Email already registered"],
         },
       };
     }
@@ -80,11 +76,7 @@ export async function registerCredentials(
       return {
         success: false,
         errors: {
-          username: [
-            checkDuplicate.error ??
-              checkDuplicate.message ??
-              "Username already registered",
-          ],
+          username: [checkDuplicate.error ?? "Username already registered"],
         },
         username: result.data.username,
         password: "",

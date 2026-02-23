@@ -1,6 +1,7 @@
 import { errorHandler } from "./middleware/errorHandler";
 import { unknownEndpoint } from "./middleware/unknownEndpoint";
 import { authRouter } from "./routes/authRoute";
+import testRouter from "./routes/testRoute";
 import { userRouter } from "./routes/userRoute";
 import cors from "cors";
 import express from "express";
@@ -21,6 +22,13 @@ app.use(cors());
 app.get("/", getHealthCheck);
 app.use("/auth", authRouter);
 app.use("/users", userRouter);
+
+console.log("NODE_ENV", process.env.NODE_ENV);
+
+if (process.env.NODE_ENV === "test") {
+  const { default: testRouter } = await import("./routes/testRoute");
+  app.use("/test", testRouter);
+}
 
 app.use(unknownEndpoint);
 app.use(errorHandler);
