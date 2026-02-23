@@ -13,6 +13,8 @@
     background: rgb(from var(--primary) r g b / 85%);
     backdrop-filter: blur(8px);
     box-shadow: var(--box-shadow-xl);
+    position: absolute;
+    top: 15%;
   }
 }
 
