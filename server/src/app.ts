@@ -1,7 +1,6 @@
 import { errorHandler } from "./middleware/errorHandler";
 import { unknownEndpoint } from "./middleware/unknownEndpoint";
 import { authRouter } from "./routes/authRoute";
-import testRouter from "./routes/testRoute";
 import { userRouter } from "./routes/userRoute";
 import cors from "cors";
 import express from "express";
@@ -23,10 +22,13 @@ app.get("/", getHealthCheck);
 app.use("/auth", authRouter);
 app.use("/users", userRouter);
 
-console.log("NODE_ENV", process.env.NODE_ENV);
+if (process.env.NODE_ENV !== "production") {
+  console.log("🔍 NODE_ENV:", process.env.NODE_ENV);
+}
 
 if (process.env.NODE_ENV === "test") {
   const { default: testRouter } = await import("./routes/testRoute");
+  console.log("✅ Test router registered at /test");
   app.use("/test", testRouter);
 }
 
