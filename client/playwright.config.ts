@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import path from "path";
 
 export default defineConfig({
   testDir: "./e2e",
@@ -24,16 +25,17 @@ export default defineConfig({
 
   webServer: [
     {
-      command: "NODE_ENV=test bun run dev", // Your backend
-      cwd: "../server",
+      command: "bun run dev:test",
+      cwd: path.resolve(__dirname, "../server"), // ✅ Absolute path, no ambiguity
       url: "http://localhost:3001",
-      reuseExistingServer: !process.env.CI, // Reuse in local dev, fresh in CI
-      timeout: 30000,
+      reuseExistingServer: true, // ✅ Always reuse if running (you start dev:test manually or Playwright does)
+      timeout: 60000, // ✅ More time for migrations to run first
     },
     {
-      command: "bun run dev", // Your Next.js frontend
+      command: "bun run dev",
+      cwd: path.resolve(__dirname), // ✅ Explicit client path
       url: "http://localhost:3000",
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: true,
       timeout: 30000,
     },
   ],

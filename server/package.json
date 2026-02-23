@@ -7,6 +7,7 @@
     "clean": "find src -type d -name dist -prune -exec rm -rf {} + 2>/dev/null || true; rm -rf dist 2>/dev/null || true; echo 'All cleaned!'",
     "clean:full": "find src -type d -name dist -prune -exec rm -rf {} + 2>/dev/null || true; rm -rf dist node_modules bun.lockb 2>/dev/null || true && bun install && echo 'Full clean complete!'",
     "dev": "bun --watch src/index.ts",
+    "dev:test": "NODE_ENV=test bunx prisma migrate deploy && NODE_ENV=test bun --watch src/index.ts",
     "test:watch": "NODE_ENV=test bun test --watch src/tests/*.spec.ts src/tests/**/*.spec.ts",
     "test": "bun clean && NODE_ENV=test bun test src/tests/*.spec.ts src/tests/**/*.spec.ts",
     "db:migrate": "bunx prisma migrate dev",
