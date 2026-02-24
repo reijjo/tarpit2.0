@@ -3,7 +3,8 @@ import type { Request, Response, NextFunction } from "express";
 import { isTest } from "src/utils/config";
 
 import { AppError } from "src/utils/AppError";
-import { confirmAccount } from "src/utils/emailService";
+import { createToken } from "src/utils/auth/createToken";
+import { confirmAccount } from "src/utils/auth/emailService";
 import { prisma } from "src/utils/prisma";
 import { type RegisterData, RegisterSchema } from "src/utils/schemas/auth";
 
@@ -120,7 +121,8 @@ export const createUser = async (
 
     if (!isTest) {
       try {
-        await confirmAccount(okData.email);
+        const token = await createToken(newUser.id);
+        await confirmAccount(okData.email, token);
       } catch (err) {
         await prisma.user.delete({ where: { id: newUser.id } });
         return next(

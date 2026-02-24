@@ -9,6 +9,7 @@ const requiredDbEnv = isTest ? "DB_TEST_URL" : "DB_URL";
 
 const RESEND_API = process.env.RESEND_API_KEY;
 const TARPIT_DOMAIN = process.env.TARPIT_DOMAIN;
+const FRONTEND_URL = process.env.FRONTEND_URL;
 
 if (!isTest && !RESEND_API) {
   throw new Error("RESEND_API_KEY environment variable is not set");
@@ -21,4 +22,12 @@ if (!DATABASE_URL) {
   throw new Error(`${requiredDbEnv} environment variable is not set`);
 }
 
-export { PORT, isProduction, isTest, DATABASE_URL, RESEND_API, TARPIT_DOMAIN };
+export {
+  PORT,
+  isProduction,
+  isTest,
+  DATABASE_URL,
+  RESEND_API,
+  TARPIT_DOMAIN,
+  FRONTEND_URL,
+};
