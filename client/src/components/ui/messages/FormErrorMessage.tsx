@@ -9,7 +9,7 @@ export const FormErrorMessage = ({ message }: FormErrorMessageProps) => {
   return (
     <div className="form-messages error-message" role="alert">
       <CircleX strokeWidth={1} size={16} />
-      <span>{message}</span>
+      <small>{message}</small>
     </div>
   );
 };

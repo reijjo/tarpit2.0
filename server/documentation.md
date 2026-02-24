@@ -392,7 +392,7 @@ app.use(cookieParser());
 <details>
 <summary><strong>Zod</strong></summary>
 
-TypeScript-first schema validation
+TypeScript-first schema validation <https://zod.dev/>
 
 ```bash
 npm install zod
@@ -406,6 +406,34 @@ const userSchema = z.object({
   password: z.string().min(8),
 });
 ```
+
+</details>
+
+<details>
+<summary><strong>Resend</strong></summary>
+
+Email service <https://resend.com/>
+
+```bash
+bun add resend
+```
+
+Register to Resend and add your API key + sending domain to `.env`:
+RESEND_API_KEY=<your_key>
+TARPIT_DOMAIN=<your_verified_domain>
+
+```ts
+const resend = new Resend(RESEND_API);
+
+resend.emails.send({
+  from: "onboarding@resend.dev",
+  to: <EMAILYOUREGISTEREDTORESEND>,
+  subject: "Welcome to Tärpit!",
+  html: "<p>Congrats on sending your <strong>first email</strong>!</p>",
+});
+```
+
+you have to verify a domain to send mail to other addresses
 
 </details>
 

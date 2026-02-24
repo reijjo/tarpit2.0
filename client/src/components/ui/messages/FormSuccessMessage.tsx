@@ -9,7 +9,7 @@ export const FormSuccessMessage = ({ message }: FormSuccessMessageProps) => {
   return (
     <div className="form-messages success-message" role="alert">
       <Check strokeWidth={1} size={16} />
-      <span>{message}</span>
+      <small>{message}</small>
     </div>
   );
 };
