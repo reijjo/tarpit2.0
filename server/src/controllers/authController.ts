@@ -120,7 +120,7 @@ export const createUser = async (
 
     if (!isTest) {
       try {
-        await confirmAccount(email);
+        await confirmAccount(okData.email);
       } catch (err) {
         await prisma.user.delete({ where: { id: newUser.id } });
         return next(

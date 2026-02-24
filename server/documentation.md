@@ -418,7 +418,9 @@ Email service <https://resend.com/>
 bun add resend
 ```
 
-Register to Resend and add your api key to `.env` file
+Register to Resend and add your API key + sending domain to `.env`:
+RESEND_API_KEY=<your_key>
+TARPIT_DOMAIN=<your_verified_domain>
 
 ```ts
 const resend = new Resend(RESEND_API);

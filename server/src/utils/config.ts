@@ -10,6 +10,13 @@ const requiredDbEnv = isTest ? "DB_TEST_URL" : "DB_URL";
 const RESEND_API = process.env.RESEND_API_KEY;
 const TARPIT_DOMAIN = process.env.TARPIT_DOMAIN;
 
+if (!isTest && !RESEND_API) {
+  throw new Error("RESEND_API_KEY environment variable is not set");
+}
+if (!isTest && !TARPIT_DOMAIN) {
+  throw new Error("TARPIT_DOMAIN environment variable is not set");
+}
+
 if (!DATABASE_URL) {
   throw new Error(`${requiredDbEnv} environment variable is not set`);
 }
