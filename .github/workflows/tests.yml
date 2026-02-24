@@ -133,6 +133,8 @@ jobs:
       NODE_ENV: test
       DB_TEST_URL: ${{ secrets.DB_TEST_URL }}
       NEXT_PUBLIC_DEV_BACKEND: http://localhost:3001
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      TARPIT_DOMAIN: ${{ secrets.TARPIT_DOMAIN }}
 
     services:
       postgres:
