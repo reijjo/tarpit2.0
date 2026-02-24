@@ -1,6 +1,9 @@
 import type { Request, Response, NextFunction } from "express";
 
+import { isTest } from "src/utils/config";
+
 import { AppError } from "src/utils/AppError";
+import { confirmAccount } from "src/utils/emailService";
 import { prisma } from "src/utils/prisma";
 import { type RegisterData, RegisterSchema } from "src/utils/schemas/auth";
 
@@ -107,13 +110,27 @@ export const createUser = async (
       cost: 10,
     });
 
-    await prisma.user.create({
+    const newUser = await prisma.user.create({
       data: {
         email: okData.email,
         username: okData.username,
         password: hashPasswd,
       },
     });
+
+    if (!isTest) {
+      try {
+        await confirmAccount(email);
+      } catch (err) {
+        await prisma.user.delete({ where: { id: newUser.id } });
+        return next(
+          new AppError(
+            "Failed to send verification email, please try again.",
+            500,
+          ),
+        );
+      }
+    }
 
     res.status(201).json({
       success: true,

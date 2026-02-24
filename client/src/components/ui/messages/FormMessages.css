@@ -1,8 +1,8 @@
 .form-messages {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.25rem;
+  text-wrap: balance;
+  gap: 0.5rem;
+  width: min(500px, 90%);
 
   & svg {
     flex-shrink: 0;
