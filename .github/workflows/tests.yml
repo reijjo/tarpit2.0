@@ -62,6 +62,8 @@ jobs:
       DB_TEST_NAME: ${{ secrets.DB_TEST_NAME }}
       POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      TARPIT_DOMAIN: ${{ secrets.TARPIT_DOMAIN }}
 
     services:
       postgres:
