@@ -107,6 +107,7 @@ jobs:
           [ -n "$POSTGRES_USER" ] || { echo "Missing secret POSTGRES_USER"; exit 1; }
           [ -n "$POSTGRES_PASSWORD" ] || { echo "Missing secret POSTGRES_PASSWORD"; exit 1; }
           [ -n "$DB_TEST_NAME" ] || { echo "Missing secret DB_TEST_NAME"; exit 1; }
+          [ -n "$FRONTEND_URL" ] || { echo "Missing secret FRONTEND_URL"; exit 1; }
 
       - name: Apply Prisma migrations
         run: bunx prisma migrate deploy
