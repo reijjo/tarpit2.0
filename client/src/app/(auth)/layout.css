@@ -75,7 +75,9 @@
     backdrop-filter: blur(8px);
     box-shadow: var(--box-shadow-xl);
     position: absolute;
-    top: 15%;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
   }
 }
 

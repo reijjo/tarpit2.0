@@ -13,8 +13,6 @@ export default function Login() {
     success: false,
   });
 
-  console.log("formState", formState);
-
   return (
     <div className="auth-container">
       <form className="auth-form" action={formAction}>
@@ -63,7 +61,7 @@ export default function Login() {
       </Button>
       <div className="form-footer">
         <p>Forgot your password?</p>
-        <Link className="login-link" href="/login">
+        <Link className="login-link" href="/forgot">
           Click here!
         </Link>
       </div>
