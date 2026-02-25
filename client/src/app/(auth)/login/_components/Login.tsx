@@ -2,16 +2,27 @@
 import { loginUser } from "@/lib/actions/auth";
 import Image from "next/image";
 import Link from "next/link";
-import { useActionState } from "react";
+import { useRouter } from "next/navigation";
+import { useActionState, useEffect } from "react";
 
 import { Button } from "@/components/ui/button/Button";
 import { DividerWithText } from "@/components/ui/divider/DividerWithText";
 import { TextInput } from "@/components/ui/inputs/TextInput";
+import { FormErrorMessage } from "@/components/ui/messages/FormErrorMessage";
+import { FormSuccessMessage } from "@/components/ui/messages/FormSuccessMessage";
 
 export default function Login() {
   const [formState, formAction, isPending] = useActionState(loginUser, {
     success: false,
   });
+  const router = useRouter();
+
+  useEffect(() => {
+    if (formState.success) {
+      console.log("FORMSTATE", formState);
+      // router.push("/dash") Uncomment when backend done
+    }
+  }, [formState.success, router]);
 
   return (
     <div className="auth-container">
@@ -40,11 +51,15 @@ export default function Login() {
           id="password"
           type="password"
           placeholder="Password"
-          autoComplete="on"
+          autoComplete="current-password"
           className="auth-form-field"
           required
           errors={formState.errors?.password ?? []}
         />
+        {formState.message && (
+          <FormSuccessMessage message={formState.message} />
+        )}
+        {formState.error && <FormErrorMessage message={formState.error} />}
 
         <Button className="auth-btn" type="submit" disabled={isPending}>
           {isPending ? "Logging in..." : "Login"}

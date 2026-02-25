@@ -82,7 +82,6 @@
 }
 
 .auth-form {
-  z-index: 5;
   margin-inline: auto;
   display: flex;
   flex-direction: column;
