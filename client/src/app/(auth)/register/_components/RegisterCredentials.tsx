@@ -1,4 +1,3 @@
-import "./Register.css";
 import { registerCredentials } from "@/lib/actions/auth";
 import { useActionState } from "react";
 
@@ -24,8 +23,8 @@ export default function RegisterCredentials({
   );
 
   return (
-    <div className="register-container">
-      <form className="register-form" action={formAction}>
+    <div className="auth-container">
+      <form className="auth-form" action={formAction}>
         <div className="form-headers">
           <h1>Finish your account</h1>
           <h2>This is the last step!</h2>
@@ -40,7 +39,7 @@ export default function RegisterCredentials({
           autoComplete="on"
           type="text"
           placeholder="Username"
-          className="register-form-field"
+          className="auth-form-field"
           required
           errors={formState.errors?.username ?? []}
           defaultValue={formState.username}
@@ -52,7 +51,7 @@ export default function RegisterCredentials({
           type="password"
           autoComplete="on"
           placeholder="Password"
-          className="register-form-field"
+          className="auth-form-field"
           required
           errors={formState.errors?.password ?? []}
           defaultValue={formState.password}
@@ -62,7 +61,7 @@ export default function RegisterCredentials({
         )}
         {formState.error && <FormErrorMessage message={formState.error} />}
         <Button
-          className="register-btn"
+          className="auth-btn"
           type="submit"
           disabled={isPending || formState.success}
         >
