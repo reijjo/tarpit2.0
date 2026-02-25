@@ -1,5 +1,4 @@
 "use client";
-import "./Register.css";
 import { registerEmail } from "@/lib/actions/auth";
 import Link from "next/link";
 import { useActionState, useEffect } from "react";
@@ -28,8 +27,8 @@ export default function RegisterEmail({
   }, [formState, onSuccess]);
 
   return (
-    <div className="register-container">
-      <form className="register-form" action={formAction}>
+    <div className="auth-container">
+      <form className="auth-form" action={formAction}>
         <div className="form-headers">
           <h1>Create your account</h1>
           <h2>Start tracking your bets at tärpit</h2>
@@ -41,20 +40,20 @@ export default function RegisterEmail({
           type="email"
           placeholder="Enter your email"
           autoComplete="on"
-          className="register-form-field"
+          className="auth-form-field"
           required
           errors={formState.errors?.email ?? []}
           defaultValue={email}
         />
 
-        <Button className="register-btn" type="submit" disabled={isPending}>
+        <Button className="auth-btn" type="submit" disabled={isPending}>
           {isPending ? "Checking email..." : "Use this email"}
         </Button>
       </form>
       <DividerWithText text="or login with" width="min(300px, 100%)" />
       <Button
         variant="outline"
-        className="register-btn"
+        className="auth-btn"
         disabled
         aria-label="Google login coming soon"
       >

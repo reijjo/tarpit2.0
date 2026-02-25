@@ -1,6 +1,11 @@
 import { config } from "../utils/envConfig";
 
-import type { RegisterState, RegisterUserData } from "../types/auth";
+import type {
+  LoginData,
+  LoginState,
+  RegisterState,
+  RegisterUserData,
+} from "../types/auth";
 
 const AUTH_URL = `${config.BACKEND_URL}/auth`;
 
@@ -40,6 +45,31 @@ export const createUser = async (
 ): Promise<RegisterState> => {
   try {
     const res = await fetch(`${AUTH_URL}/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(credentials),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      return { success: false, error: data.error ?? "Request failed." };
+    }
+    return data;
+  } catch (err) {
+    console.error("Error: ", err);
+    return { success: false, error: "Network error" };
+  }
+};
+
+// auth/login
+// POST
+// Log in
+export const loggingIn = async (
+  credentials: LoginData,
+): Promise<LoginState> => {
+  try {
+    const res = await fetch(`${AUTH_URL}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(credentials),

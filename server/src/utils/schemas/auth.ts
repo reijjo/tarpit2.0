@@ -31,3 +31,17 @@ export const RegisterSchema = z.object({
 });
 
 export type RegisterData = z.infer<typeof RegisterSchema>;
+
+export const LoginSchema = z.object({
+  login: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .min(1, "Email or username is required"),
+  password: z
+    .string()
+    .min(1, "Password is required")
+    .max(50, "Max 50 characters"),
+});
+
+export type LoginData = z.infer<typeof LoginSchema>;
