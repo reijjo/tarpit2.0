@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
+import { success } from "zod";
 
 import { isTest } from "src/utils/config";
 
@@ -140,6 +141,57 @@ export const createUser = async (
     });
   } catch (err) {
     console.log("register error", err);
+    next(err);
+  }
+};
+
+// auth/verify
+// GET
+// Verify the user
+export const verifyUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const { token } = req.query;
+
+  if (!token || typeof token !== "string" || token.length > 100) {
+    return next(new AppError("No token", 400));
+  }
+
+  try {
+    const foundToken = await prisma.token.findUnique({
+      where: { token: token as string },
+      include: { user: true },
+    });
+
+    if (!foundToken) {
+      return next(new AppError("No token found", 404));
+    }
+
+    if (foundToken.user.verified) {
+      return res.status(200).json({
+        success: true,
+        message: "Already verified! You can now login.",
+      });
+    }
+
+    if (foundToken.expiresAt < new Date()) {
+      return next(new AppError("Token expired", 401));
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: foundToken.userId },
+        data: { verified: true },
+      });
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Account verified successfully",
+    });
+  } catch (err) {
     next(err);
   }
 };
