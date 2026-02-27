@@ -8,7 +8,6 @@ import { createToken } from "src/utils/auth/createToken";
 import { confirmAccount } from "src/utils/auth/emailService";
 import { prisma } from "src/utils/prisma";
 import { type RegisterData, RegisterSchema } from "src/utils/schemas/auth";
-import type { Token, User } from "src/utils/types/types";
 
 // auth/available
 // GET
@@ -163,24 +162,35 @@ export const verifyUser = async (
   try {
     const foundToken = await prisma.token.findUnique({
       where: { token: token as string },
+      include: { user: true },
     });
 
     if (!foundToken) {
       return next(new AppError("No token found", 404));
     }
 
+    if (foundToken.user.verified) {
+      return res.status(200).json({
+        success: true,
+        message: "Already verified! You can now login.",
+      });
+    }
+
     if (foundToken.expiresAt < new Date()) {
       return next(new AppError("Token expired", 401));
     }
 
-    await prisma.user.update({
-      where: { id: foundToken.userId },
-      data: { verified: true },
+    await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: foundToken.userId },
+        data: { verified: true },
+      });
     });
 
-    res
-      .status(200)
-      .json({ success: true, message: "All good! You can login now." });
+    res.status(200).json({
+      success: true,
+      message: "Account verified successfully",
+    });
   } catch (err) {
     next(err);
   }
