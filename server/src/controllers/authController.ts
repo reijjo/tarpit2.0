@@ -155,7 +155,7 @@ export const verifyUser = async (
 ) => {
   const { token } = req.query;
 
-  if (!token) {
+  if (!token || typeof token !== "string" || token.length > 100) {
     return next(new AppError("No token", 400));
   }
 
