@@ -152,3 +152,4 @@ AGENTS.md
 **/*.spec.js
 **/*.test.js
 testcoverage/
+.DS_Store
