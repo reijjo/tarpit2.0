@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
+import { success } from "zod";
 
 import { isTest } from "src/utils/config";
 
@@ -7,6 +8,7 @@ import { createToken } from "src/utils/auth/createToken";
 import { confirmAccount } from "src/utils/auth/emailService";
 import { prisma } from "src/utils/prisma";
 import { type RegisterData, RegisterSchema } from "src/utils/schemas/auth";
+import type { Token, User } from "src/utils/types/types";
 
 // auth/available
 // GET
@@ -140,6 +142,46 @@ export const createUser = async (
     });
   } catch (err) {
     console.log("register error", err);
+    next(err);
+  }
+};
+
+// auth/verify
+// GET
+// Verify the user
+export const verifyUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const { token } = req.query;
+
+  if (!token) {
+    return next(new AppError("No token", 400));
+  }
+
+  try {
+    const foundToken = await prisma.token.findUnique({
+      where: { token: token as string },
+    });
+
+    if (!foundToken) {
+      return next(new AppError("No token found", 404));
+    }
+
+    if (foundToken.expiresAt < new Date()) {
+      return next(new AppError("Token expired", 401));
+    }
+
+    await prisma.user.update({
+      where: { id: foundToken.userId },
+      data: { verified: true },
+    });
+
+    res
+      .status(200)
+      .json({ success: true, message: "All good! You can login now." });
+  } catch (err) {
     next(err);
   }
 };
