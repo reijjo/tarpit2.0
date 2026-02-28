@@ -4,7 +4,7 @@ import Login from "./_components/Login";
 
 export default function LoginPage() {
   return (
-    <>
+    <div className="auth-login">
       <div className="form-container">
         <Login />
       </div>
@@ -20,6 +20,6 @@ export default function LoginPage() {
           }}
         />
       </div>
-    </>
+    </div>
   );
 }

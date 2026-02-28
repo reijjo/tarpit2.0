@@ -1,14 +1,18 @@
 .auth-layout {
+  gap: 0;
+}
+
+.auth-register,
+.auth-login,
+.auth-forgot {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 0;
+  height: 100dvh;
+  place-items: center;
 
   @media screen and (width <= 800px) {
     grid-template-columns: 1fr;
-  }
-
-  & footer {
-    grid-column: 1 / -1;
   }
 }
 
@@ -26,7 +30,6 @@
 
   @media screen and (width <= 800px) {
     position: absolute;
-    inset: 0;
     z-index: 1;
   }
 }
@@ -69,15 +72,11 @@
   padding: 2rem 1rem;
 
   @media screen and (width <= 800px) {
-    border: 1px solid rgb(from var(--primary-300) r g b / 50%);
+    border: 1px solid rgb(0 0 0 / 12.5%);
     border-radius: 16px;
     background: rgb(from var(--primary) r g b / 85%);
     backdrop-filter: blur(8px);
     box-shadow: var(--box-shadow-xl);
-    position: absolute;
-    top: 10%;
-    left: 50%;
-    transform: translateX(-50%);
   }
 }
 
