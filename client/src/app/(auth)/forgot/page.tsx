@@ -5,7 +5,7 @@ import { TextInput } from "@/components/ui/inputs/TextInput";
 
 export default function ForgotPage() {
   return (
-    <>
+    <div className="auth-forgot">
       <div className="form-container">
         <div className="auth-container">
           <form className="auth-form">
@@ -44,6 +44,6 @@ export default function ForgotPage() {
           }}
         />
       </div>
-    </>
+    </div>
   );
 }

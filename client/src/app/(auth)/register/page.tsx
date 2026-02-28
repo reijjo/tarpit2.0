@@ -15,7 +15,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <>
+    <div className="auth-register">
       <div className="form-container">
         {step === 1 ? (
           <RegisterEmail email={email} onSuccess={handleEmailSuccess} />
@@ -35,6 +35,6 @@ export default function RegisterPage() {
           }}
         />
       </div>
-    </>
+    </div>
   );
 }
