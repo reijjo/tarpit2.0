@@ -1,7 +1,5 @@
 # Backend Documentation (Rust + Axum)
 
-The current date is March 02, 2026.
-
 ## 📁 Project Structure (Feature-based)
 
 ```text
@@ -64,7 +62,7 @@ src/
 | main.rs   | Starts the server                   |
 | config.rs | Loads .env + structs for config     |
 | state.rs  | Shared AppState                     |
-| errors.rs | custon errors + response conversion |
+| errors.rs | custom errors + response conversion |
 
 ## 📦 Installed crates
 

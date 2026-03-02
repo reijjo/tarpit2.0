@@ -4,7 +4,7 @@
 
 run `cargo new server --bin`
 
-## Adding depencies
+## Adding dependencies
 
 <https://docs.rs/> is the place for the crates
 Add crates with `cargo add [CRATENAME]`
