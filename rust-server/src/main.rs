@@ -13,7 +13,9 @@ use crate::utils::tracing::init_tracing;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     init_tracing();
 
-    let config = Config::from_env().expect("Failed to load config. Check .env file.");
+    let config = Config::from_env()
+        .map_err(|e| std::io::Error::other(format!("Failed to load config from env: {e}")))?;
+
     let app = Router::new()
         .route("/", get(|| async { "Hello, world!" }))
         .layer(axum::middleware::from_fn(log_middleware));

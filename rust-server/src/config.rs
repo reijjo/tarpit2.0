@@ -31,7 +31,7 @@ impl Display for AppEnv {
     }
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Deserialize, Clone)]
 pub struct Config {
     pub app_env: AppEnv,
     pub port: u16,

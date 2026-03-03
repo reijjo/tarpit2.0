@@ -15,5 +15,6 @@ pub fn init_tracing() {
                 .with_ansi(true) // colors in terminal
                 .compact(), // single line per log entry
         )
-        .init();
+        .try_init()
+        .unwrap_or_else(|err| eprintln!("tracing subscriber initialization skipped: {err}"));
 }

@@ -71,8 +71,6 @@ src/
 | ---------- | -------------------------- |
 | tracing.rs | My `console.log()` in Rust |
 
-</details>
-
 <!-- TRACING.RS -->
 <details>
 <summary><strong>tracing.rs</strong></summary>
@@ -83,7 +81,7 @@ Used as a logger (similar to `console.log()` in JavaScript)
 use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
 
 pub fn init*tracing() {
-let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|*| EnvFilter::new("info"));
+let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
 // 🦀 try_from_default_env reads the RUST_LOG env var
 // e.g. RUST_LOG=debug cargo run → shows debug logs
 // If RUST_LOG is not set, falls back to "info"
@@ -108,7 +106,7 @@ let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|*| EnvFilter:
 
 | File      | Purpose                  |
 | --------- | ------------------------ |
-| logger.rs | Morgan like route logger |
+| logger.rs | Morgan-like route logger |
 
 <details>
 <summary><strong>logger.rs</strong></summary>
