@@ -269,3 +269,5 @@ tokio = { version = "1.49.0", features = ["full"] }
 ```bash
 cargo add owo-colors
 ```
+
+</details>
