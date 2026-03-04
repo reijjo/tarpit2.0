@@ -143,7 +143,8 @@ vite.config.ts.timestamp-*
 .agent/*
 **/.cursorrules
 AGENTS.md
-./clinerules/**
+**/.clinerules
+.clineignore
 
 # Other files
 **/dist/

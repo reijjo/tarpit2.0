@@ -80,7 +80,7 @@ Used as a logger (similar to `console.log()` in JavaScript)
 ```rs
 use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
 
-pub fn init*tracing() {
+pub fn init_tracing() {
 let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
 // 🦀 try_from_default_env reads the RUST_LOG env var
 // e.g. RUST_LOG=debug cargo run → shows debug logs
@@ -268,6 +268,22 @@ tokio = { version = "1.49.0", features = ["full"] }
 
 ```bash
 cargo add owo-colors
+```
+
+</details>
+
+<!-- TOWER-HTTP -->
+<details>
+<summary><strong>tower-http</strong></summary>
+
+**tower-http** - Library that provides HTTP-specific middleware and utilities built on top of tower.
+
+- Documentation: <https://docs.rs/tower-http/latest/tower_http/>
+
+### Installation
+
+```bash
+cargo add tower-http --features cors,trace
 ```
 
 </details>
