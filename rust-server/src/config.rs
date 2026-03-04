@@ -10,13 +10,11 @@ pub enum AppEnv {
 }
 
 impl AppEnv {
-    // 🦀 Helper methods so handlers/config can ask questions cleanly
-    // instead of doing string comparisons everywhere
     pub fn is_production(&self) -> bool {
         self == &AppEnv::Production
     }
 
-    pub fn is_test(&self) -> bool {
+    pub fn _is_test(&self) -> bool {
         self == &AppEnv::Test
     }
 }
@@ -35,18 +33,18 @@ impl Display for AppEnv {
 pub struct Config {
     pub app_env: AppEnv,
     pub port: u16,
-    pub db_port: u16,
-    pub db_url: String,
-    pub db_name: String,
-    pub db_test_port: u16,
-    pub db_test_name: String,
-    pub db_test_url: String,
-    pub postgres_user: String,
-    pub postgres_password: String,
-    pub backend_url: String,
+    pub _db_port: u16,
+    pub _db_url: String,
+    pub _db_name: String,
+    pub _db_test_port: u16,
+    pub _db_test_name: String,
+    pub _db_test_url: String,
+    pub _postgres_user: String,
+    pub _postgres_password: String,
+    pub _backend_url: String,
     pub frontend_url: String,
-    pub resend_api_key: String,
-    pub tarpit_domain: String,
+    pub _resend_api_key: String,
+    pub _tarpit_domain: String,
 }
 
 impl Config {
@@ -55,8 +53,6 @@ impl Config {
         envy::from_env::<Self>() // Read all env vars, map names, parse types, return Config or Error
     }
 
-    // 🦀 Derived value — the bind host is not a config input,
-    // it's a decision based on environment. Logic belongs here, not in main.
     pub fn bind_addr(&self) -> String {
         if self.app_env.is_production() {
             format!("0.0.0.0:{}", self.port) // all interfaces in production
@@ -65,12 +61,11 @@ impl Config {
         }
     }
 
-    // 🦀 Which DB url to use — test env gets the test DB automatically
-    pub fn active_db_url(&self) -> &str {
-        if self.app_env.is_test() {
-            &self.db_test_url
+    pub fn _active_db_url(&self) -> &str {
+        if self.app_env._is_test() {
+            &self._db_test_url
         } else {
-            &self.db_url
+            &self._db_url
         }
     }
 }
