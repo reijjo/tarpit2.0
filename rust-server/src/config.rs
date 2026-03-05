@@ -30,21 +30,22 @@ impl Display for AppEnv {
 }
 
 #[derive(Deserialize, Clone)]
+#[allow(dead_code)]
 pub struct Config {
     pub app_env: AppEnv,
     pub port: u16,
-    pub _db_port: u16,
-    pub _db_url: String,
-    pub _db_name: String,
-    pub _db_test_port: u16,
-    pub _db_test_name: String,
-    pub _db_test_url: String,
-    pub _postgres_user: String,
-    pub _postgres_password: String,
-    pub _backend_url: String,
+    pub db_port: u16,
+    pub db_url: String,
+    pub db_name: String,
+    pub db_test_port: u16,
+    pub db_test_name: String,
+    pub db_test_url: String,
+    pub postgres_user: String,
+    pub postgres_password: String,
+    pub backend_url: String,
     pub frontend_url: String,
-    pub _resend_api_key: String,
-    pub _tarpit_domain: String,
+    pub resend_api_key: String,
+    pub tarpit_domain: String,
 }
 
 impl Config {
@@ -61,11 +62,12 @@ impl Config {
         }
     }
 
-    pub fn _active_db_url(&self) -> &str {
+    #[allow(dead_code)]
+    pub fn active_db_url(&self) -> &str {
         if self.app_env._is_test() {
-            &self._db_test_url
+            &self.db_test_url
         } else {
-            &self._db_url
+            &self.db_url
         }
     }
 }
