@@ -26,6 +26,12 @@ src/
 └── utils/
     ├── mod.rs
     └── tracing.rs        # init_tracing() function
+
+tests/
+├── api.rs                # single integration test target
+└── api/
+    ├── common.rs         # shared build_test_server() helper
+    └── health.rs         # health endpoint integration tests
 ```
 
 ---
@@ -212,6 +218,40 @@ cargo run
 curl http://127.0.0.1:3001/health
 curl http://127.0.0.1:3001/THIS_DOES_NOT_EXIST
 ```
+
+---
+
+## ✅ Testing (integration)
+
+- Integration tests live in crate-root `tests/` (not inside `src/`).
+- Single integration target entrypoint: `tests/api.rs`.
+- Shared test server helper: `tests/api/common.rs`.
+- Current first API test module: `tests/api/health.rs`.
+- Tests use `axum-test::TestServer` to call routes in-process.
+- Test helper forces `AppEnv::Test` and maps `db_url` to `db_test_url` for safety.
+
+Run integration API tests:
+
+```bash
+cd rust-server
+cargo test --test api
+```
+
+Show integration test stdout/stderr (for debug lines like APP_ENV):
+
+```bash
+cd rust-server
+cargo test --test api -- --nocapture
+```
+
+Run all Rust tests (unit + integration + doctests):
+
+```bash
+cd rust-server
+cargo test
+```
+
+Project now exposes modules for integration tests via `src/lib.rs`.
 
 ---
 

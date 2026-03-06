@@ -131,12 +131,29 @@ bun test
 
 Backend tests run with `NODE_ENV=test` and target `DB_TEST_URL`.
 
+### Rust Backend (Axum)
+
+**Integration tests (single target):**
+
+```bash
+cd rust-server/
+cargo test --test api
+```
+
+**Run all Rust tests (unit + integration + doc):**
+
+```bash
+cd rust-server/
+cargo test
+```
+
 ---
 
 ## 📖 Documentation
 
 - [Frontend Documentation](./client/documentation.md)
 - [Backend Documentation](./server/documentation.md)
+- [Rust Backend Documentation](./rust-server/documentation.md)
 - [Database Setup](./DATABASE.md)
 
 ---
@@ -147,5 +164,6 @@ Backend tests run with `NODE_ENV=test` and target `DB_TEST_URL`.
 tarpit2.0/
 ├── client/          # Next.js frontend
 ├── server/          # Express backend
+├── rust-server/     # Rust + Axum backend
 └── README.md
 ```
