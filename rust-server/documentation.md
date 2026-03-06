@@ -1,289 +1,327 @@
 # Backend Documentation (Rust + Axum)
 
-## 📁 Project Structure (Feature-based)
+## 📁 Project Structure (Current)
 
 ```text
 src/
-├── main.rs               # Server startup, global router composition, layers
-├── app.rs                # Handle routes & middleware
-├── config.rs             # Env loading, structs (AppConfig, DbConfig, ...)
-├── state.rs              # AppState (Clone + Send + Sync → db pool, cookie key, ...)
+├── main.rs               # Startup flow, startup error categories, graceful shutdown
+├── app.rs                # Router composition + fallback + layers
+├── config.rs             # Env loading, app config struct
+├── state.rs              # Shared AppState
 ├── errors.rs             # AppError enum + IntoResponse impl
 │
-├── utils/                # Cross-cutting helpers (used by many features)
+├── features/
 │   ├── mod.rs
-│   ├── response.rs       # ApiResponse<T> wrapper (success / error json shapes)
-│   ├── tracing.rs        # init_tracing() function
-│   └── constants.rs
+│   ├── auth/             # scaffold folder (in progress)
+│   └── health/
+│       ├── mod.rs
+│       ├── routes.rs     # Router for /health
+│       └── handlers.rs   # handler functions
 │
-├── middleware/           # Global / reusable axum / tower middleware
+├── middleware/
 │   ├── mod.rs
 │   ├── logger.rs         # request → response logging
-│   ├── auth.rs           # httpOnly cookie → Extension<CurrentUser / Session>
-│   └── rate_limit.rs     # (future)
+│   └── cors.rs           # CORS layer builder (Result, no panic)
 │
-└── features/             # ← Group by domain/feature (self-contained modules)
-    ├── health/
-    │   ├── mod.rs
-    │   ├── routes.rs     # Router for /health
-    │   └── handlers.rs   # handler functions
-    │
-    ├── auth/
-    │   ├── mod.rs
-    │   ├── routes.rs
-    │   ├── handlers.rs
-    │   ├── dto.rs        # LoginDto, RegisterInput, ...
-    │   ├── service.rs    # auth logic (validate, create session, set cookie)
-    │   └── repository.rs # db access for auth
-    │
-    ├── users/
-    │   ├── mod.rs
-    │   ├── routes.rs
-    │   ├── handlers.rs
-    │   ├── dto.rs
-    │   ├── service.rs
-    │   └── models.rs     # User struct + FromRow / Deserialize
-    │
-    └── bets/
-        ├── mod.rs
-        ├── routes.rs
-        ├── handlers.rs
-        ├── dto.rs
-        ├── service.rs
-        └── models.rs     # Bet struct
+└── utils/
+    ├── mod.rs
+    └── tracing.rs        # init_tracing() function
 ```
 
-## 🚀 `src/`
+---
 
-### Files
+## 🚀 src/
 
-| File      | Purpose                             |
-| --------- | ----------------------------------- |
-| app.rs    | Handle routes & middleware          |
-| main.rs   | Starts the server                   |
-| config.rs | Loads .env + structs for config     |
-| state.rs  | Shared AppState                     |
-| errors.rs | custom errors + response conversion |
+| File        | Purpose                                                                           |
+| ----------- | --------------------------------------------------------------------------------- |
+| `main.rs`   | Initializes tracing, loads config/state, starts server, handles graceful shutdown |
+| `app.rs`    | Composes feature routes, fallback 404, CORS layer and logger middleware           |
+| `config.rs` | Loads `.env` values into typed config                                             |
+| `state.rs`  | Shared `AppState` for handlers                                                    |
+| `errors.rs` | Custom API error enum + HTTP response conversion                                  |
 
-## 🔧 `src/utils/`
+---
 
-| File       | Purpose                    |
-| ---------- | -------------------------- |
-| tracing.rs | My `console.log()` in Rust |
+## 🔧 src/utils/
 
-<!-- TRACING.RS -->
+| File         | Purpose                                   |
+| ------------ | ----------------------------------------- |
+| `tracing.rs` | Rust logging setup (`tracing_subscriber`) |
+
 <details>
 <summary><strong>tracing.rs</strong></summary>
 
-Used as a logger (similar to `console.log()` in JavaScript)
+Used as structured logger setup (similar role to console + logger config in Node apps).
 
 ```rs
 use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
 
 pub fn init_tracing() {
-let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
-// 🦀 try_from_default_env reads the RUST_LOG env var
-// e.g. RUST_LOG=debug cargo run → shows debug logs
-// If RUST_LOG is not set, falls back to "info"
+    let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
 
     tracing_subscriber::registry()
         .with(env_filter)
         .with(
             tracing_subscriber::fmt::layer()
-                .with_level(true) // shows INFO / WARN / ERROR
-                .with_target(true) // shows which module logged it e.rust_server::config
-                .with_ansi(true) // colors in terminal
-                .compact(), // single line per log entry
+                .with_level(true)
+                .with_target(true)
+                .with_ansi(true)
+                .compact(),
         )
-        .init();
-
+        .try_init()
+        .unwrap_or_else(|err| eprintln!("tracing subscriber initialization skipped: {err}"));
 }
 ```
 
 </details>
 
-## 🛡️ `src/middleware/`
+---
 
-| File      | Purpose                  |
-| --------- | ------------------------ |
-| logger.rs | Morgan-like route logger |
+## 🛡️ src/middleware/
+
+| File        | Purpose                                                           |
+| ----------- | ----------------------------------------------------------------- |
+| `logger.rs` | Morgan-like route logger                                          |
+| `cors.rs`   | Builds CORS layer from `FRONTEND_URL` with `Result` (no `expect`) |
 
 <details>
-<summary><strong>logger.rs</strong></summary>
-Morgan like route logger for Rust
+<summary><strong>cors.rs</strong></summary>
+
+Builds CorsLayer safely from config:
 
 ```rs
-use axum::{extract::Request, middleware::Next, response::Response};
-use owo_colors::OwoColorize;
-use std::time::Instant;
+use tower_http::cors::CorsLayer;
 
-pub async fn log_middleware(req: Request, next: Next) -> Response {
-    let method = req.method().clone();
-    let path = req.uri().path().to_string();
+pub fn build_cors(frontend_url: &str) -> Result<CorsLayer, String> {
+    use axum::http::{HeaderValue, Method, header};
 
-    let start = Instant::now();
-    let response = next.run(req).await;
-    let duration = start.elapsed();
-    let status = response.status().as_u16();
+    let origin: HeaderValue = frontend_url
+        .parse()
+        .map_err(|_| format!("Invalid FRONTEND_URL '{frontend_url}'"))?;
 
-    let method_colored = match method.as_str() {
-        "GET"    => method.to_string().green().bold().to_string(),
-        "POST"   => method.to_string().blue().bold().to_string(),
-        "PUT"    => method.to_string().yellow().bold().to_string(),
-        "DELETE" => method.to_string().red().bold().to_string(),
-        "PATCH"  => method.to_string().cyan().bold().to_string(),
-        _        => method.to_string().white().bold().to_string(),
-    };
-
-    let status_colored = match status {
-        200..=299 => status.to_string().green().bold().to_string(),
-        300..=399 => status.to_string().cyan().bold().to_string(),
-        400..=499 => status.to_string().yellow().bold().to_string(),
-        _         => status.to_string().red().bold().to_string(),
-    };
-
-    let ms = duration.as_millis();
-    let duration_colored = if ms >= 500 {
-        format!("{}ms", ms).red().to_string()
-    } else if ms >= 100 {
-        format!("{}ms", ms).yellow().to_string()
-    } else {
-        format!("{}ms", ms).dimmed().to_string()
-    };
-
-    // 🦀 eprintln! writes directly to stderr — bypasses tracing entirely
-    // so ANSI codes are passed raw to the terminal and rendered as colors.
-    // This is intentional: HTTP access logs are not structured app events.
-    // stderr is the correct stream for logs (stdout is for program output).
-    eprintln!("{} {} {} {}", method_colored, path, status_colored, duration_colored);
-
-    response
+    Ok(CorsLayer::new()
+        .allow_origin(origin)
+        .allow_methods([
+            Method::GET,
+            Method::POST,
+            Method::PUT,
+            Method::PATCH,
+            Method::DELETE,
+        ])
+        .allow_headers([header::CONTENT_TYPE, header::AUTHORIZATION])
+        .allow_credentials(true))
 }
-
 ```
 
 </details>
 
-## 📦 Installed crates
+---
+
+## ❌ Error Handling
+
+`src/errors.rs` provides centralized API error responses.
+
+**Current `AppError` variants:**
+
+- `NotFound(String)`
+- `Internal(String)`
+
+**Response shape:**
+
+```json
+{
+  "success": false,
+  "error": "message"
+}
+```
+
+**Status mapping:**
+
+- `NotFound` → 404
+- `Internal` → 500
+
+---
+
+## 🌐 App Composition (app.rs)
+
+`create_app` returns `Result<Router, String>`.
+
+**Current flow:**
+
+1. Build CORS layer from config (`build_cors`)
+2. Merge feature routes
+3. Register fallback handler for unknown routes
+4. Apply CORS + logger layers
+5. Attach app state
+
+Fallback handler returns `AppError::NotFound`, so unknown routes produce JSON 404.
+
+---
+
+## 🧠 Startup Flow (main.rs)
+
+`main.rs` startup steps:
+
+1. `init_tracing()`
+2. Load typed config (`Config::from_env`)
+3. Build app state
+4. Build router (`app::create_app`)
+5. Bind listener
+6. `axum::serve(...).with_graceful_shutdown(...)`
+
+**Startup uses categorized errors:**
+
+- `ConfigLoad`
+- `AppBuild`
+- `Bind`
+- `Serve`
+
+Real error details are logged with `tracing::error!(...)`.
+
+---
+
+## 🛣️ Routes (Current)
+
+**`GET /health`** — Returns plain text:
+
+```
+OK
+```
+
+**Unknown routes** — Handled by app fallback, returns JSON 404 via `AppError`.
+
+---
+
+## 🔐 Environment Notes
+
+Config is loaded via `dotenvy` + `envy` in `config.rs`.
+
+- `FRONTEND_URL` must be a valid HTTP origin string (used by CORS builder).
+
+Check `.env_example` for variable names.
+
+---
+
+## 🧪 Quick Manual Checks
+
+```bash
+cd rust-server
+cargo check
+cargo run
+
+curl http://127.0.0.1:3001/health
+curl http://127.0.0.1:3001/THIS_DOES_NOT_EXIST
+```
+
+---
+
+## 📦 Installed Crates
 
 <details>
 <summary><strong>Axum & Tokio</strong></summary>
 
-**Axum** - Modern web framework
+**Axum** — Modern web framework
 
-- Version: 0.8.8
+- Version: `0.8.8`
 - Purpose: HTTP server framework built on Tower ecosystem
-- Documentation: <https://docs.rs/axum/latest/axum/>
+- Documentation: https://docs.rs/axum/latest/axum/
 
-**Tokio** - Async runtime
+**Tokio** — Async runtime
 
-- Version: 1.49.0
-- Features: ["full"] (includes networking, I/O, time, sync)
-- Purpose: Handles concurrent requests and async operations
-- Documentation: <https://docs.rs/tokio/latest/tokio/>
-
-### Installation Commands
+- Version: `1.49.0`
+- Features: `["full"]`
+- Purpose: async runtime for server, networking and signals
+- Documentation: https://docs.rs/tokio/latest/tokio/
 
 ```bash
 cargo add axum
 cargo add tokio
 ```
 
-### Cargo.toml Configuration
-
-```toml
-[package]
-name = "rust-server"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-axum = "0.8.8"
-tokio = { version = "1.49.0", features = ["full"] }
-```
-
 </details>
 
-<!-- DOTENVY -->
-<details>
-<summary><strong>dotenvy</strong></summary>
-
-**dotenvy** - Loads environment variables from a `.env` file
-
-- Documentation <https://docs.rs/dotenvy/latest/dotenvy/>
-
-</details>
-
-<!-- ENVY -->
-<details>
-<summary><strong>envy</strong></summary>
-
-**envy** - Envy is a library for deserializing environment variables into typesafe structs
-
-- Documentation <https://docs.rs/envy/latest/envy/>
-
-</details>
-
-<!-- SERDE -->
-<details>
-<summary><strong>Serde</strong></summary>
-
-**Serde** - Serde is a framework for serializing and deserializing Rust data structures efficiently and generically.
-
-- Documentation <https://docs.rs/serde/latest/serde/>
-
-</details>
-
-<!-- TRACING -->
-<details>
-<summary><strong>tracing</strong></summary>
-
-**tracing** - is a framework for instrumenting Rust programs to collect structured, event-based diagnostic information.
-
-- Documentation <https://docs.rs/tracing/latest/tracing/>
-
-</details>
-
-<!-- TRACING-SUBSCRIBER -->
-<details>
-<summary><strong>tracing-subscriber</strong></summary>
-
-**tracing-subscriber** - Utilities for implementing and composing tracing subscribers.
-
-- Documentation <https://docs.rs/tracing-subscriber/latest/tracing_subscriber/>
-
-</details>
-
-<!-- OWO-COLORS -->
-<details>
-<summary><strong>owo-colors</strong></summary>
-
-**owo-colors** - Zero-allocation terminal color library
-
-- Version: 4.x
-- Purpose: Colorizes HTTP methods, status codes and durations in the logger middleware
-- Documentation: <https://docs.rs/owo-colors/latest/owo_colors/>
-
-### Installation
-
-```bash
-cargo add owo-colors
-```
-
-</details>
-
-<!-- TOWER-HTTP -->
 <details>
 <summary><strong>tower-http</strong></summary>
 
-**tower-http** - Library that provides HTTP-specific middleware and utilities built on top of tower.
+**tower-http** — HTTP middleware/layers for Tower/Axum.
 
-- Documentation: <https://docs.rs/tower-http/latest/tower_http/>
-
-### Installation
+- Version: `0.6.8`
+- Used for: `CorsLayer`
+- Documentation: https://docs.rs/tower-http/latest/tower_http/
 
 ```bash
 cargo add tower-http --features cors,trace
+```
+
+</details>
+
+<details>
+<summary><strong>tracing + tracing-subscriber</strong></summary>
+
+**tracing** — structured diagnostics/events.
+
+- Version: `0.1.44`
+- Documentation: https://docs.rs/tracing/latest/tracing/
+
+**tracing-subscriber** — tracing backend/configuration.
+
+- Version: `0.3.22`
+- Features used: `env-filter`, `fmt`, `ansi`
+- Documentation: https://docs.rs/tracing-subscriber/latest/tracing_subscriber/
+
+```bash
+cargo add tracing
+cargo add tracing-subscriber --features env-filter,fmt,ansi
+```
+
+</details>
+
+<details>
+<summary><strong>dotenvy + envy</strong></summary>
+
+**dotenvy** — loads `.env` file.
+
+- Version: `0.15.7`
+- Documentation: https://docs.rs/dotenvy/latest/dotenvy/
+
+**envy** — deserializes env vars into typed Rust structs.
+
+- Version: `0.4.2`
+- Documentation: https://docs.rs/envy/latest/envy/
+
+```bash
+cargo add dotenvy
+cargo add envy
+```
+
+</details>
+
+<details>
+<summary><strong>Serde</strong></summary>
+
+**Serde** — serialization/deserialization framework.
+
+- Version: `1.0.228`
+- Used for: config and API response structs (`Serialize`/`Deserialize`)
+- Documentation: https://docs.rs/serde/latest/serde/
+
+```bash
+cargo add serde --features derive
+```
+
+</details>
+
+<details>
+<summary><strong>owo-colors</strong></summary>
+
+**owo-colors** — terminal color formatting.
+
+- Version: `4.3.0`
+- Used in: request logger output coloring
+- Documentation: https://docs.rs/owo-colors/latest/owo_colors/
+
+```bash
+cargo add owo-colors
 ```
 
 </details>
