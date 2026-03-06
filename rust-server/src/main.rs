@@ -1,5 +1,6 @@
 mod app;
 mod config;
+mod errors;
 mod features;
 mod middleware;
 mod state;
@@ -11,27 +12,80 @@ use tokio::net::TcpListener;
 use crate::config::Config;
 use crate::utils::tracing::init_tracing;
 
+#[derive(Debug)]
+enum StartupError {
+    ConfigLoad,
+    AppBuild,
+    Bind,
+    Serve,
+}
+
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<(), StartupError> {
     init_tracing();
 
-    let config = Arc::new(
-        Config::from_env()
-            .map_err(|e| std::io::Error::other(format!("Failed to load config: {e}")))?,
-    );
+    let config = Arc::new(Config::from_env().map_err(|err| {
+        tracing::error!(?err, "Failed to load config from environment");
+        StartupError::ConfigLoad
+    })?);
+
     let state = state::AppState {
         config: Arc::clone(&config),
     };
 
-    let app = app::create_app(state);
+    let app = app::create_app(state).map_err(|err| {
+        tracing::error!(?err, "Failed to build app");
+        StartupError::AppBuild
+    })?;
 
     let addr = config.bind_addr();
-    let listener = TcpListener::bind(&addr).await?;
+    let listener = TcpListener::bind(&addr).await.map_err(|err| {
+        tracing::error!(?err, %addr, "Failed to bind TCP listener");
+        StartupError::Bind
+    })?;
 
-    tracing::info!("⚙️  Environment: {}", config.app_env);
+    tracing::info!("⚙️ Environment: {}", config.app_env);
     tracing::info!("🚀 Server on {addr}");
 
-    axum::serve(listener, app).await?;
+    axum::serve(listener, app)
+        .with_graceful_shutdown(shutdown_signal())
+        .await
+        .map_err(|err| {
+            tracing::error!(?err, "Server runtime error");
+            StartupError::Serve
+        })?;
 
     Ok(())
+}
+
+async fn shutdown_signal() {
+    let ctrl_c = async {
+        if let Err(err) = tokio::signal::ctrl_c().await {
+            tracing::error!(?err, "Failed to listen for Ctrl+C");
+        }
+    };
+
+    #[cfg(unix)]
+    let terminate = async {
+        use tokio::signal::unix::{SignalKind, signal};
+
+        match signal(SignalKind::terminate()) {
+            Ok(mut sigterm) => {
+                let _ = sigterm.recv().await;
+            }
+            Err(err) => {
+                tracing::error!(?err, "Failed to listen for SIGTERM");
+            }
+        }
+    };
+
+    #[cfg(not(unix))]
+    let terminate = std::future::pending::<()>();
+
+    tokio::select! {
+        _ = ctrl_c => {},
+        _ = terminate => {},
+    }
+
+    tracing::info!("Shutdown signal received, stopping server gracefully");
 }
