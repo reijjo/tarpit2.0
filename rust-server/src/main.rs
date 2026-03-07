@@ -7,6 +7,7 @@ mod state;
 mod utils;
 
 use std::sync::Arc;
+use std::time::Instant;
 use tokio::net::TcpListener;
 
 use crate::config::Config;
@@ -28,9 +29,11 @@ async fn main() -> Result<(), StartupError> {
         tracing::error!(?err, "Failed to load config from environment");
         StartupError::ConfigLoad
     })?);
+    let start_time = Instant::now();
 
     let state = state::AppState {
         config: Arc::clone(&config),
+        start_time,
     };
 
     let app = app::create_app(state).map_err(|err| {

@@ -1,7 +1,8 @@
 use crate::config::Config;
-use std::sync::Arc;
+use std::time::Instant;
 
 #[derive(Clone)]
 pub struct AppState {
-    pub config: Arc<Config>,
+    pub config: std::sync::Arc<Config>,
+    pub start_time: Instant,
 }
