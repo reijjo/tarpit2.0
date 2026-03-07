@@ -9,12 +9,13 @@ pub enum AppEnv {
     Test,
 }
 
+#[allow(dead_code)]
 impl AppEnv {
     pub fn is_production(&self) -> bool {
         self == &AppEnv::Production
     }
 
-    pub fn _is_test(&self) -> bool {
+    pub fn is_test(&self) -> bool {
         self == &AppEnv::Test
     }
 }
@@ -64,7 +65,7 @@ impl Config {
 
     #[allow(dead_code)]
     pub fn active_db_url(&self) -> &str {
-        if self.app_env._is_test() {
+        if self.app_env.is_test() {
             &self.db_test_url
         } else {
             &self.db_url
