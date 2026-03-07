@@ -48,84 +48,46 @@ jobs:
           name: frontend-coverage
           path: client/coverage/
 
-  backend:
-    name: Backend Tests
+  rust-backend:
+    name: Rust Backend Tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
       run:
-        working-directory: ./server
-
-    env:
-      NODE_ENV: test
-      DB_TEST_URL: ${{ secrets.DB_TEST_URL }}
-      DB_TEST_NAME: ${{ secrets.DB_TEST_NAME }}
-      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-      TARPIT_DOMAIN: ${{ secrets.TARPIT_DOMAIN }}
-      FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
-
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_DB: ${{ secrets.DB_TEST_NAME }}
-        ports:
-          - "5432:5432"
-        options: >-
-          --health-cmd "pg_isready -h 127.0.0.1 -p 5432"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 20
+        working-directory: ./rust-server
 
     steps:
       - uses: actions/checkout@v4
 
-      - uses: oven-sh/setup-bun@v2
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
         with:
-          bun-version: latest
+          components: rustfmt, clippy
 
-      - name: Cache dependencies
+      - name: Cache Cargo dependencies
         uses: actions/cache@v4
         with:
           path: |
-            server/node_modules
-            ~/.bun/install/cache
-          key: ${{ runner.os }}-bun-server-${{ hashFiles('server/bun.lockb') }}
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('rust-server/Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}-bun-server-
+            ${{ runner.os }}-cargo-
 
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
+      - name: Run tests
+        run: cargo test
 
-      - name: Validate required CI config
-        run: |
-          [ -n "$DB_TEST_URL" ] || { echo "Missing secret DB_TEST_URL"; exit 1; }
-          [ -n "$POSTGRES_USER" ] || { echo "Missing secret POSTGRES_USER"; exit 1; }
-          [ -n "$POSTGRES_PASSWORD" ] || { echo "Missing secret POSTGRES_PASSWORD"; exit 1; }
-          [ -n "$DB_TEST_NAME" ] || { echo "Missing secret DB_TEST_NAME"; exit 1; }
-          [ -n "$FRONTEND_URL" ] || { echo "Missing secret FRONTEND_URL"; exit 1; }
+      - name: Run clippy
+        run: cargo clippy -- -D warnings
 
-      - name: Apply Prisma migrations
-        run: bunx prisma migrate deploy
-
-      - name: Run tests with coverage
-        run: bun run test
-
-      - name: Upload coverage reports
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: backend-coverage
-          path: server/testcoverage/
+      - name: Run rustfmt
+        run: cargo fmt -- --check
 
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
-    needs: [frontend-unit, backend]
+    needs: [frontend-unit, rust-backend]
     timeout-minutes: 15
     defaults:
       run:
@@ -161,8 +123,7 @@ jobs:
         with:
           bun-version: latest
 
-      # Cache client dependencies
-      - name: Cache client dependencies
+      - name: Cache dependencies
         uses: actions/cache@v4
         with:
           path: |
@@ -172,27 +133,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-bun-client-
 
-      # Cache server dependencies
-      - name: Cache server dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            server/node_modules
-            ~/.bun/install/cache
-          key: ${{ runner.os }}-bun-server-${{ hashFiles('server/bun.lockb') }}
-          restore-keys: |
-            ${{ runner.os }}-bun-server-
-
-      - name: Install client dependencies
+      - name: Install dependencies
         run: bun install --frozen-lockfile
-
-      - name: Install server dependencies
-        working-directory: ./server
-        run: bun install --frozen-lockfile
-
-      - name: Apply Prisma migrations
-        working-directory: ./server
-        run: bunx prisma migrate deploy
 
       - name: Cache Playwright browsers
         uses: actions/cache@v4

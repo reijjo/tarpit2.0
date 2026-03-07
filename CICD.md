@@ -7,7 +7,7 @@ Complete guide for setting up GitHub Actions for automated testing in a monorepo
 - GitHub repository
 - Bun runtime
 - Frontend: Next.js + Vitest + Playwright
-- Backend: Express + Bun test
+- Backend: Rust/Axum + Cargo
 
 ## 🚀 Initial Setup
 
@@ -72,48 +72,46 @@ jobs:
           name: frontend-coverage
           path: client/coverage/
 
-  backend:
-    name: Backend Tests
+  rust-backend:
+    name: Rust Backend Tests
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./server
+        working-directory: ./rust-server
 
     steps:
       - uses: actions/checkout@v4
 
-      - uses: oven-sh/setup-bun@v2
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
         with:
-          bun-version: latest
+          components: rustfmt, clippy
 
-      - name: Cache dependencies
+      - name: Cache Cargo dependencies
         uses: actions/cache@v4
         with:
           path: |
-            server/node_modules
-            ~/.bun/install/cache
-          key: ${{ runner.os }}-bun-${{ hashFiles('server/bun.lockb') }}
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}-bun-
+            ${{ runner.os }}-cargo-
 
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
+      - name: Run tests
+        run: cargo test
 
-      - name: Run tests with coverage
-        run: bun test --coverage
+      - name: Run clippy
+        run: cargo clippy -- -D warnings
 
-      - name: Upload coverage reports
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: backend-coverage
-          path: server/src/tests/coverage/
+      - name: Run rustfmt
+        run: cargo fmt -- --check
 
   # E2E runs last and only if unit tests pass
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
-    needs: [frontend-unit, backend]
+    needs: [frontend-unit, rust-backend]
     defaults:
       run:
         working-directory: ./client
