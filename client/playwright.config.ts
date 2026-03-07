@@ -27,8 +27,6 @@ export default defineConfig({
     {
       command: "APP_ENV=test cargo run",
       cwd: path.resolve(__dirname, "../rust-server"),
-      // 🦀 Explicit 127.0.0.1 — avoids the macOS localhost → ::1 resolution
-      // that causes reuseExistingServer to silently fail
       url: "http://127.0.0.1:3001/health",
       reuseExistingServer: !process.env.CI,
       timeout: 120000,
@@ -41,7 +39,7 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
       timeout: 30000,
       env: {
-        PORT: "3000", // 👈 pin this explicitly so CI's PORT=3001 doesn't leak in
+        PORT: "3000",
       },
     },
   ],
