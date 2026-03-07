@@ -25,18 +25,24 @@ export default defineConfig({
 
   webServer: [
     {
-      command: "bun run dev:test",
-      cwd: path.resolve(__dirname, "../server"), // ✅ Absolute path, no ambiguity
-      url: "http://localhost:3001",
+      command: "APP_ENV=test cargo run",
+      cwd: path.resolve(__dirname, "../rust-server"),
+      // 🦀 Explicit 127.0.0.1 — avoids the macOS localhost → ::1 resolution
+      // that causes reuseExistingServer to silently fail
+      url: "http://127.0.0.1:3001/health",
       reuseExistingServer: !process.env.CI,
-      timeout: 60000, // ✅ More time for migrations to run first
+      timeout: 120000,
     },
+    // playwright.config.ts
     {
       command: "bun run dev",
-      cwd: path.resolve(__dirname), // ✅ Explicit client path
-      url: "http://localhost:3000",
+      cwd: path.resolve(__dirname),
+      url: "http://127.0.0.1:3000",
       reuseExistingServer: !process.env.CI,
       timeout: 30000,
+      env: {
+        PORT: "3000", // 👈 pin this explicitly so CI's PORT=3001 doesn't leak in
+      },
     },
   ],
 });

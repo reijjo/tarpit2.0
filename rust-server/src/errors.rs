@@ -6,6 +6,7 @@ use axum::{
 use serde::Serialize;
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub enum AppError {
     NotFound(String),
     Internal(String),
@@ -17,6 +18,7 @@ struct ErrorBody {
     error: String,
 }
 
+#[allow(dead_code)]
 impl AppError {
     pub fn not_found(message: impl Into<String>) -> Self {
         Self::NotFound(message.into())
