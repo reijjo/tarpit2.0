@@ -147,6 +147,30 @@ cd rust-server/
 cargo test
 ```
 
+**Coverage summary (terminal):**
+
+```bash
+cd rust-server/
+cargo llvm-cov
+```
+
+**Coverage report (HTML):**
+
+```bash
+cd rust-server/
+cargo llvm-cov --html --open
+```
+
+If `cargo llvm-cov` is missing:
+
+```bash
+cargo install cargo-llvm-cov
+```
+
+**Data source:**
+
+- [cargo-llvm-cov](https://github.com/taiki-e/cargo-llvm-cov)
+
 ---
 
 ## 📖 Documentation

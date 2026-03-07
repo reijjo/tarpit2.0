@@ -1,4 +1,4 @@
-use std::{sync::Arc, time::SystemTime};
+use std::time::Instant;
 
 use axum_test::TestServer;
 use rust_server::{
@@ -9,7 +9,7 @@ use rust_server::{
 
 pub fn build_test_server() -> TestServer {
     let mut config = Config::from_env().expect("failed to load .env config for test");
-    let start_time = Arc::new(SystemTime::now());
+    let start_time = Instant::now();
 
     // Integration tests should always run in explicit test mode,
     // regardless of local APP_ENV in .env.
@@ -20,7 +20,7 @@ pub fn build_test_server() -> TestServer {
     eprintln!("[test] APP_ENV={}", config.app_env);
 
     let state = AppState {
-        config: Arc::new(config),
+        config: std::sync::Arc::new(config),
         start_time,
     };
 
