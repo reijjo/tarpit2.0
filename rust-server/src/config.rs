@@ -55,10 +55,10 @@ impl Config {
     }
 
     pub fn bind_addr(&self) -> String {
-        if self.app_env.is_production() {
-            format!("0.0.0.0:{}", self.port) // all interfaces in production
-        } else {
-            format!("127.0.0.1:{}", self.port) // localhost only in dev/test
+        match self.app_env {
+            AppEnv::Production => format!("0.0.0.0:{}", self.port),
+            AppEnv::Test => format!("0.0.0.0:{}", self.port),
+            AppEnv::Development => format!("127.0.0.1:{}", self.port),
         }
     }
 
