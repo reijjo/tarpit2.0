@@ -1,11 +1,11 @@
 use crate::features::health::types::{DatabaseStatus, HealthResponse, MemoryInfo};
 use crate::state::AppState;
-use axum::{extract::State, response::Json};
+use axum::extract::State;
 use chrono::Utc;
 use std::time::SystemTime;
 use sysinfo::System;
 
-pub async fn health_handler(State(state): State<AppState>) -> Json<HealthResponse> {
+pub async fn health_handler(State(state): State<AppState>) -> HealthResponse {
     // 1. Calculate uptime
     let uptime = SystemTime::now()
         .duration_since(*state.start_time)
@@ -24,14 +24,14 @@ pub async fn health_handler(State(state): State<AppState>) -> Json<HealthRespons
         connection_test: "not implemented yet".to_string(),
     };
 
-    Json(HealthResponse {
+    HealthResponse {
         status: "ok".to_string(),
         timestamp,
         uptime,
         environment: state.config.app_env.to_string(),
         memory,
         database: Some(database),
-    })
+    }
 }
 
 fn get_memory_info() -> Option<MemoryInfo> {
