@@ -228,18 +228,22 @@ Required dependencies:
 }
 ```
 
-### Backend (server/package.json)
+### Backend (rust-server/Cargo.toml)
 
-Required scripts:
+Required commands:
 
-```json
-{
-  "scripts": {
-    "dev": "bun --watch src/index.ts",
-    "test": "bun test src/**/*.spec.ts",
-    "test:cover": "bun test --coverage src/**/*.spec.ts"
-  }
-}
+```bash
+# Run backend
+cargo run
+
+# Run tests
+cargo test
+
+# Run with coverage
+cargo llvm-cov
+
+# Run with coverage and open HTML report
+cargo llvm-cov --html --open
 ```
 
 ## 🔄 Development Workflow
@@ -263,8 +267,8 @@ cd client
 bun test        # Unit tests
 bun test:e2e    # E2E tests
 
-cd ../server
-bun test        # Backend tests
+cd ../rust-server
+cargo test      # Backend tests
 ```
 
 ### Push and Create Pull Request

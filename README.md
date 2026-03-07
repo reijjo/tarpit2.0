@@ -5,7 +5,7 @@ A full-stack bet tracking application built with Next.js and Express, allowing u
 ## 🛠️ Tech Stack
 
 **Frontend:** Next.js 16+, React 19+, TypeScript
-**Backend:** Express, TypeScript, PostgreSQL
+**Backend:** Rust, Axum, PostgreSQL
 **Runtime:** Bun
 
 ---
@@ -34,12 +34,11 @@ The frontend will run on `http://localhost:3000`
 
 ### Backend
 
-Navigate to the `server/` folder:
+Navigate to the `rust-server/` folder:
 
 ```bash
-cd server/
-bun install
-bun dev
+cd rust-server/
+cargo run
 ```
 
 The backend will run on `http://localhost:3001`
@@ -55,7 +54,7 @@ Local PostgreSQL + Adminer + Prisma setup is documented in:
 Quick start:
 
 ```bash
-cd server/
+cd rust-server/
 docker compose -f compose.yml up -d
 ```
 
@@ -77,21 +76,29 @@ Use the same Adminer URL for both databases.
 NEXT_PUBLIC_API_URL=http://localhost:3001
 ```
 
-### Backend (`server/.env`)
+### Backend (`rust-server/.env`)
 
 ```env
+APP_ENV=development
 PORT=3001
-NODE_ENV=development
 
+# Database
 DB_PORT=5432
 DB_TEST_PORT=5433
-DB_NAME=<db_name>
-DB_TEST_NAME=<db_test_name>
-POSTGRES_USER=<postgres_user>
-POSTGRES_PASSWORD=<postgres_password>
+DB_NAME=tarpit
+DB_TEST_NAME=tarpit_test
 
-DB_URL=postgresql://<postgres_user>:<postgres_password>@localhost:5432/<db_name>
-DB_TEST_URL=postgresql://<postgres_user>:<postgres_password>@localhost:5433/<db_test_name>
+# Database URLs
+DB_URL=postgresql://<POSTGRES_USER>:<POSTGRES_PASSWORD>@localhost:5432/tarpit
+DB_TEST_URL=postgresql://<POSTGRES_USER>:<POSTGRES_PASSWORD>@localhost:5433/tarpit_test
+
+# PostgreSQL
+POSTGRES_USER=<your_username>
+POSTGRES_PASSWORD=<your_password>
+
+# URLs
+BACKEND_URL=http://localhost:3001
+FRONTEND_URL=http://localhost:3000
 ```
 
 ---
@@ -120,31 +127,20 @@ cd client/
 bun test:e2e
 ```
 
-### Backend
+### Rust Backend (Axum)
 
 **Unit tests:**
 
 ```bash
-cd server/
-bun test
+cd rust-server/
+cargo test
 ```
-
-Backend tests run with `NODE_ENV=test` and target `DB_TEST_URL`.
-
-### Rust Backend (Axum)
 
 **Integration tests (single target):**
 
 ```bash
 cd rust-server/
 cargo test --test api
-```
-
-**Run all Rust tests (unit + integration + doc):**
-
-```bash
-cd rust-server/
-cargo test
 ```
 
 **Coverage summary (terminal):**
@@ -176,7 +172,6 @@ cargo install cargo-llvm-cov
 ## 📖 Documentation
 
 - [Frontend Documentation](./client/documentation.md)
-- [Backend Documentation](./server/documentation.md)
 - [Rust Backend Documentation](./rust-server/documentation.md)
 - [Database Setup](./DATABASE.md)
 
@@ -187,7 +182,6 @@ cargo install cargo-llvm-cov
 ```text
 tarpit2.0/
 ├── client/          # Next.js frontend
-├── server/          # Express backend
 ├── rust-server/     # Rust + Axum backend
 └── README.md
 ```

@@ -23,24 +23,26 @@ Why this is correct:
 
 ## 1. Configure Environment Variables
 
-Edit `server/.env`.
+Edit `rust-server/.env`.
 
 ```env
-# Server
+# Environment
+APP_ENV=development
 PORT=3001
-NODE_ENV=development
 
 # Dockerized PostgreSQL
 DB_PORT=5432
 DB_TEST_PORT=5433
-DB_NAME=<db_name>
-DB_TEST_NAME=<db_test_name>
-POSTGRES_USER=<postgres_user>
-POSTGRES_PASSWORD=<postgres_password>
+DB_NAME=tarpit
+DB_TEST_NAME=tarpit_test
 
-# Prisma connection strings
-DB_URL=postgresql://<postgres_user>:<postgres_password>@localhost:5432/<db_name>
-DB_TEST_URL=postgresql://<postgres_user>:<postgres_password>@localhost:5433/<db_test_name>
+# Database URLs
+DB_URL=postgresql://<POSTGRES_USER>:<POSTGRES_PASSWORD>@localhost:5432/tarpit
+DB_TEST_URL=postgresql://<POSTGRES_USER>:<POSTGRES_PASSWORD>@localhost:5433/tarpit_test
+
+# PostgreSQL
+POSTGRES_USER=<your_username>
+POSTGRES_PASSWORD=<your_password>
 ```
 
 Contract in this repository:
@@ -52,10 +54,10 @@ Contract in this repository:
 
 ## 2. Start and Stop Database Services
 
-Run from `server/`:
+Run from `rust-server/`:
 
 ```bash
-cd /Users/reijjo/workspace/projects/fullstack/react_node/tarpit2.0/server
+cd /Users/reijjo/workspace/projects/fullstack/react_node/tarpit2.0/rust-server
 
 # Start Postgres (dev + test) and Adminer
 docker compose -f compose.yml up -d
@@ -116,7 +118,7 @@ No second Adminer port is needed unless you specifically want two separate Admin
 
 ## 5. Prisma Workflow
 
-Run from `server/`:
+Run from `rust-server/`:
 
 ```bash
 # If not installed yet
@@ -139,20 +141,20 @@ DB_URL="$DB_TEST_URL" bunx prisma migrate deploy
 ## 6. Default Dev/Test Workflow
 
 - Backend in development uses `DB_URL`
-- Tests should run with `NODE_ENV=test`, which makes app config select `DB_TEST_URL`
+- Tests should run with `APP_ENV=test`, which makes app config select `DB_TEST_URL`
 
 Run backend:
 
 ```bash
-cd server
-bun dev
+cd rust-server
+cargo run
 ```
 
 Run backend tests against test DB:
 
 ```bash
-cd server
-bun test
+cd rust-server
+cargo test
 ```
 
 ## 7. Validation Scenarios
@@ -160,7 +162,7 @@ bun test
 1. Start stack and verify all 3 services are healthy (`postgres`, `postgres_test`, `adminer`).
 2. Connect to dev DB through Adminer (`Server=postgres`) and confirm dev tables.
 3. Connect to test DB through Adminer (`Server=postgres_test`) and confirm separate test tables.
-4. Run tests with `NODE_ENV=test` and confirm writes happen only in test DB.
+4. Run tests with `APP_ENV=test` and confirm writes happen only in test DB.
 5. Verify dev data remains unchanged after test runs.
 
 ## 8. Troubleshooting
@@ -187,7 +189,7 @@ docker compose -f compose.yml up -d
 
 Missing env variable (`DB_URL environment variable is not set`):
 
-- Confirm `server/.env` has `DB_URL`.
+- Confirm `rust-server/.env` has `DB_URL`.
 - Restart backend after updating env.
 
 If you later switch to one Postgres container with two databases, then one host DB port is enough.
