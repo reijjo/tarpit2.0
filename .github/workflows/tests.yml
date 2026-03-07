@@ -59,6 +59,18 @@ jobs:
     env:
       APP_ENV: test
       PORT: "3001"
+      DB_PORT: ${{ secrets.DB_PORT }}
+      DB_URL: ${{ secrets.DB_URL }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_TEST_PORT: ${{ secrets.DB_TEST_PORT }}
+      DB_TEST_NAME: ${{ secrets.DB_TEST_NAME }}
+      DB_TEST_URL: ${{ secrets.DB_TEST_URL }}
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      BACKEND_URL: http://localhost:3001
+      FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      TARPIT_DOMAIN: ${{ secrets.TARPIT_DOMAIN }}
 
     steps:
       - uses: actions/checkout@v4
