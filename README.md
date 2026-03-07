@@ -1,6 +1,6 @@
 # 🎯 Tarpit 2.0
 
-A full-stack bet tracking application built with Next.js and Express, allowing users to manage and analyze their betting history.
+A full-stack bet tracking application built with Next.js and Rust(Axum), allowing users to manage and analyze their betting history.
 
 ## 🛠️ Tech Stack
 
