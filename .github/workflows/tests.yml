@@ -10,7 +10,12 @@ concurrency:
   group: tests-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# ── Shared env blocks ────────────────────────────────────────────────────────
+# env blocks can't be anchors in GitHub Actions YAML, but we define
+# rust config at the job level to keep things explicit and readable.
+
 jobs:
+  # ── Frontend Unit Tests ────────────────────────────────────────────────────
   frontend-unit:
     name: Frontend Unit Tests
     runs-on: ubuntu-latest
@@ -25,15 +30,14 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Cache dependencies
+      - name: Cache bun dependencies
         uses: actions/cache@v4
         with:
           path: |
             client/node_modules
             ~/.bun/install/cache
           key: ${{ runner.os }}-bun-client-${{ hashFiles('client/bun.lockb') }}
-          restore-keys: |
-            ${{ runner.os }}-bun-client-
+          restore-keys: ${{ runner.os }}-bun-client-
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
@@ -41,13 +45,14 @@ jobs:
       - name: Run unit tests with coverage
         run: bun test:cover
 
-      - name: Upload coverage reports
+      - name: Upload coverage report
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: frontend-coverage
           path: client/coverage/
 
+  # ── Rust Backend Tests ─────────────────────────────────────────────────────
   rust-backend:
     name: Rust Backend Tests
     runs-on: ubuntu-latest
@@ -71,9 +76,17 @@ jobs:
       FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
       TARPIT_DOMAIN: ${{ secrets.TARPIT_DOMAIN }}
+      # 🦀 Disable incremental compilation in CI — it bloats the cache
+      # with per-crate artifacts that are useless across different commits
+      CARGO_INCREMENTAL: "0"
+      # 🦀 Faster linker on Linux — cuts link time significantly
+      RUSTFLAGS: "-C linker=clang -C link-arg=-fuse-ld=lld"
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install lld linker
+        run: sudo apt-get install -y clang lld
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -86,36 +99,53 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            target
+            # 🦀 Must be relative to repo root, not working-directory
+            rust-server/target
+          # 🦀 Hash Cargo.lock — cache busts only when dependencies change
           key: ${{ runner.os }}-cargo-${{ hashFiles('rust-server/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-
+          restore-keys: ${{ runner.os }}-cargo-
 
-      - name: Run tests
-        run: cargo test
+      # 🦀 Run all three in parallel conceptually — fail fast on fmt first
+      # since it's the cheapest check. Order: fmt → clippy → test
+      - name: Check formatting
+        run: cargo fmt -- --check
 
       - name: Run clippy
         run: cargo clippy -- -D warnings
 
-      - name: Run rustfmt
-        run: cargo fmt -- --check
+      - name: Run tests
+        run: cargo test
 
+  # ── E2E Tests ──────────────────────────────────────────────────────────────
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
     needs: [frontend-unit, rust-backend]
-    timeout-minutes: 15
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: ./client
 
     env:
-      NODE_ENV: test
+      # 🦀 Full Rust config — playwright starts cargo run in this job
+      APP_ENV: test
+      PORT: "3001"
+      DB_PORT: ${{ secrets.DB_PORT }}
+      DB_URL: ${{ secrets.DB_URL }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_TEST_PORT: ${{ secrets.DB_TEST_PORT }}
+      DB_TEST_NAME: ${{ secrets.DB_TEST_NAME }}
       DB_TEST_URL: ${{ secrets.DB_TEST_URL }}
-      NEXT_PUBLIC_DEV_BACKEND: http://localhost:3001
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      BACKEND_URL: http://localhost:3001
+      FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
       TARPIT_DOMAIN: ${{ secrets.TARPIT_DOMAIN }}
-      FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+      CARGO_INCREMENTAL: "0"
+      RUSTFLAGS: "-C linker=clang -C link-arg=-fuse-ld=lld"
+      # Frontend env
+      NEXT_PUBLIC_DEV_BACKEND: http://localhost:3001
 
     services:
       postgres:
@@ -135,19 +165,37 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install lld linker
+        run: sudo apt-get install -y clang lld
+
+      # 🦀 Rust toolchain required — playwright runs "cargo run"
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      # 🦀 Reuse exact same cache key as rust-backend job —
+      # binary is already compiled, this job just runs it
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            rust-server/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('rust-server/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
-      - name: Cache dependencies
+      - name: Cache bun dependencies
         uses: actions/cache@v4
         with:
           path: |
             client/node_modules
             ~/.bun/install/cache
           key: ${{ runner.os }}-bun-client-${{ hashFiles('client/bun.lockb') }}
-          restore-keys: |
-            ${{ runner.os }}-bun-client-
+          restore-keys: ${{ runner.os }}-bun-client-
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
@@ -163,7 +211,7 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: bunx playwright install --with-deps chromium
 
-      - name: Install system dependencies (if cache hit)
+      - name: Install system dependencies (cache hit)
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: bunx playwright install-deps chromium
 
