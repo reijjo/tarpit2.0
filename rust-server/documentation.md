@@ -221,7 +221,7 @@ curl http://127.0.0.1:3001/THIS_DOES_NOT_EXIST
 
 ---
 
-## ✅ Testing (integration)
+## ✅ Testing (integration + coverage)
 
 - Integration tests live in crate-root `tests/` (not inside `src/`).
 - Single integration target entrypoint: `tests/api.rs`.
@@ -250,6 +250,30 @@ Run all Rust tests (unit + integration + doctests):
 cd rust-server
 cargo test
 ```
+
+Coverage summary (terminal):
+
+```bash
+cd rust-server
+cargo llvm-cov
+```
+
+Coverage report (HTML):
+
+```bash
+cd rust-server
+cargo llvm-cov --html --open
+```
+
+If `cargo llvm-cov` is missing:
+
+```bash
+cargo install cargo-llvm-cov
+```
+
+Data source:
+
+- https://github.com/taiki-e/cargo-llvm-cov
 
 Project now exposes modules for integration tests via `src/lib.rs`.
 
