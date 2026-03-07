@@ -57,7 +57,7 @@ Contract in this repository:
 Run from `rust-server/`:
 
 ```bash
-cd /Users/reijjo/workspace/projects/fullstack/react_node/tarpit2.0/rust-server
+cd rust-server
 
 # Start Postgres (dev + test) and Adminer
 docker compose -f compose.yml up -d

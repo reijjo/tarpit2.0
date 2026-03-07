@@ -37,7 +37,7 @@ The frontend will run on `http://localhost:3000`
 Navigate to the `rust-server/` folder:
 
 ```bash
-cd rust-server/
+cd rust-server
 cargo run
 ```
 
@@ -54,7 +54,7 @@ Local PostgreSQL + Adminer + Prisma setup is documented in:
 Quick start:
 
 ```bash
-cd rust-server/
+cd rust-server
 docker compose -f compose.yml up -d
 ```
 
@@ -132,28 +132,28 @@ bun test:e2e
 **Unit tests:**
 
 ```bash
-cd rust-server/
+cd rust-server
 cargo test
 ```
 
 **Integration tests (single target):**
 
 ```bash
-cd rust-server/
+cd rust-server
 cargo test --test api
 ```
 
 **Coverage summary (terminal):**
 
 ```bash
-cd rust-server/
+cd rust-server
 cargo llvm-cov
 ```
 
 **Coverage report (HTML):**
 
 ```bash
-cd rust-server/
+cd rust-server
 cargo llvm-cov --html --open
 ```
 
