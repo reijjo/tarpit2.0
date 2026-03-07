@@ -56,6 +56,9 @@ jobs:
       run:
         working-directory: ./rust-server
 
+    env:
+      APP_ENV: test
+
     steps:
       - uses: actions/checkout@v4
 
