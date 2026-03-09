@@ -3,7 +3,7 @@ use serde_json::Value;
 
 #[tokio::test]
 async fn health_ok() {
-    let server = build_test_server();
+    let server = build_test_server().await;
 
     let res = server.get("/health").await;
     res.assert_status_ok();

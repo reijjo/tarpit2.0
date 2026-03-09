@@ -1,6 +1,7 @@
-# Database Setup (PostgreSQL + Adminer + Prisma)
+# Database Setup (PostgreSQL + Adminer + sqlx)
 
-This project uses Docker for local PostgreSQL, Adminer for web-based database management, and Prisma for schema/migrations.
+This project uses Docker for local PostgreSQL, Adminer for web-based
+database management, and sqlx for migrations and queries.
 
 ## Port Strategy (Important)
 
@@ -18,14 +19,23 @@ Why this is correct:
 ## Prerequisites
 
 - Docker Desktop with Docker Compose
-- Bun installed
+- Rust + Cargo installed
+- `sqlx-cli` installed (see below)
 - Repo cloned locally
+
+## 0. Install sqlx-cli
+
+```bash
+cargo install sqlx-cli --no-default-features --features postgres,rustls
+```
+
+This gives you the `sqlx` command globally for creating and running migrations.
 
 ## 1. Configure Environment Variables
 
-Edit `rust-server/.env`.
+Edit `rust-server/.env`:
 
-```env
+```text
 # Environment
 APP_ENV=development
 PORT=3001
@@ -40,17 +50,23 @@ DB_TEST_NAME=tarpit_test
 DB_URL=postgresql://<POSTGRES_USER>:<POSTGRES_PASSWORD>@localhost:5432/tarpit
 DB_TEST_URL=postgresql://<POSTGRES_USER>:<POSTGRES_PASSWORD>@localhost:5433/tarpit_test
 
-# PostgreSQL
+# PostgreSQL credentials
 POSTGRES_USER=<your_username>
 POSTGRES_PASSWORD=<your_password>
+
+# Other required vars
+BACKEND_URL=http://localhost:3001
+FRONTEND_URL=http://localhost:5173
+RESEND_API_KEY=re_xxxx
+TARPIT_DOMAIN=spam.example.com
 ```
 
 Contract in this repository:
 
-- `DB_URL` -> dev database
-- `DB_TEST_URL` -> test database
-- `DB_PORT` -> host port for `postgres`
-- `DB_TEST_PORT` -> host port for `postgres_test`
+- `DB_URL` → dev database
+- `DB_TEST_URL` → test database
+- `DB_PORT` → host port for `postgres` container
+- `DB_TEST_PORT` → host port for `postgres_test` container
 
 ## 2. Start and Stop Database Services
 
@@ -72,7 +88,7 @@ Stop services:
 docker compose -f compose.yml down
 ```
 
-Reset services and volumes (project only):
+Reset services and volumes (wipes all data):
 
 ```bash
 docker compose -f compose.yml down -v --remove-orphans
@@ -90,58 +106,78 @@ docker compose -f compose.yml exec postgres_test psql -U <postgres_user> -d <db_
 
 Useful psql commands:
 
-- `\l` list databases
-- `\dt` list tables
-- `\q` quit
+- `\l` — list databases
+- `\dt` — list tables
+- `\q` — quit
 
 ## 4. Open Adminer (One Port For Both Databases)
 
 Open: `http://localhost:8080`
 
-Login for dev database:
+**Login for dev database:**
 
-- System: `PostgreSQL`
-- Server: `postgres`
-- Username: value of `POSTGRES_USER`
-- Password: value of `POSTGRES_PASSWORD`
-- Database: value of `DB_NAME`
+| Field    | Value                        |
+| -------- | ---------------------------- |
+| System   | PostgreSQL                   |
+| Server   | `postgres`                   |
+| Username | value of `POSTGRES_USER`     |
+| Password | value of `POSTGRES_PASSWORD` |
+| Database | value of `DB_NAME`           |
 
-Login for test database:
+**Login for test database:**
 
-- System: `PostgreSQL`
-- Server: `postgres_test`
-- Username: value of `POSTGRES_USER`
-- Password: value of `POSTGRES_PASSWORD`
-- Database: value of `DB_TEST_NAME`
+| Field    | Value                        |
+| -------- | ---------------------------- |
+| System   | PostgreSQL                   |
+| Server   | `postgres_test`              |
+| Username | value of `POSTGRES_USER`     |
+| Password | value of `POSTGRES_PASSWORD` |
+| Database | value of `DB_TEST_NAME`      |
 
-No second Adminer port is needed unless you specifically want two separate Adminer browser tabs with separate services.
+## 5. sqlx Migration Workflow
 
-## 5. Prisma Workflow
+Migrations live in `rust-server/migrations/` as plain `.sql` files.
+sqlx runs them automatically on server startup via `sqlx::migrate!()`.
 
 Run from `rust-server/`:
 
 ```bash
-# If not installed yet
-bun add @prisma/client
-bun add -d prisma
+# Create a new migration file
+sqlx migrate add <migration_name>
+# Example: sqlx migrate add create_users_table
+# Creates: migrations/20260308_create_users_table.sql
 
-# Generate Prisma Client
-bunx prisma generate
+# Run pending migrations manually against dev DB
+sqlx migrate run --database-url $DB_URL
 
-# Create/apply migration against dev DB and regenerate client
-bunx prisma migrate dev --name init
+# Run pending migrations against test DB
+sqlx migrate run --database-url $DB_TEST_URL
+
+# Revert last migration
+sqlx migrate revert --database-url $DB_URL
 ```
 
-Apply existing migrations to test DB:
+Migrations run automatically on startup — no manual step needed in normal dev flow.
+
+## 6. sqlx Compile-time Query Checks
+
+sqlx verifies SQL queries at compile time against your real database.
+This requires a live DB connection during `cargo build`.
 
 ```bash
-DB_URL="$DB_TEST_URL" bunx prisma migrate deploy
+# Save query metadata so offline builds work (CI without a live DB)
+cargo sqlx prepare --database-url $DB_URL
+
+# Check saved metadata is up to date
+cargo sqlx prepare --check --database-url $DB_URL
 ```
 
-## 6. Default Dev/Test Workflow
+Commit the generated `.sqlx/` folder to git — CI uses it to compile without a DB.
+
+## 7. Default Dev/Test Workflow
 
 - Backend in development uses `DB_URL`
-- Tests should run with `APP_ENV=test`, which makes app config select `DB_TEST_URL`
+- Backend in test uses `DB_TEST_URL` (selected automatically by `AppEnv::Test`)
 
 Run backend:
 
@@ -157,7 +193,7 @@ cd rust-server
 cargo test
 ```
 
-## 7. Validation Scenarios
+## 8. Validation Scenarios
 
 1. Start stack and verify all 3 services are healthy (`postgres`, `postgres_test`, `adminer`).
 2. Connect to dev DB through Adminer (`Server=postgres`) and confirm dev tables.
@@ -165,9 +201,9 @@ cargo test
 4. Run tests with `APP_ENV=test` and confirm writes happen only in test DB.
 5. Verify dev data remains unchanged after test runs.
 
-## 8. Troubleshooting
+## 9. Troubleshooting
 
-Port conflict (`5432`, `5433`, `8080`):
+**Port conflict (5432, 5433, 8080):**
 
 ```bash
 lsof -nP -iTCP:5432 -sTCP:LISTEN
@@ -175,21 +211,29 @@ lsof -nP -iTCP:5433 -sTCP:LISTEN
 lsof -nP -iTCP:8080 -sTCP:LISTEN
 ```
 
-Wrong credentials or wrong DB name:
+**Wrong credentials or wrong DB name:**
 
-- Check `POSTGRES_USER`, `POSTGRES_PASSWORD`, `DB_NAME`, `DB_TEST_NAME`.
-- Ensure `DB_URL` and `DB_TEST_URL` match those values.
+- Check `POSTGRES_USER`, `POSTGRES_PASSWORD`, `DB_NAME`, `DB_TEST_NAME`
+- Ensure `DB_URL` and `DB_TEST_URL` match those values
 
-Stale or incompatible volumes:
+**Stale or incompatible volumes:**
 
 ```bash
 docker compose -f compose.yml down -v --remove-orphans
 docker compose -f compose.yml up -d
 ```
 
-Missing env variable (`DB_URL environment variable is not set`):
+**Missing env variable at startup:**
 
-- Confirm `rust-server/.env` has `DB_URL`.
-- Restart backend after updating env.
+- Confirm `rust-server/.env` has all required vars
+- Restart backend after updating `.env`
 
-If you later switch to one Postgres container with two databases, then one host DB port is enough.
+**sqlx compile error (no DATABASE_URL set):**
+
+```bash
+# Either set it in your shell
+export DATABASE_URL=postgresql://...
+
+# Or use the saved .sqlx/ metadata
+cargo sqlx prepare --database-url $DB_URL
+```

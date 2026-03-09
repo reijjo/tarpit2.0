@@ -389,3 +389,25 @@ cargo add owo-colors
 ```
 
 </details>
+
+<details>
+<summary><strong>sqlx</strong></summary>
+
+**sqlx** — Async, compile-time checked SQL for PostgreSQL.
+
+- Version: `0.8.x`
+- Features: `postgres`, `runtime-tokio`, `tls-rustls`, `macros`, `migrate`, `uuid`, `chrono`
+- Purpose: DB connection pool (`PgPool`), compile-time verified queries, automatic migrations on startup
+- Documentation: https://docs.rs/sqlx/latest/sqlx/
+
+```bash
+cargo add sqlx --features postgres,runtime-tokio,tls-rustls,macros,migrate,uuid,chrono
+```
+
+**sqlx-cli** — Command line tool for managing migrations (installed globally):
+
+```bash
+cargo install sqlx-cli --no-default-features --features postgres,rustls
+```
+
+</details>
