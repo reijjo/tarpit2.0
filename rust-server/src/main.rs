@@ -1,5 +1,6 @@
 mod app;
 mod config;
+mod db;
 mod errors;
 mod features;
 mod middleware;
@@ -11,7 +12,17 @@ use std::time::Instant;
 use tokio::net::TcpListener;
 
 use crate::config::Config;
+use crate::db::connect::init_db;
 use crate::utils::tracing::init_tracing;
+
+impl From<crate::db::connect::DbError> for StartupError {
+    fn from(err: crate::db::connect::DbError) -> Self {
+        match err {
+            crate::db::connect::DbError::DbConnection => StartupError::DbConnect,
+            crate::db::connect::DbError::DbMigration => StartupError::DbMigrate,
+        }
+    }
+}
 
 #[derive(Debug)]
 enum StartupError {
@@ -19,6 +30,8 @@ enum StartupError {
     AppBuild,
     Bind,
     Serve,
+    DbConnect,
+    DbMigrate,
 }
 
 #[tokio::main]
@@ -30,10 +43,12 @@ async fn main() -> Result<(), StartupError> {
         StartupError::ConfigLoad
     })?);
     let start_time = Instant::now();
+    let db = init_db(&config).await?;
 
     let state = state::AppState {
         config: Arc::clone(&config),
         start_time,
+        db,
     };
 
     let app = app::create_app(state).map_err(|err| {
@@ -47,8 +62,8 @@ async fn main() -> Result<(), StartupError> {
         StartupError::Bind
     })?;
 
-    tracing::info!("⚙️ Environment: {}", config.app_env);
-    tracing::info!("🚀 Server on {addr}");
+    tracing::info!("Environment: {}", config.app_env);
+    tracing::info!("Server on {addr}");
 
     axum::serve(listener, app)
         .with_graceful_shutdown(shutdown_signal())

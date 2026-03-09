@@ -10,10 +10,6 @@ concurrency:
   group: tests-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-# ── Shared env blocks ────────────────────────────────────────────────────────
-# env blocks can't be anchors in GitHub Actions YAML, but we define
-# rust config at the job level to keep things explicit and readable.
-
 jobs:
   # ── Frontend Unit Tests ────────────────────────────────────────────────────
   frontend-unit:
@@ -76,11 +72,23 @@ jobs:
       FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
       TARPIT_DOMAIN: ${{ secrets.TARPIT_DOMAIN }}
-      # 🦀 Disable incremental compilation in CI — it bloats the cache
-      # with per-crate artifacts that are useless across different commits
       CARGO_INCREMENTAL: "0"
-      # 🦀 Faster linker on Linux — cuts link time significantly
       RUSTFLAGS: "-C linker=clang -C link-arg=-fuse-ld=lld"
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.DB_TEST_NAME }}
+        ports:
+          - "5432:5432"
+        options: >-
+          --health-cmd "pg_isready -h 127.0.0.1 -p 5432"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
 
     steps:
       - uses: actions/checkout@v4
@@ -99,14 +107,10 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            # 🦀 Must be relative to repo root, not working-directory
             rust-server/target
-          # 🦀 Hash Cargo.lock — cache busts only when dependencies change
           key: ${{ runner.os }}-cargo-${{ hashFiles('rust-server/Cargo.lock') }}
           restore-keys: ${{ runner.os }}-cargo-
 
-      # 🦀 Run all three in parallel conceptually — fail fast on fmt first
-      # since it's the cheapest check. Order: fmt → clippy → test
       - name: Check formatting
         run: cargo fmt -- --check
 
@@ -127,7 +131,6 @@ jobs:
         working-directory: ./client
 
     env:
-      # 🦀 Full Rust config — playwright starts cargo run in this job
       APP_ENV: test
       PORT: "3001"
       DB_PORT: ${{ secrets.DB_PORT }}
@@ -144,7 +147,6 @@ jobs:
       TARPIT_DOMAIN: ${{ secrets.TARPIT_DOMAIN }}
       CARGO_INCREMENTAL: "0"
       RUSTFLAGS: "-C linker=clang -C link-arg=-fuse-ld=lld"
-      # Frontend env
       NEXT_PUBLIC_DEV_BACKEND: http://localhost:3001
 
     services:
@@ -168,12 +170,9 @@ jobs:
       - name: Install lld linker
         run: sudo apt-get install -y clang lld
 
-      # 🦀 Rust toolchain required — playwright runs "cargo run"
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
 
-      # 🦀 Reuse exact same cache key as rust-backend job —
-      # binary is already compiled, this job just runs it
       - name: Cache Cargo dependencies
         uses: actions/cache@v4
         with:
