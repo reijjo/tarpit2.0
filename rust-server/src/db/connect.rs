@@ -11,7 +11,6 @@ pub enum DbError {
 
 pub async fn init_db(config: &Config) -> Result<PgPool, DbError> {
     let pool = connect_db(config).await?;
-    check_migration_folder()?;
     run_migrations(&pool).await?;
     Ok(pool)
 }
@@ -35,15 +34,6 @@ async fn connect_db(config: &Config) -> Result<PgPool, DbError> {
 
     tracing::info!("Database connected");
     Ok(pool)
-}
-
-fn check_migration_folder() -> Result<(), DbError> {
-    std::fs::create_dir_all("./migrations").map_err(|err| {
-        tracing::error!(?err, "Failed to create migrations directory");
-        DbError::DbMigration
-    })?;
-
-    Ok(())
 }
 
 async fn run_migrations(pool: &PgPool) -> Result<(), DbError> {
