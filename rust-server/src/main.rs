@@ -76,43 +76,6 @@ async fn main() -> Result<(), StartupError> {
     Ok(())
 }
 
-// async fn connect_db(config: &config::Config) -> Result<sqlx::PgPool, StartupError> {
-//     // std::fs::create_dir_all("./migrations").map_err(|err| {
-//     //     tracing::error!(?err, "Failed to create migrations directory");
-//     //     StartupError::DbMigrate
-//     // })?;
-
-//     let url = config.active_db_url();
-
-//     tracing::info!("Connecting to database...");
-
-//     let pool = sqlx::postgres::PgPoolOptions::new()
-//         .max_connections(20)
-//         .min_connections(1)
-//         .acquire_timeout(std::time::Duration::from_secs(5))
-//         .idle_timeout(std::time::Duration::from_secs(600))
-//         .connect(url)
-//         .await
-//         .map_err(|err| {
-//             tracing::error!(?err, "Failed to connect to database");
-//             StartupError::DbConnect
-//         })?;
-
-//     tracing::info!("Database connected");
-
-//     // sqlx::migrate!("./migrations")
-//     //     .run(&pool)
-//     //     .await
-//     //     .map_err(|err| {
-//     //         tracing::error!(?err, "Failed to run migrations");
-//     //         StartupError::DbMigrate
-//     //     })?;
-
-//     // tracing::info!("Migrations applied");
-
-//     Ok(pool)
-// }
-
 async fn shutdown_signal() {
     let ctrl_c = async {
         if let Err(err) = tokio::signal::ctrl_c().await {
