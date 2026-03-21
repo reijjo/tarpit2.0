@@ -13,7 +13,7 @@ async fn health_ok() {
 
     // Assert the response structure and values
     // Status should be "degraded" because database is failed
-    assert_eq!(body["status"], "degraded");
+    assert_eq!(body["status"], "ok");
     assert!(body["timestamp"].is_string());
     assert!(body["uptime"].is_number());
     assert!(body["environment"].is_string());
@@ -28,6 +28,6 @@ async fn health_ok() {
     // Check database status structure
     let database = &body["database"];
     assert!(database.is_object());
-    assert_eq!(database["status"], "failed");
-    assert_eq!(database["connection_test"], "not implemented yet");
+    assert_eq!(database["status"], "ok");
+    assert_eq!(database["connection_test"], "Database connection ok");
 }

@@ -1,10 +1,11 @@
-use crate::features::health::types::{DatabaseStatus, HealthResponse, MemoryInfo};
+use crate::errors::AppError;
+use crate::features::health::types::{DatabaseStatus, HealthResponse, HealthStatus, MemoryInfo};
 use crate::state::AppState;
 use axum::extract::State;
 use chrono::Utc;
 use sysinfo::System;
 
-pub async fn health_handler(State(state): State<AppState>) -> HealthResponse {
+pub async fn health_handler(State(state): State<AppState>) -> Result<HealthResponse, AppError> {
     // 1. Calculate uptime using Instant (monotonic, never goes backward)
     let uptime = state.start_time.elapsed().as_secs_f64();
 
@@ -15,37 +16,42 @@ pub async fn health_handler(State(state): State<AppState>) -> HealthResponse {
     let memory = get_memory_info();
 
     // 4. Database status (hardcoded for now)
-    let database = DatabaseStatus {
-        status: "failed".to_string(),
-        connection_test: "not implemented yet".to_string(),
-    };
+    let database = check_database_status(&state.db).await?;
 
     // 5. Determine overall status based on system health
     let status = determine_health_status(&memory, &database);
 
-    HealthResponse {
+    Ok(HealthResponse {
         status,
         timestamp,
         uptime,
         environment: state.config.app_env.to_string(),
         memory,
         database: Some(database),
-    }
+    })
 }
 
-fn determine_health_status(memory: &Option<MemoryInfo>, database: &DatabaseStatus) -> String {
+fn determine_health_status(memory: &Option<MemoryInfo>, database: &DatabaseStatus) -> HealthStatus {
     // Check if memory collection failed
     if memory.is_none() {
-        return "error".to_string();
+        return HealthStatus::Error;
     }
 
     // Check if database connection failed
-    if database.status == "failed" {
-        return "degraded".to_string();
+    match database.status {
+        HealthStatus::Error => return HealthStatus::Error,
+        _ => {}
+    }
+
+    // Check for memory issues
+    if let Some(mem) = memory {
+        if mem.percentage > 90.0 {
+            return HealthStatus::NotGood;
+        }
     }
 
     // Everything is healthy
-    "ok".to_string()
+    HealthStatus::Ok
 }
 
 fn get_memory_info() -> Option<MemoryInfo> {
@@ -63,4 +69,27 @@ fn get_memory_info() -> Option<MemoryInfo> {
             0.0
         },
     })
+}
+
+async fn check_database_status(db: &sqlx::PgPool) -> Result<DatabaseStatus, AppError> {
+    let start_time = std::time::Instant::now();
+
+    match sqlx::query("SELECT 1").fetch_one(db).await {
+        Ok(_) => {
+            let latency = start_time.elapsed().as_secs_f64() * 1000.0;
+            Ok(DatabaseStatus {
+                status: HealthStatus::Ok,
+                connection_test: "Database connection ok".to_string(),
+                latency_ms: Some(latency),
+            })
+        }
+        Err(err) => {
+            tracing::error!(?err, "Database health check failed");
+            Ok(DatabaseStatus {
+                status: HealthStatus::Error,
+                connection_test: format!("Database connection failed: {}", err),
+                latency_ms: None, // ✅ No latency for failed connections
+            })
+        }
+    }
 }

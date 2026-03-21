@@ -12,14 +12,15 @@ use std::time::Instant;
 use tokio::net::TcpListener;
 
 use crate::config::Config;
+use crate::db::connect::DbError;
 use crate::db::connect::init_db;
 use crate::utils::tracing::init_tracing;
 
-impl From<crate::db::connect::DbError> for StartupError {
-    fn from(err: crate::db::connect::DbError) -> Self {
+impl From<DbError> for StartupError {
+    fn from(err: DbError) -> Self {
         match err {
-            crate::db::connect::DbError::DbConnection => StartupError::DbConnect,
-            crate::db::connect::DbError::DbMigration => StartupError::DbMigrate,
+            DbError::DbConnection => StartupError::DbConnect,
+            DbError::DbMigration => StartupError::DbMigrate,
         }
     }
 }
