@@ -19,8 +19,8 @@ use crate::utils::tracing::init_tracing;
 impl From<DbError> for StartupError {
     fn from(err: DbError) -> Self {
         match err {
-            DbError::DbConnection => StartupError::DbConnect,
-            DbError::DbMigration => StartupError::DbMigrate,
+            DbError::DbConnection(_) => StartupError::DbConnect,
+            DbError::DbMigration(_) => StartupError::DbMigrate,
         }
     }
 }
@@ -44,7 +44,19 @@ async fn main() -> Result<(), StartupError> {
         StartupError::ConfigLoad
     })?);
     let start_time = Instant::now();
-    let db = init_db(&config).await?;
+    let db = match init_db(&config).await {
+        Ok(pool) => {
+            tracing::info!("Database connected successfully");
+            Some(pool)
+        }
+        Err(err) => {
+            tracing::warn!(
+                ?err,
+                "Database connection failed, starting without database"
+            );
+            None
+        }
+    };
 
     let state = state::AppState {
         config: Arc::clone(&config),

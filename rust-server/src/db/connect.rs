@@ -5,8 +5,8 @@ use crate::config::Config;
 
 #[derive(Debug)]
 pub enum DbError {
-    DbConnection,
-    DbMigration,
+    DbConnection(sqlx::Error),
+    DbMigration(sqlx::migrate::MigrateError),
 }
 
 pub async fn init_db(config: &Config) -> Result<PgPool, DbError> {
@@ -29,7 +29,7 @@ async fn connect_db(config: &Config) -> Result<PgPool, DbError> {
         .await
         .map_err(|err| {
             tracing::error!(?err, "Failed to connect to database");
-            DbError::DbConnection
+            DbError::DbConnection(err)
         })?;
 
     tracing::info!("Database connected");
@@ -41,7 +41,7 @@ async fn run_migrations(pool: &PgPool) -> Result<(), DbError> {
 
     migrate!("./migrations").run(pool).await.map_err(|err| {
         tracing::error!(?err, "Failed to run migrations");
-        DbError::DbMigration
+        DbError::DbMigration(err)
     })?;
 
     tracing::info!("Migrations applied");

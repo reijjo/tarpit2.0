@@ -38,16 +38,15 @@ fn determine_health_status(memory: &Option<MemoryInfo>, database: &DatabaseStatu
     }
 
     // Check if database connection failed
-    match database.status {
-        HealthStatus::Error => return HealthStatus::Error,
-        _ => {}
+    if let HealthStatus::Error = database.status {
+        return HealthStatus::Error;
     }
 
     // Check for memory issues
-    if let Some(mem) = memory {
-        if mem.percentage > 90.0 {
-            return HealthStatus::NotGood;
-        }
+    if let Some(mem) = memory
+        && mem.percentage > 90.0
+    {
+        return HealthStatus::NotGood;
     }
 
     // Everything is healthy
@@ -71,24 +70,36 @@ fn get_memory_info() -> Option<MemoryInfo> {
     })
 }
 
-async fn check_database_status(db: &sqlx::PgPool) -> Result<DatabaseStatus, AppError> {
-    let start_time = std::time::Instant::now();
+async fn check_database_status(db: &Option<sqlx::PgPool>) -> Result<DatabaseStatus, AppError> {
+    match db {
+        Some(db_pool) => {
+            let start_time = std::time::Instant::now();
 
-    match sqlx::query("SELECT 1").fetch_one(db).await {
-        Ok(_) => {
-            let latency = start_time.elapsed().as_secs_f64() * 1000.0;
-            Ok(DatabaseStatus {
-                status: HealthStatus::Ok,
-                connection_test: "Database connection ok".to_string(),
-                latency_ms: Some(latency),
-            })
+            match sqlx::query("SELECT 1").fetch_one(db_pool).await {
+                Ok(_) => {
+                    let latency = start_time.elapsed().as_secs_f64() * 1000.0;
+                    Ok(DatabaseStatus {
+                        status: HealthStatus::Ok,
+                        connection_test: "Database connection ok".to_string(),
+                        latency_ms: Some(latency),
+                    })
+                }
+                Err(err) => {
+                    tracing::error!(?err, "Database health check failed");
+                    Ok(DatabaseStatus {
+                        status: HealthStatus::Error,
+                        connection_test: format!("Database connection failed: {}", err),
+                        latency_ms: None,
+                    })
+                }
+            }
         }
-        Err(err) => {
-            tracing::error!(?err, "Database health check failed");
+        None => {
+            // Database is not available
             Ok(DatabaseStatus {
                 status: HealthStatus::Error,
-                connection_test: format!("Database connection failed: {}", err),
-                latency_ms: None, // ✅ No latency for failed connections
+                connection_test: "Database not available".to_string(),
+                latency_ms: None,
             })
         }
     }
