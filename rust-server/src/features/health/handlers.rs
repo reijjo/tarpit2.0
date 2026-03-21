@@ -38,7 +38,7 @@ fn determine_health_status(memory: &Option<MemoryInfo>, database: &DatabaseStatu
     }
 
     // Check if database connection failed
-    if let HealthStatus::Error = database.status {
+    if matches!(&database.status, HealthStatus::Error) {
         return HealthStatus::Error;
     }
 
