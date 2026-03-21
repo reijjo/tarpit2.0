@@ -27,7 +27,30 @@ pub async fn build_test_server() -> TestServer {
     let state = AppState {
         config: std::sync::Arc::new(config),
         start_time,
-        db,
+        db: Some(db),
+    };
+
+    let app = create_app(state).expect("app should build");
+    TestServer::new(app)
+}
+
+pub async fn build_test_server_without_db() -> TestServer {
+    let mut config = Config::from_env().expect("failed to load .env config for test");
+    let start_time = Instant::now();
+
+    // Integration tests should always run in explicit test mode,
+    // regardless of local APP_ENV in .env.
+    config.app_env = AppEnv::Test;
+    config.db_url = config.db_test_url.clone();
+
+    assert!(matches!(config.app_env, AppEnv::Test));
+    eprintln!("[test] APP_ENV={}", config.app_env);
+
+    // Don't connect to database - simulate database failure
+    let state = AppState {
+        config: std::sync::Arc::new(config),
+        start_time,
+        db: None, // No database connection
     };
 
     let app = create_app(state).expect("app should build");

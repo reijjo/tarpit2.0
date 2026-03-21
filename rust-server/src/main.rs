@@ -12,14 +12,15 @@ use std::time::Instant;
 use tokio::net::TcpListener;
 
 use crate::config::Config;
+use crate::db::connect::DbError;
 use crate::db::connect::init_db;
 use crate::utils::tracing::init_tracing;
 
-impl From<crate::db::connect::DbError> for StartupError {
-    fn from(err: crate::db::connect::DbError) -> Self {
+impl From<DbError> for StartupError {
+    fn from(err: DbError) -> Self {
         match err {
-            crate::db::connect::DbError::DbConnection => StartupError::DbConnect,
-            crate::db::connect::DbError::DbMigration => StartupError::DbMigrate,
+            DbError::DbConnection(_) => StartupError::DbConnect,
+            DbError::DbMigration(_) => StartupError::DbMigrate,
         }
     }
 }
@@ -43,7 +44,19 @@ async fn main() -> Result<(), StartupError> {
         StartupError::ConfigLoad
     })?);
     let start_time = Instant::now();
-    let db = init_db(&config).await?;
+    let db = match init_db(&config).await {
+        Ok(pool) => {
+            tracing::info!("Database connected successfully");
+            Some(pool)
+        }
+        Err(err) => {
+            tracing::warn!(
+                ?err,
+                "Database connection failed, starting without database"
+            );
+            None
+        }
+    };
 
     let state = state::AppState {
         config: Arc::clone(&config),

@@ -6,5 +6,5 @@ use std::time::Instant;
 pub struct AppState {
     pub config: std::sync::Arc<Config>,
     pub start_time: Instant,
-    pub db: sqlx::PgPool,
+    pub db: Option<sqlx::PgPool>,
 }

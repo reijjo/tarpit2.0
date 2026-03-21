@@ -22,7 +22,7 @@ export default function Login() {
       console.log("FORMSTATE", formState);
       // router.push("/dash") Uncomment when backend done
     }
-  }, [formState.success, router]);
+  }, [formState, formState.success, router]);
 
   return (
     <div className="auth-container">
