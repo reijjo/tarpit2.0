@@ -16,7 +16,7 @@ Add crates with `cargo add [CRATENAME]`
 Start project with `cargo run`
 
 - Install `cargo watch` for hot reload
-- `cargo fmt && cargo clippy -- -D warnings && cargo run'` formats the code and runs the code after every change
+- - `cargo fmt && cargo clippy -- -D warnings && cargo run` formats, lints (warnings as errors), and runs the project once
 
 **fmt** formats the code
 

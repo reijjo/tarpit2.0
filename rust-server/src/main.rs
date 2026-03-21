@@ -49,12 +49,16 @@ async fn main() -> Result<(), StartupError> {
             tracing::info!("Database connected successfully");
             Some(pool)
         }
-        Err(err) => {
+        Err(DbError::DbConnection(err)) => {
             tracing::warn!(
                 ?err,
                 "Database connection failed, starting without database"
             );
             None
+        }
+        Err(DbError::DbMigration(err)) => {
+            tracing::error!(?err, "Database migration failed");
+            return Err(StartupError::DbMigrate);
         }
     };
 
