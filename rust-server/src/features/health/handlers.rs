@@ -86,10 +86,21 @@ async fn check_database_status(db: &Option<sqlx::PgPool>) -> Result<DatabaseStat
                 }
                 Err(err) => {
                     tracing::error!(?err, "Database health check failed");
-                    Err(AppError::database("Database unavailable"))
+                    Ok(DatabaseStatus {
+                        status: HealthStatus::Error,
+                        connection_test: format!("Database connection failed: {}", err),
+                        latency_ms: None,
+                    })
                 }
             }
         }
-        None => Err(AppError::database("Database unavailable")),
+        None => {
+            // Database is not available
+            Ok(DatabaseStatus {
+                status: HealthStatus::Error,
+                connection_test: "Database not available".to_string(),
+                latency_ms: None,
+            })
+        }
     }
 }
