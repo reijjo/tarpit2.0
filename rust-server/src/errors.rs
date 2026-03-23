@@ -4,6 +4,7 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use serde::Serialize;
+// use validator::ValidationErrors;
 
 use crate::db::connect::DbError;
 
@@ -13,6 +14,7 @@ pub enum AppError {
     NotFound(String),
     Internal(String),
     Database(String),
+    // Validation(ValidationErrors),
 }
 
 #[derive(Serialize)]

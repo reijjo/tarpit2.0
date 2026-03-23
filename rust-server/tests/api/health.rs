@@ -64,3 +64,15 @@ async fn health_database_failed() {
     assert_eq!(database["connection_test"], "Database not available");
     assert!(database["latency_ms"].is_null());
 }
+
+#[tokio::test]
+async fn runs_in_test_env() {
+    let server = build_test_server().await;
+
+    let res = server.get("/health").await;
+    res.assert_status_ok();
+
+    let body: Value = res.json();
+
+    assert_eq!(body["environment"], "test");
+}

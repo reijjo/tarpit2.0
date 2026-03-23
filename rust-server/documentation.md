@@ -4,28 +4,38 @@
 
 ```text
 src/
+├── lib.rs                # Main library exports (public API entry point)
 ├── main.rs               # Startup flow, startup error categories, graceful shutdown
 ├── app.rs                # Router composition + fallback + layers
 ├── config.rs             # Env loading, app config struct
 ├── state.rs              # Shared AppState
 ├── errors.rs             # AppError enum + IntoResponse impl
 │
+├── db/                   # Database connection and migration layer
+│   ├── mod.rs
+│   └── connect.rs        # Database connection pool and migration runner
+│
 ├── features/
 │   ├── mod.rs
-│   ├── auth/             # scaffold folder (in progress)
+│   ├── auth/             # Authentication feature (in progress)
+│   │   ├── mod.rs
+│   │   ├── types.rs      # Auth data structures (RegisterData)
+│   │   └── routes.rs     # Auth routes (planned)
 │   └── health/
 │       ├── mod.rs
 │       ├── routes.rs     # Router for /health
-│       └── handlers.rs   # handler functions
+│       ├── handlers.rs   # handler functions
+│       └── types.rs      # Health response types (HealthResponse, HealthStatus)
 │
 ├── middleware/
 │   ├── mod.rs
 │   ├── logger.rs         # request → response logging
 │   └── cors.rs           # CORS layer builder (Result, no panic)
 │
-└── utils/
+└── utils/                # Utility modules
     ├── mod.rs
-    └── tracing.rs        # init_tracing() function
+    ├── tracing.rs        # init_tracing() function
+    └── validators.rs     # Input validation functions (username, password)
 
 tests/
 ├── api.rs                # single integration test target
@@ -40,6 +50,7 @@ tests/
 
 | File        | Purpose                                                                           |
 | ----------- | --------------------------------------------------------------------------------- |
+| `lib.rs`    | Main library exports - public API entry point for external crates                 |
 | `main.rs`   | Initializes tracing, loads config/state, starts server, handles graceful shutdown |
 | `app.rs`    | Composes feature routes, fallback 404, CORS layer and logger middleware           |
 | `config.rs` | Loads `.env` values into typed config                                             |
@@ -50,9 +61,10 @@ tests/
 
 ## 🔧 src/utils/
 
-| File         | Purpose                                   |
-| ------------ | ----------------------------------------- |
-| `tracing.rs` | Rust logging setup (`tracing_subscriber`) |
+| File            | Purpose                                   |
+| --------------- | ----------------------------------------- |
+| `tracing.rs`    | Rust logging setup (`tracing_subscriber`) |
+| `validators.rs` | Input validation functions for user data  |
 
 <details>
 <summary><strong>tracing.rs</strong></summary>
@@ -76,6 +88,74 @@ pub fn init_tracing() {
         )
         .try_init()
         .unwrap_or_else(|err| eprintln!("tracing subscriber initialization skipped: {err}"));
+}
+```
+
+</details>
+
+<details>
+<summary><strong>validators.rs</strong></summary>
+
+Input validation functions for user registration and authentication data.
+
+**Key validation functions:**
+
+- `validate_username()` - Validates username format (alphanumeric, dots, underscores, hyphens)
+- `validate_password()` - Validates password strength (uppercase, lowercase, number, special character)
+
+**Username validation rules:**
+- Only allows lowercase letters, numbers, dots, underscores, and hyphens
+- Pattern: `^[a-z0-9_.\-]+$`
+
+**Password validation rules:**
+- Must contain at least one uppercase letter
+- Must contain at least one lowercase letter
+- Must contain at least one number
+- Must contain at least one special character (`!@#$%&*_+-=.?`)
+
+```rs
+#![allow(dead_code)]
+use std::sync::LazyLock;
+
+use regex::Regex;
+use validator::ValidationError;
+
+static USERNAME_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^[a-z0-9_.\-]+$").unwrap());
+static UPPERCASE_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"[A-Z]").unwrap());
+static LOWERCASE_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"[a-z]").unwrap());
+static NUMBER_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"[0-9]").unwrap());
+static SPECIALCHAR_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"[!@#$%&*_+\-=.?]").unwrap());
+
+pub fn validate_username(username: &str) -> Result<(), ValidationError> {
+    if !USERNAME_REGEX.is_match(username) {
+        return Err(ValidationError::new(
+            "Only numbers, letters, and ._- allowed",
+        ));
+    }
+    Ok(())
+}
+
+pub fn validate_password(password: &str) -> Result<(), ValidationError> {
+    if !UPPERCASE_REGEX.is_match(password) {
+        return Err(ValidationError::new("Must contain one uppercase letter"));
+    }
+
+    if !LOWERCASE_REGEX.is_match(password) {
+        return Err(ValidationError::new("Must contain one lowercase letter"));
+    }
+
+    if !NUMBER_REGEX.is_match(password) {
+        return Err(ValidationError::new("Must contain one number"));
+    }
+
+    if !SPECIALCHAR_REGEX.is_match(password) {
+        return Err(ValidationError::new(
+            "Must contain one special character (!@#$%&*_+-=.?)",
+        ));
+    }
+
+    Ok(())
 }
 ```
 
@@ -129,8 +209,9 @@ pub fn build_cors(frontend_url: &str) -> Result<CorsLayer, String> {
 
 **Current `AppError` variants:**
 
-- `NotFound(String)`
-- `Internal(String)`
+- `NotFound(String)` - Resource not found errors
+- `Internal(String)` - Internal server errors
+- `Database(String)` - Database connection and migration errors
 
 **Response shape:**
 
@@ -145,6 +226,218 @@ pub fn build_cors(frontend_url: &str) -> Result<CorsLayer, String> {
 
 - `NotFound` → 404
 - `Internal` → 500
+- `Database` → 503 (Service Unavailable)
+
+### Database Error Integration
+
+The `AppError` type implements `From<DbError>` to automatically convert database errors:
+
+- `DbError::DbConnection` → `AppError::Database` (connection failures)
+- `DbError::DbMigration` → `AppError::Database` (migration failures)
+
+This ensures that database issues are properly handled and returned as HTTP 503 responses to clients.
+
+---
+
+## 🗄️ Database Layer (src/db/)
+
+| File           | Purpose                                                                 |
+| -------------- | ----------------------------------------------------------------------- |
+| `mod.rs`       | Database module exports                                                 |
+| `connect.rs`   | Database connection pool setup and migration runner                     |
+
+### Database Connection
+
+`src/db/connect.rs` provides database initialization with connection pooling and automatic migrations.
+
+**Key functions:**
+
+- `init_db()` - Main entry point that connects and runs migrations
+- `connect_db()` - Establishes connection pool with configurable settings
+- `run_migrations()` - Executes SQL migrations from `./migrations` directory
+
+**Connection pool configuration:**
+
+- Max connections: 20
+- Min connections: 1
+- Acquire timeout: 5 seconds
+- Idle timeout: 10 minutes
+
+**Migration system:**
+
+- Uses `sqlx::migrate!("./migrations")` macro for compile-time migration verification
+- Automatic migration execution on startup
+- Structured logging for migration status
+
+<details>
+<summary><strong>connect.rs</strong></summary>
+
+Database connection and migration setup:
+
+```rs
+use sqlx::{PgPool, migrate, postgres::PgPoolOptions};
+use std::time::Duration;
+
+use crate::config::Config;
+
+#[derive(Debug)]
+pub enum DbError {
+    DbConnection(sqlx::Error),
+    DbMigration(sqlx::migrate::MigrateError),
+}
+
+pub async fn init_db(config: &Config) -> Result<PgPool, DbError> {
+    let pool = connect_db(config).await?;
+    run_migrations(&pool).await?;
+    Ok(pool)
+}
+
+async fn connect_db(config: &Config) -> Result<PgPool, DbError> {
+    let url = &config.active_db_url();
+
+    tracing::info!("Connecting to database...");
+
+    let pool = PgPoolOptions::new()
+        .max_connections(20)
+        .min_connections(1)
+        .acquire_timeout(Duration::from_secs(5))
+        .idle_timeout(Duration::from_secs(600))
+        .connect(url)
+        .await
+        .map_err(|err| {
+            tracing::error!(?err, "Failed to connect to database");
+            DbError::DbConnection(err)
+        })?;
+
+    tracing::info!("Database connected");
+    Ok(pool)
+}
+
+async fn run_migrations(pool: &PgPool) -> Result<(), DbError> {
+    tracing::info!("Running migrations...");
+
+    migrate!("./migrations").run(pool).await.map_err(|err| {
+        tracing::error!(?err, "Failed to run migrations");
+        DbError::DbMigration(err)
+    })?;
+
+    tracing::info!("Migrations applied");
+
+    Ok(())
+}
+```
+
+</details>
+
+---
+
+## 🏗️ Feature Types (src/features/*/types.rs)
+
+### Authentication Types (src/features/auth/types.rs)
+
+| Type           | Purpose                                                                 |
+| -------------- | ----------------------------------------------------------------------- |
+| `RegisterData` | User registration data structure with validation                        |
+
+**RegisterData fields:**
+
+- `email` - User's email address (currently without validation)
+- `username` - User's chosen username (currently without validation)  
+- `password` - User's password (currently without validation)
+
+**Note:** The validation attributes are commented out but the structure is prepared for email, username, and password validation using the `validator` crate.
+
+<details>
+<summary><strong>auth/types.rs</strong></summary>
+
+Authentication data structures for user registration:
+
+```rs
+use serde::Serialize;
+
+#[allow(dead_code)]
+#[derive(Serialize)]
+pub struct RegisterData {
+    pub email: String,
+    pub username: String,
+    pub password: String,
+}
+```
+
+</details>
+
+### Health Check Types (src/features/health/types.rs)
+
+| Type              | Purpose                                                                 |
+| ----------------- | ----------------------------------------------------------------------- |
+| `HealthResponse`  | Complete health check response structure                                |
+| `MemoryInfo`      | Memory usage information                                                |
+| `DatabaseStatus`  | Database connection status                                              |
+| `HealthStatus`    | Enum representing service health states                                 |
+
+**HealthResponse fields:**
+
+- `status` - Overall service health status
+- `timestamp` - ISO 8601 timestamp of the health check
+- `uptime` - Server uptime in seconds
+- `environment` - Current environment (dev/test/prod)
+- `memory` - Optional memory usage statistics
+- `database` - Optional database connection status
+
+**HealthStatus variants:**
+
+- `Ok` - Service is healthy
+- `NotGood` - Service has issues but is running
+- `Error` - Service is experiencing errors
+
+<details>
+<summary><strong>health/types.rs</strong></summary>
+
+Health check response types and status enums:
+
+```rs
+use serde::Serialize;
+
+#[derive(Serialize)]
+pub struct HealthResponse {
+    pub status: HealthStatus,
+    pub timestamp: String,
+    pub uptime: f64,
+    pub environment: String,
+    pub memory: Option<MemoryInfo>,
+    pub database: Option<DatabaseStatus>,
+}
+
+#[derive(Serialize)]
+pub struct MemoryInfo {
+    pub used_mb: f64,
+    pub total_mb: f64,
+    pub percentage: f64,
+}
+
+#[derive(Serialize)]
+pub struct DatabaseStatus {
+    pub status: HealthStatus,
+    pub connection_test: String,
+    pub latency_ms: Option<f64>,
+}
+
+impl axum::response::IntoResponse for HealthResponse {
+    fn into_response(self) -> axum::response::Response {
+        axum::Json(self).into_response()
+    }
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum HealthStatus {
+    Ok,
+    NotGood,
+    Error,
+}
+```
+
+</details>
 
 ---
 
@@ -408,6 +701,29 @@ cargo add sqlx --features postgres,runtime-tokio,tls-rustls,macros,migrate,uuid,
 
 ```bash
 cargo install sqlx-cli --no-default-features --features postgres,rustls
+```
+
+</details>
+
+<details>
+<summary><strong>validator + regex</strong></summary>
+
+**validator** — Runtime validation framework with derive macros.
+
+- Version: `0.20.0`
+- Features: `derive`
+- Purpose: Field-level validation on structs (e.g., email format, length constraints)
+- Documentation: https://docs.rs/validator/latest/validator/
+
+**regex** — Regular expression library.
+
+- Version: `1.12.3`
+- Purpose: Used by validator for pattern validation (e.g., email regex)
+- Documentation: https://docs.rs/regex/latest/regex/
+
+```bash
+cargo add validator --features derive
+cargo add regex
 ```
 
 </details>
