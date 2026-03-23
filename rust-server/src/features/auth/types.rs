@@ -1,19 +1,20 @@
 use serde::Serialize;
-use validator::Validate;
+// use validator::Validate;
 
-use crate::utils::validators::validate_username;
+// use crate::utils::validators::validate_username;
 
 #[allow(dead_code)]
-#[derive(Serialize, Validate)]
+// #[derive(Serialize, Validate)]
+#[derive(Serialize)]
 pub struct RegisterData {
-    #[validate(email(message = "Invalid email"))]
+    // #[validate(email(message = "Invalid email"))]
     pub email: String,
 
-    #[validate(length(
-        min = 3,
-        max = 20,
-        message = "Username must be between 3 and 20 characters"
-    ), custom(function = validate_username))]
+    // #[validate(length(
+    //     min = 3,
+    //     max = 20,
+    //     message = "Username must be between 3 and 20 characters"
+    // ), custom(function = validate_username))]
     pub username: String,
 
     pub password: String,
