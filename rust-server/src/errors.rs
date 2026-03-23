@@ -1,9 +1,12 @@
+use std::collections::HashMap;
+
 use axum::{
     Json,
     http::StatusCode,
     response::{IntoResponse, Response},
 };
 use serde::Serialize;
+use validator::ValidationErrors;
 
 use crate::db::connect::DbError;
 
@@ -13,12 +16,16 @@ pub enum AppError {
     NotFound(String),
     Internal(String),
     Database(String),
+    Validation(ValidationErrors),
 }
 
 #[derive(Serialize)]
 struct ErrorBody {
     success: bool,
-    error: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    error: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    errors: Option<HashMap<String, Vec<String>>>,
 }
 
 #[allow(dead_code)]
@@ -38,17 +45,61 @@ impl AppError {
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
-        let (status, message) = match self {
-            AppError::NotFound(message) => (StatusCode::NOT_FOUND, message),
-            AppError::Internal(message) => (StatusCode::INTERNAL_SERVER_ERROR, message),
-            AppError::Database(message) => (StatusCode::SERVICE_UNAVAILABLE, message),
-        };
+        match self {
+            AppError::NotFound(msg) => (
+                StatusCode::NOT_FOUND,
+                Json(ErrorBody {
+                    success: false,
+                    error: Some(msg),
+                    errors: None,
+                }),
+            )
+                .into_response(),
 
-        let body = ErrorBody {
-            success: false,
-            error: message,
-        };
-        (status, Json(body)).into_response()
+            AppError::Internal(msg) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ErrorBody {
+                    success: false,
+                    error: Some(msg),
+                    errors: None,
+                }),
+            )
+                .into_response(),
+
+            AppError::Database(msg) => (
+                StatusCode::SERVICE_UNAVAILABLE,
+                Json(ErrorBody {
+                    success: false,
+                    error: Some(msg),
+                    errors: None,
+                }),
+            )
+                .into_response(),
+
+            AppError::Validation(errs) => {
+                let map = errs
+                    .field_errors()
+                    .iter()
+                    .map(|(field, errors)| {
+                        let messages = errors
+                            .iter()
+                            .filter_map(|e| e.message.as_ref().map(|m| m.to_string()))
+                            .collect();
+                        (field.to_string(), messages)
+                    })
+                    .collect();
+
+                (
+                    StatusCode::UNPROCESSABLE_ENTITY,
+                    Json(ErrorBody {
+                        success: false,
+                        error: None,
+                        errors: Some(map),
+                    }),
+                )
+                    .into_response()
+            }
+        }
     }
 }
 

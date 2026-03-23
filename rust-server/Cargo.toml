@@ -16,6 +16,8 @@ tracing-subscriber = { version = "0.3.22", features = ["env-filter", "fmt", "ans
 sysinfo = "0.31.0"
 chrono = { version = "0.4.38", features = ["serde"] }
 sqlx = { version = "0.8.6", features = ["postgres", "runtime-tokio", "tls-rustls", "macros", "migrate", "uuid", "chrono"] }
+validator = { version = "0.20.0", features = ["derive"] }
+regex = "1.12.3"
 
 [dev-dependencies]
 axum-test = "19.1.1"

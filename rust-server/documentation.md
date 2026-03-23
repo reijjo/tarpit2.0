@@ -411,3 +411,26 @@ cargo install sqlx-cli --no-default-features --features postgres,rustls
 ```
 
 </details>
+
+<details>
+<summary><strong>validator + regex</strong></summary>
+
+**validator** — Runtime validation framework with derive macros.
+
+- Version: `0.20.0`
+- Features: `derive`
+- Purpose: Field-level validation on structs (e.g., email format, length constraints)
+- Documentation: https://docs.rs/validator/latest/validator/
+
+**regex** — Regular expression library.
+
+- Version: `1.12.3`
+- Purpose: Used by validator for pattern validation (e.g., email regex)
+- Documentation: https://docs.rs/regex/latest/regex/
+
+```bash
+cargo add validator --features derive
+cargo add regex
+```
+
+</details>
