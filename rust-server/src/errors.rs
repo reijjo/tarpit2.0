@@ -1,5 +1,6 @@
 use axum::{
     Json,
+    extract::rejection::JsonRejection,
     http::StatusCode,
     response::{IntoResponse, Response},
 };
@@ -14,6 +15,8 @@ pub enum AppError {
     NotFound(String),
     Internal(String),
     Database(String),
+    BadRequest(String),
+    Json(JsonRejection),
     // Validation(ValidationErrors),
 }
 
@@ -36,6 +39,10 @@ impl AppError {
     pub fn database(message: impl Into<String>) -> Self {
         Self::Database(message.into())
     }
+
+    pub fn bad_request(message: impl Into<String>) -> Self {
+        Self::BadRequest(message.into())
+    }
 }
 
 impl IntoResponse for AppError {
@@ -44,6 +51,21 @@ impl IntoResponse for AppError {
             AppError::NotFound(message) => (StatusCode::NOT_FOUND, message),
             AppError::Internal(message) => (StatusCode::INTERNAL_SERVER_ERROR, message),
             AppError::Database(message) => (StatusCode::SERVICE_UNAVAILABLE, message),
+            AppError::BadRequest(message) => (StatusCode::BAD_REQUEST, message),
+            AppError::Json(rejection) => {
+                let message = match rejection {
+                    JsonRejection::JsonDataError(e) => format!("Invalid JSON: {}", e),
+                    JsonRejection::JsonSyntaxError(e) => format!("Invalid JSON syntax: {}", e),
+                    JsonRejection::MissingJsonContentType(_) => {
+                        "Content-Type must be application/json".to_string()
+                    }
+                    JsonRejection::BytesRejection(e) => {
+                        format!("Failed to read request body: {}", e)
+                    }
+                    _ => "Invalid request body".to_string(),
+                };
+                (StatusCode::BAD_REQUEST, message)
+            }
         };
 
         let body = ErrorBody {
@@ -64,5 +86,11 @@ impl From<DbError> for AppError {
                 AppError::Database(format!("Database migration failed: {}", migrate_err))
             }
         }
+    }
+}
+
+impl From<JsonRejection> for AppError {
+    fn from(err: JsonRejection) -> Self {
+        AppError::Json(err)
     }
 }
