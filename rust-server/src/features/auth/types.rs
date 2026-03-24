@@ -1,11 +1,11 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 // use validator::Validate;
 
 // use crate::utils::validators::validate_username;
 
 #[allow(dead_code)]
 // #[derive(Serialize, Validate)]
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct RegisterData {
     // #[validate(email(message = "Invalid email"))]
     pub email: String,
