@@ -27,9 +27,9 @@ pub async fn create_user(
 fn validate_registerdata(input: RegisterData) -> Result<RegisterData, AppError> {
     let email = input.email.trim().to_lowercase();
     let username = input.username.trim().to_lowercase();
-    let password = input.password.trim().to_string();
+    let password = input.password;
 
-    if email.is_empty() || username.is_empty() || password.is_empty() {
+    if email.is_empty() || username.is_empty() || password.trim().is_empty() {
         tracing::info!("MISSING FIELDS");
         return Err(AppError::bad_request("Missing fields."));
     }

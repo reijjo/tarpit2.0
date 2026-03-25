@@ -13,8 +13,8 @@ static NUMBER_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"[0-9]").unw
 static SPECIALCHAR_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"[!@#$%&*_+\-=.?]").unwrap());
 
-pub fn validate_email(username: &str) -> Result<(), ValidationError> {
-    if !EMAIL_REGEX.is_match(username) {
+pub fn validate_email(email: &str) -> Result<(), ValidationError> {
+    if !EMAIL_REGEX.is_match(email) {
         return Err(ValidationError::new("Invalid email"));
     }
     Ok(())
