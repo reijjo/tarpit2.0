@@ -4,12 +4,21 @@ use std::sync::LazyLock;
 use regex::Regex;
 use validator::ValidationError;
 
+static EMAIL_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$").unwrap());
 static USERNAME_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^[a-z0-9_.\-]+$").unwrap());
 static UPPERCASE_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"[A-Z]").unwrap());
 static LOWERCASE_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"[a-z]").unwrap());
 static NUMBER_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"[0-9]").unwrap());
 static SPECIALCHAR_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"[!@#$%&*_+\-=.?]").unwrap());
+
+pub fn validate_email(username: &str) -> Result<(), ValidationError> {
+    if !EMAIL_REGEX.is_match(username) {
+        return Err(ValidationError::new("Invalid email"));
+    }
+    Ok(())
+}
 
 pub fn validate_username(username: &str) -> Result<(), ValidationError> {
     if !USERNAME_REGEX.is_match(username) {

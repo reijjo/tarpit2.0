@@ -5,7 +5,7 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use serde::Serialize;
-// use validator::ValidationErrors;
+use validator::ValidationErrors;
 
 use crate::db::connect::DbError;
 
@@ -17,7 +17,7 @@ pub enum AppError {
     Database(String),
     BadRequest(String),
     Json(JsonRejection),
-    // Validation(ValidationErrors),
+    Validation(ValidationErrors),
 }
 
 #[derive(Serialize)]
@@ -66,6 +66,7 @@ impl IntoResponse for AppError {
                 };
                 (StatusCode::BAD_REQUEST, message)
             }
+            AppError::Validation(errors) => (StatusCode::BAD_REQUEST, errors.to_string()),
         };
 
         let body = ErrorBody {
@@ -92,5 +93,11 @@ impl From<DbError> for AppError {
 impl From<JsonRejection> for AppError {
     fn from(err: JsonRejection) -> Self {
         AppError::Json(err)
+    }
+}
+
+impl From<ValidationErrors> for AppError {
+    fn from(err: ValidationErrors) -> Self {
+        AppError::Validation(err)
     }
 }
