@@ -101,3 +101,9 @@ impl From<ValidationErrors> for AppError {
         AppError::Validation(err)
     }
 }
+
+impl From<argon2::password_hash::Error> for AppError {
+    fn from(err: argon2::password_hash::Error) -> Self {
+        AppError::Internal(format!("Password hashing error: {}", err))
+    }
+}

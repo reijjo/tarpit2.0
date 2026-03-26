@@ -17,10 +17,11 @@ src/
 │
 ├── features/
 │   ├── mod.rs
-│   ├── auth/             # Authentication feature (in progress)
+│   ├── auth/             # Authentication feature
 │   │   ├── mod.rs
-│   │   ├── types.rs      # Auth data structures (RegisterData)
-│   │   └── routes.rs     # Auth routes (planned)
+│   │   ├── types.rs      # Auth data structures (RegisterData with validation)
+│   │   ├── routes.rs     # Auth routes (/api/auth/register)
+│   │   └── handlers.rs   # Auth handler functions
 │   └── health/
 │       ├── mod.rs
 │       ├── routes.rs     # Router for /health
@@ -34,8 +35,10 @@ src/
 │
 └── utils/                # Utility modules
     ├── mod.rs
+    ├── api_response.rs   # Structured API response types
+    ├── password.rs       # Password hashing and verification utilities
     ├── tracing.rs        # init_tracing() function
-    └── validators.rs     # Input validation functions (username, password)
+    └── validators.rs     # Input validation functions (email, username, password)
 
 tests/
 ├── api.rs                # single integration test target
@@ -63,8 +66,131 @@ tests/
 
 | File            | Purpose                                   |
 | --------------- | ----------------------------------------- |
+| `api_response.rs` | Structured API response types for consistent JSON responses |
+| `password.rs`   | Password hashing and verification utilities |
 | `tracing.rs`    | Rust logging setup (`tracing_subscriber`) |
 | `validators.rs` | Input validation functions for user data  |
+
+<details>
+<summary><strong>api_response.rs</strong></summary>
+
+Structured API response types for consistent JSON responses across the application.
+
+**Key types:**
+
+- `ApiResponse<T>` - Enum for different response types (Ok, Created)
+- `ResponseBody<T>` - Internal structure for JSON serialization
+
+**Usage patterns:**
+
+- `ApiResponse::ok(message, data)` - Success responses with optional data
+- `ApiResponse::created(message, data)` - Resource creation responses with optional data
+
+**Response format:**
+
+```json
+{
+  "success": true,
+  "message": "Operation completed successfully",
+  "data": { /* optional data */ }
+}
+```
+
+```rs
+use axum::{Json, http::StatusCode, response::IntoResponse};
+use serde::Serialize;
+
+pub enum ApiResponse<T: Serialize> {
+    Ok(String, Option<T>),
+    Created(String, Option<T>),
+}
+
+#[derive(Serialize)]
+struct ResponseBody<T: Serialize> {
+    success: bool,
+    message: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    data: Option<T>,
+}
+
+#[allow(dead_code)]
+impl<T: Serialize> ApiResponse<T> {
+    pub fn ok(message: impl Into<String>, data: Option<T>) -> Self {
+        Self::Ok(message.into(), data)
+    }
+
+    pub fn created(message: impl Into<String>, data: Option<T>) -> Self {
+        Self::Created(message.into(), data)
+    }
+}
+
+impl<T: Serialize> IntoResponse for ApiResponse<T> {
+    fn into_response(self) -> axum::response::Response {
+        let (status, message, data) = match self {
+            ApiResponse::Ok(message, data) => (StatusCode::OK, message, data),
+            ApiResponse::Created(message, data) => (StatusCode::CREATED, message, data),
+        };
+
+        let body: ResponseBody<T> = ResponseBody {
+            success: true,
+            message,
+            data,
+        };
+        (status, Json(body)).into_response()
+    }
+}
+```
+
+</details>
+
+<details>
+<summary><strong>password.rs</strong></summary>
+
+Password hashing and verification utilities using Argon2 algorithm.
+
+**Key functions:**
+
+- `hash_password()` - Hashes a password using Argon2 with random salt
+- `verify_password()` - Verifies a password against a stored hash
+
+**Security features:**
+
+- Uses Argon2id algorithm (memory-hard function)
+- Random salt generation for each password
+- Constant-time comparison to prevent timing attacks
+
+**Usage:**
+
+```rs
+// Hash a password
+let hashed = hash_password("user_password")?;
+
+// Verify a password
+let is_valid = verify_password("user_password", &hashed)?;
+```
+
+```rs
+use argon2::{
+    Argon2, PasswordHash, PasswordHasher, PasswordVerifier,
+    password_hash::{SaltString, rand_core::OsRng},
+};
+
+pub fn hash_password(password: &str) -> Result<String, argon2::password_hash::Error> {
+    let salt = SaltString::generate(&mut OsRng);
+    let hash = Argon2::default().hash_password(password.as_bytes(), &salt)?;
+    Ok(hash.to_string())
+}
+
+#[allow(dead_code)]
+pub fn verify_password(password: &str, hash: &str) -> Result<bool, argon2::password_hash::Error> {
+    let parsed_hash = PasswordHash::new(hash)?;
+    Ok(Argon2::default()
+        .verify_password(password.as_bytes(), &parsed_hash)
+        .is_ok())
+}
+```
+
+</details>
 
 <details>
 <summary><strong>tracing.rs</strong></summary>
@@ -104,10 +230,12 @@ Input validation functions for user registration and authentication data.
 - `validate_password()` - Validates password strength (uppercase, lowercase, number, special character)
 
 **Username validation rules:**
+
 - Only allows lowercase letters, numbers, dots, underscores, and hyphens
 - Pattern: `^[a-z0-9_.\-]+$`
 
 **Password validation rules:**
+
 - Must contain at least one uppercase letter
 - Must contain at least one lowercase letter
 - Must contain at least one number
@@ -212,6 +340,9 @@ pub fn build_cors(frontend_url: &str) -> Result<CorsLayer, String> {
 - `NotFound(String)` - Resource not found errors
 - `Internal(String)` - Internal server errors
 - `Database(String)` - Database connection and migration errors
+- `BadRequest(String)` - Invalid request data
+- `Json(JsonRejection)` - JSON parsing/validation errors
+- `Validation(ValidationErrors)` - Input validation errors
 
 **Response shape:**
 
@@ -227,6 +358,9 @@ pub fn build_cors(frontend_url: &str) -> Result<CorsLayer, String> {
 - `NotFound` → 404
 - `Internal` → 500
 - `Database` → 503 (Service Unavailable)
+- `BadRequest` → 400
+- `Json` → 400 (with specific error messages)
+- `Validation` → 400
 
 ### Database Error Integration
 
@@ -237,14 +371,22 @@ The `AppError` type implements `From<DbError>` to automatically convert database
 
 This ensures that database issues are properly handled and returned as HTTP 503 responses to clients.
 
+### Additional Error Conversions
+
+The error system also implements `From` conversions for:
+
+- `JsonRejection` → `AppError::Json` (JSON parsing errors)
+- `ValidationErrors` → `AppError::Validation` (validation failures)
+- `argon2::password_hash::Error` → `AppError::Internal` (password hashing errors)
+
 ---
 
 ## 🗄️ Database Layer (src/db/)
 
-| File           | Purpose                                                                 |
-| -------------- | ----------------------------------------------------------------------- |
-| `mod.rs`       | Database module exports                                                 |
-| `connect.rs`   | Database connection pool setup and migration runner                     |
+| File         | Purpose                                             |
+| ------------ | --------------------------------------------------- |
+| `mod.rs`     | Database module exports                             |
+| `connect.rs` | Database connection pool setup and migration runner |
 
 ### Database Connection
 
@@ -268,6 +410,30 @@ This ensures that database issues are properly handled and returned as HTTP 503 
 - Uses `sqlx::migrate!("./migrations")` macro for compile-time migration verification
 - Automatic migration execution on startup
 - Structured logging for migration status
+
+**Adding tables**
+
+Example:
+
+- Run `sqlx migrate add create_users_table` makes a file like _20260326_create_users_table.sql_ in the migrations folder
+- Then create the schema in it:
+
+```sql
+CREATE TYPE user_role AS ENUM ('GUEST', 'GUEST2');
+
+
+CREATE TABLE IF NOT EXISTS users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) NOT NULL UNIQUE,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    verified BOOLEAN NOT NULL DEFAULT FALSE,
+    role user_role NOT NULL DEFAULT 'GUEST',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+```
 
 <details>
 <summary><strong>connect.rs</strong></summary>
@@ -331,35 +497,55 @@ async fn run_migrations(pool: &PgPool) -> Result<(), DbError> {
 
 ---
 
-## 🏗️ Feature Types (src/features/*/types.rs)
+## 🏗️ Feature Types (src/features/\*/types.rs)
 
 ### Authentication Types (src/features/auth/types.rs)
 
-| Type           | Purpose                                                                 |
-| -------------- | ----------------------------------------------------------------------- |
-| `RegisterData` | User registration data structure with validation                        |
+| Type           | Purpose                                          |
+| -------------- | ------------------------------------------------ |
+| `RegisterData` | User registration data structure with full validation |
 
 **RegisterData fields:**
 
-- `email` - User's email address (currently without validation)
-- `username` - User's chosen username (currently without validation)  
-- `password` - User's password (currently without validation)
+- `email` - User's email address with email format validation
+- `username` - User's chosen username with length (3-20 chars) and character validation
+- `password` - User's password with strength validation (8-50 chars, uppercase, lowercase, number, special character)
 
-**Note:** The validation attributes are commented out but the structure is prepared for email, username, and password validation using the `validator` crate.
+**Validation rules:**
+
+- Email: Must match standard email format pattern
+- Username: 3-20 characters, only lowercase letters, numbers, dots, underscores, and hyphens
+- Password: 8-50 characters, must contain uppercase letter, lowercase letter, number, and special character
 
 <details>
 <summary><strong>auth/types.rs</strong></summary>
 
-Authentication data structures for user registration:
+Authentication data structures for user registration with comprehensive validation:
 
 ```rs
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+use validator::Validate;
+
+use crate::utils::validators::{validate_email, validate_password, validate_username};
 
 #[allow(dead_code)]
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize, Debug, Validate)]
 pub struct RegisterData {
+    #[validate(custom(function = validate_email))]
     pub email: String,
+
+    #[validate(length(
+        min = 3,
+        max = 20,
+        message = "Username must be between 3 and 20 characters"
+    ), custom(function = validate_username))]
     pub username: String,
+
+    #[validate(length(
+        min = 8,
+        max = 50,
+        message = "Password must be between 8 and 50 characters"
+    ), custom(function = validate_password))]
     pub password: String,
 }
 ```
@@ -368,12 +554,12 @@ pub struct RegisterData {
 
 ### Health Check Types (src/features/health/types.rs)
 
-| Type              | Purpose                                                                 |
-| ----------------- | ----------------------------------------------------------------------- |
-| `HealthResponse`  | Complete health check response structure                                |
-| `MemoryInfo`      | Memory usage information                                                |
-| `DatabaseStatus`  | Database connection status                                              |
-| `HealthStatus`    | Enum representing service health states                                 |
+| Type             | Purpose                                  |
+| ---------------- | ---------------------------------------- |
+| `HealthResponse` | Complete health check response structure |
+| `MemoryInfo`     | Memory usage information                 |
+| `DatabaseStatus` | Database connection status               |
+| `HealthStatus`   | Enum representing service health states  |
 
 **HealthResponse fields:**
 
@@ -463,17 +649,27 @@ Fallback handler returns `AppError::NotFound`, so unknown routes produce JSON 40
 
 1. `init_tracing()`
 2. Load typed config (`Config::from_env`)
-3. Build app state
-4. Build router (`app::create_app`)
-5. Bind listener
-6. `axum::serve(...).with_graceful_shutdown(...)`
+3. Initialize database connection (with graceful failure handling)
+4. Build app state
+5. Build router (`app::create_app`)
+6. Bind listener
+7. `axum::serve(...).with_graceful_shutdown(...)`
 
 **Startup uses categorized errors:**
 
-- `ConfigLoad`
-- `AppBuild`
-- `Bind`
-- `Serve`
+- `ConfigLoad` - Environment variable loading failures
+- `AppBuild` - Router composition failures
+- `Bind` - TCP listener binding failures
+- `Serve` - Server runtime failures
+- `DbConnect` - Database connection failures
+- `DbMigrate` - Database migration failures
+
+**Database handling:**
+
+- Database connection is attempted but not required for startup
+- If database connection fails, server starts without database functionality
+- Database status is reflected in health check responses
+- Structured logging provides detailed error information for debugging
 
 Real error details are logged with `tracing::error!(...)`.
 
@@ -481,10 +677,25 @@ Real error details are logged with `tracing::error!(...)`.
 
 ## 🛣️ Routes (Current)
 
-**`GET /health`** — Returns plain text:
+**`GET /health`** — Returns structured JSON:
 
-```
-OK
+```json
+{
+  "status": "ok",
+  "timestamp": "2026-03-26T10:18:30.123Z",
+  "uptime": 123.45,
+  "environment": "development",
+  "memory": {
+    "used_mb": 150.25,
+    "total_mb": 8192.0,
+    "percentage": 1.83
+  },
+  "database": {
+    "status": "ok",
+    "connection_test": "Database connection ok",
+    "latency_ms": 12.34
+  }
+}
 ```
 
 **Unknown routes** — Handled by app fallback, returns JSON 404 via `AppError`.
@@ -519,9 +730,16 @@ curl http://127.0.0.1:3001/THIS_DOES_NOT_EXIST
 - Integration tests live in crate-root `tests/` (not inside `src/`).
 - Single integration target entrypoint: `tests/api.rs`.
 - Shared test server helper: `tests/api/common.rs`.
-- Current first API test module: `tests/api/health.rs`.
+- Current API test modules: `tests/api/health.rs`.
 - Tests use `axum-test::TestServer` to call routes in-process.
 - Test helper forces `AppEnv::Test` and maps `db_url` to `db_test_url` for safety.
+- Database connection is optional - tests can run with or without database
+
+**Test scenarios:**
+
+- Health check with database connection
+- Health check without database connection (graceful degradation)
+- Environment detection in test mode
 
 Run integration API tests:
 
@@ -724,6 +942,98 @@ cargo install sqlx-cli --no-default-features --features postgres,rustls
 ```bash
 cargo add validator --features derive
 cargo add regex
+```
+
+</details>
+
+<details>
+<summary><strong>sysinfo</strong></summary>
+
+**sysinfo** — System information library.
+
+- Version: `0.31.0`
+- Purpose: Collects system memory usage statistics for health checks
+- Documentation: https://docs.rs/sysinfo/latest/sysinfo/
+
+```bash
+cargo add sysinfo
+```
+
+</details>
+
+<details>
+<summary><strong>chrono</strong></summary>
+
+**chrono** — Date and time handling library.
+
+- Version: `0.4.38`
+- Features: `serde`
+- Purpose: Timestamp handling and serialization in health responses
+- Documentation: https://docs.rs/chrono/latest/chrono/
+
+```bash
+cargo add chrono --features serde
+```
+
+</details>
+
+<details>
+<summary><strong>rand</strong></summary>
+
+**rand** — Random number generation library.
+
+- Version: `0.10.0`
+- Purpose: Used by Argon2 for generating random salts
+- Documentation: https://docs.rs/rand/latest/rand/
+
+```bash
+cargo add rand
+```
+
+</details>
+
+<details>
+<summary><strong>argon2</strong></summary>
+
+**argon2** — Password hashing library using Argon2 algorithm.
+
+- Version: `0.5.3`
+- Features: `std`
+- Purpose: Secure password hashing and verification
+- Documentation: https://docs.rs/argon2/latest/argon2/
+
+```bash
+cargo add argon2 --features std
+```
+
+</details>
+
+<details>
+<summary><strong>axum-test</strong></summary>
+
+**axum-test** — Testing utilities for Axum applications.
+
+- Version: `19.1.1`
+- Purpose: Integration testing with `TestServer` for in-process HTTP testing
+- Documentation: https://docs.rs/axum-test/latest/axum_test/
+
+```bash
+cargo add --dev axum-test
+```
+
+</details>
+
+<details>
+<summary><strong>serde_json</strong></summary>
+
+**serde_json** — JSON serialization/deserialization.
+
+- Version: `1.0.140`
+- Purpose: JSON parsing in tests and API responses
+- Documentation: https://docs.rs/serde_json/latest/serde_json/
+
+```bash
+cargo add --dev serde_json
 ```
 
 </details>

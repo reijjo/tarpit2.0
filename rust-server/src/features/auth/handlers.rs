@@ -1,8 +1,10 @@
 use crate::state::AppState;
 use crate::utils::api_response::ApiResponse;
+use crate::utils::password::hash_password;
 use crate::{errors::AppError, features::auth::types::RegisterData};
 use axum::extract::rejection::JsonRejection;
 use axum::extract::{Json, State};
+use tokio::task::spawn_blocking;
 use validator::Validate;
 
 // ----------------------
@@ -21,9 +23,18 @@ pub async fn create_user(
 
     let cleaned_data = validate_registerdata(payload)?;
 
-    Ok(ApiResponse::created("User created!", Some(cleaned_data)))
+    let hashed_password = spawn_blocking(move || hash_password(&cleaned_data.password))
+        .await
+        .map_err(|_| AppError::internal("Threading error"))??;
+
+    eprint!("hashed {}", hashed_password);
+
+    Ok(ApiResponse::created("User created!", None))
 }
 
+// -----------------
+// Validate data
+// -----------------
 fn validate_registerdata(input: RegisterData) -> Result<RegisterData, AppError> {
     let email = input.email.trim().to_lowercase();
     let username = input.username.trim().to_lowercase();
