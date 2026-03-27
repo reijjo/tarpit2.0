@@ -18,6 +18,8 @@ pub enum AppError {
     BadRequest(String),
     Json(JsonRejection),
     Validation(ValidationErrors),
+    Sql(sqlx::Error),
+    Conflict(String),
 }
 
 #[derive(Serialize)]
@@ -43,6 +45,10 @@ impl AppError {
     pub fn bad_request(message: impl Into<String>) -> Self {
         Self::BadRequest(message.into())
     }
+
+    pub fn conflict(message: impl Into<String>) -> Self {
+        Self::Conflict(message.into())
+    }
 }
 
 impl IntoResponse for AppError {
@@ -67,6 +73,19 @@ impl IntoResponse for AppError {
                 (StatusCode::BAD_REQUEST, message)
             }
             AppError::Validation(errors) => (StatusCode::BAD_REQUEST, errors.to_string()),
+            AppError::Sql(err) => match err {
+                sqlx::Error::RowNotFound => {
+                    (StatusCode::NOT_FOUND, "Resource not found".to_string())
+                }
+                _ => {
+                    tracing::error!(?err, "Database query error");
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        format!("Shady SQL error: {}", err),
+                    )
+                }
+            },
+            AppError::Conflict(message) => (StatusCode::CONFLICT, message),
         };
 
         let body = ErrorBody {
@@ -105,5 +124,11 @@ impl From<ValidationErrors> for AppError {
 impl From<argon2::password_hash::Error> for AppError {
     fn from(err: argon2::password_hash::Error) -> Self {
         AppError::Internal(format!("Password hashing error: {}", err))
+    }
+}
+
+impl From<sqlx::Error> for AppError {
+    fn from(err: sqlx::Error) -> Self {
+        AppError::Sql(err)
     }
 }

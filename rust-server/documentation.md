@@ -13,13 +13,15 @@ src/
 │
 ├── db/                   # Database connection and migration layer
 │   ├── mod.rs
-│   └── connect.rs        # Database connection pool and migration runner
+│   ├── connect.rs        # Database connection pool and migration runner
+│   └── queries.rs        # Low-level database query functions
 │
 ├── features/
 │   ├── mod.rs
 │   ├── auth/             # Authentication feature
 │   │   ├── mod.rs
 │   │   ├── types.rs      # Auth data structures (RegisterData with validation)
+│   │   ├── queries.rs    # Auth-specific database operations
 │   │   ├── routes.rs     # Auth routes (/api/auth/register)
 │   │   └── handlers.rs   # Auth handler functions
 │   └── health/
@@ -64,12 +66,12 @@ tests/
 
 ## 🔧 src/utils/
 
-| File            | Purpose                                   |
-| --------------- | ----------------------------------------- |
+| File              | Purpose                                                     |
+| ----------------- | ----------------------------------------------------------- |
 | `api_response.rs` | Structured API response types for consistent JSON responses |
-| `password.rs`   | Password hashing and verification utilities |
-| `tracing.rs`    | Rust logging setup (`tracing_subscriber`) |
-| `validators.rs` | Input validation functions for user data  |
+| `password.rs`     | Password hashing and verification utilities                 |
+| `tracing.rs`      | Rust logging setup (`tracing_subscriber`)                   |
+| `validators.rs`   | Input validation functions for user data                    |
 
 <details>
 <summary><strong>api_response.rs</strong></summary>
@@ -92,7 +94,9 @@ Structured API response types for consistent JSON responses across the applicati
 {
   "success": true,
   "message": "Operation completed successfully",
-  "data": { /* optional data */ }
+  "data": {
+    /* optional data */
+  }
 }
 ```
 
@@ -343,6 +347,8 @@ pub fn build_cors(frontend_url: &str) -> Result<CorsLayer, String> {
 - `BadRequest(String)` - Invalid request data
 - `Json(JsonRejection)` - JSON parsing/validation errors
 - `Validation(ValidationErrors)` - Input validation errors
+- `Sql(sqlx::Error)` - Database query errors (conditional status mapping)
+- `Conflict(String)` - Resource conflict errors (e.g., duplicate username/email)
 
 **Response shape:**
 
@@ -361,6 +367,8 @@ pub fn build_cors(frontend_url: &str) -> Result<CorsLayer, String> {
 - `BadRequest` → 400
 - `Json` → 400 (with specific error messages)
 - `Validation` → 400
+- `Sql` → 404 (RowNotFound) or 500 (other SQL errors)
+- `Conflict` → 409 (Conflict)
 
 ### Database Error Integration
 
@@ -378,6 +386,60 @@ The error system also implements `From` conversions for:
 - `JsonRejection` → `AppError::Json` (JSON parsing errors)
 - `ValidationErrors` → `AppError::Validation` (validation failures)
 - `argon2::password_hash::Error` → `AppError::Internal` (password hashing errors)
+- `sqlx::Error` → `AppError::Sql` (database query errors)
+
+### New Error Types Details
+
+#### Conflict Error (409)
+
+Used when a resource conflict occurs, typically during user registration:
+
+```json
+{
+  "success": false,
+  "error": "Username already exists"
+}
+```
+
+**Common scenarios:**
+
+- Duplicate username during registration
+- Duplicate email during registration
+- Attempting to create a resource that already exists
+
+#### SQL Error (Conditional 404/500)
+
+Provides conditional status mapping based on the specific SQL error:
+
+- `sqlx::Error::RowNotFound` → HTTP 404 (Resource not found)
+- All other SQL errors → HTTP 500 (Internal server error)
+
+**Example responses:**
+
+Resource not found:
+
+```json
+{
+  "success": false,
+  "error": "Resource not found"
+}
+```
+
+Database error:
+
+```json
+{
+  "success": false,
+  "error": "Shady SQL error: database is locked"
+}
+```
+
+**Common scenarios:**
+
+- Querying for a non-existent user → 404
+- Database connection issues → 500
+- Constraint violations → 500
+- Query syntax errors → 500
 
 ---
 
@@ -426,7 +488,7 @@ CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(255) NOT NULL UNIQUE,
     username VARCHAR(50) NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL,
+    password TEXT NOT NULL,
     verified BOOLEAN NOT NULL DEFAULT FALSE,
     role user_role NOT NULL DEFAULT 'GUEST',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -434,6 +496,72 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 ```
+
+### Database Queries (src/db/queries.rs)
+
+Low-level database query functions for user existence checks and basic operations.
+
+**Key functions:**
+
+- `find_user_by_email()` - Checks if a user exists by email address
+- `find_user_by_username()` - Checks if a user exists by username
+
+**Usage patterns:**
+
+- Returns `Result<Option<PgRow>, AppError>` for flexible row handling
+- Used by authentication handlers for duplicate validation
+- Integrates with `AppError::Sql` for proper error handling
+
+**Example usage:**
+
+```rs
+// Check if email already exists
+let user_exists = find_user_by_email(&db_pool, "user@example.com").await?;
+if user_exists.is_some() {
+    return Err(AppError::Conflict("Email already registered".to_string()));
+}
+
+// Check if username already exists
+let username_exists = find_user_by_username(&db_pool, "username").await?;
+if username_exists.is_some() {
+    return Err(AppError::Conflict("Username already taken".to_string()));
+}
+```
+
+**Error handling:**
+
+- Database errors are automatically converted to `AppError::Sql`
+- Row not found returns `Ok(None)` rather than error
+- Enables graceful handling of missing records
+
+<details>
+<summary><strong>queries.rs</strong></summary>
+
+Low-level database query functions for user existence checks:
+
+```rs
+use sqlx::{PgPool, postgres::PgRow};
+
+use crate::errors::AppError;
+
+pub async fn find_user_by_email(db: &PgPool, email: &str) -> Result<Option<PgRow>, AppError> {
+    sqlx::query("SELECT id FROM users WHERE email = $1")
+        .bind(email)
+        .fetch_optional(db)
+        .await
+        .map_err(AppError::Sql)
+}
+
+pub async fn find_user_by_username(db: &PgPool, username: &str) -> Result<Option<PgRow>, AppError> {
+    sqlx::query("SELECT id FROM users WHERE username = $1")
+        .bind(username)
+        .fetch_optional(db)
+        .await
+        .map_err(AppError::Sql)
+}
+```
+
+</details>
 
 <details>
 <summary><strong>connect.rs</strong></summary>
@@ -501,8 +629,8 @@ async fn run_migrations(pool: &PgPool) -> Result<(), DbError> {
 
 ### Authentication Types (src/features/auth/types.rs)
 
-| Type           | Purpose                                          |
-| -------------- | ------------------------------------------------ |
+| Type           | Purpose                                               |
+| -------------- | ----------------------------------------------------- |
 | `RegisterData` | User registration data structure with full validation |
 
 **RegisterData fields:**
@@ -516,6 +644,78 @@ async fn run_migrations(pool: &PgPool) -> Result<(), DbError> {
 - Email: Must match standard email format pattern
 - Username: 3-20 characters, only lowercase letters, numbers, dots, underscores, and hyphens
 - Password: 8-50 characters, must contain uppercase letter, lowercase letter, number, and special character
+
+### Authentication Queries (src/features/auth/queries.rs)
+
+Authentication-specific database operations for user registration and management.
+
+**Key functions:**
+
+- `register_user()` - Inserts a new user into the database with email, username, and password
+
+**Usage patterns:**
+
+- Takes database pool and user registration data as parameters
+- Returns `Result<(), AppError>` for error handling
+- Integrates with `AppError::Sql` for proper database error handling
+- Used by authentication handlers for user registration workflow
+
+**Example usage:**
+
+```rs
+// Register a new user
+let result = register_user(&db_pool, &email, &username, &password_hash).await;
+match result {
+    Ok(()) => {
+        // User successfully registered
+        Ok(ApiResponse::created("User registered successfully", None))
+    }
+    Err(AppError::Sql(sqlx::Error::Database(db_err))) if db_err.is_unique_violation() => {
+        // Handle duplicate email or username
+        Err(AppError::Conflict("Email or username already exists".to_string()))
+    }
+    Err(err) => {
+        // Handle other database errors
+        Err(err)
+    }
+}
+```
+
+**Error handling:**
+
+- Database constraint violations (unique email/username) can be detected and converted to `AppError::Conflict`
+- All other SQL errors are automatically converted to `AppError::Sql`
+- Enables proper HTTP status codes for different error scenarios
+
+<details>
+<summary><strong>auth/queries.rs</strong></summary>
+
+Authentication-specific database operations for user registration:
+
+```rs
+use sqlx::PgPool;
+
+use crate::errors::AppError;
+
+pub async fn register_user(
+    db: &PgPool,
+    email: &str,
+    username: &str,
+    password: &str,
+) -> Result<(), AppError> {
+    sqlx::query("INSERT INTO users (email, username, password) VALUES ($1, $2, $3)")
+        .bind(email)
+        .bind(username)
+        .bind(password)
+        .execute(db)
+        .await
+        .map_err(AppError::Sql)?;
+
+    Ok(())
+}
+```
+
+</details>
 
 <details>
 <summary><strong>auth/types.rs</strong></summary>

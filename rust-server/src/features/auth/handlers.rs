@@ -1,3 +1,5 @@
+use crate::db::queries::{find_user_by_email, find_user_by_username};
+use crate::features::auth::queries::register_user;
 use crate::state::AppState;
 use crate::utils::api_response::ApiResponse;
 use crate::utils::password::hash_password;
@@ -13,9 +15,9 @@ use validator::Validate;
 // Create new user
 // ----------------------
 pub async fn create_user(
-    State(_state): State<AppState>,
+    State(state): State<AppState>,
     payload: Result<Json<RegisterData>, JsonRejection>,
-) -> Result<ApiResponse<RegisterData>, AppError> {
+) -> Result<ApiResponse<()>, AppError> {
     let Json(payload) = match payload {
         Ok(json) => json,
         Err(rejection) => return Err(AppError::Json(rejection)),
@@ -27,9 +29,36 @@ pub async fn create_user(
         .await
         .map_err(|_| AppError::internal("Threading error"))??;
 
-    eprint!("hashed {}", hashed_password);
+    let db = state.db()?;
 
-    Ok(ApiResponse::created("User created!", None))
+    if find_user_by_email(db, &cleaned_data.email).await?.is_some() {
+        return Err(AppError::conflict("Email already in use"));
+    }
+
+    if find_user_by_username(db, &cleaned_data.username)
+        .await?
+        .is_some()
+    {
+        return Err(AppError::conflict("Username already in use"));
+    }
+
+    let user_id = register_user(
+        db,
+        &cleaned_data.email,
+        &cleaned_data.username,
+        &hashed_password,
+    )
+    .await?;
+
+    eprintln!("USER ID {:?}", user_id);
+
+    // TODO: CREATE TOKEN FOR USER VERIFICATION FROM THE USER ID
+    // TODO: SEND VERIFICATION EMAIL WITH RESEND
+
+    Ok(ApiResponse::created(
+        "Check your email to validate your account.",
+        None,
+    ))
 }
 
 // -----------------
