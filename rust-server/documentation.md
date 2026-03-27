@@ -66,12 +66,12 @@ tests/
 
 ## 🔧 src/utils/
 
-| File            | Purpose                                   |
-| --------------- | ----------------------------------------- |
+| File              | Purpose                                                     |
+| ----------------- | ----------------------------------------------------------- |
 | `api_response.rs` | Structured API response types for consistent JSON responses |
-| `password.rs`   | Password hashing and verification utilities |
-| `tracing.rs`    | Rust logging setup (`tracing_subscriber`) |
-| `validators.rs` | Input validation functions for user data  |
+| `password.rs`     | Password hashing and verification utilities                 |
+| `tracing.rs`      | Rust logging setup (`tracing_subscriber`)                   |
+| `validators.rs`   | Input validation functions for user data                    |
 
 <details>
 <summary><strong>api_response.rs</strong></summary>
@@ -94,7 +94,9 @@ Structured API response types for consistent JSON responses across the applicati
 {
   "success": true,
   "message": "Operation completed successfully",
-  "data": { /* optional data */ }
+  "data": {
+    /* optional data */
+  }
 }
 ```
 
@@ -400,6 +402,7 @@ Used when a resource conflict occurs, typically during user registration:
 ```
 
 **Common scenarios:**
+
 - Duplicate username during registration
 - Duplicate email during registration
 - Attempting to create a resource that already exists
@@ -414,6 +417,7 @@ Provides conditional status mapping based on the specific SQL error:
 **Example responses:**
 
 Resource not found:
+
 ```json
 {
   "success": false,
@@ -422,6 +426,7 @@ Resource not found:
 ```
 
 Database error:
+
 ```json
 {
   "success": false,
@@ -430,6 +435,7 @@ Database error:
 ```
 
 **Common scenarios:**
+
 - Querying for a non-existent user → 404
 - Database connection issues → 500
 - Constraint violations → 500
@@ -482,7 +488,7 @@ CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(255) NOT NULL UNIQUE,
     username VARCHAR(50) NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL,
+    password TEXT NOT NULL,
     verified BOOLEAN NOT NULL DEFAULT FALSE,
     role user_role NOT NULL DEFAULT 'GUEST',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -623,8 +629,8 @@ async fn run_migrations(pool: &PgPool) -> Result<(), DbError> {
 
 ### Authentication Types (src/features/auth/types.rs)
 
-| Type           | Purpose                                          |
-| -------------- | ------------------------------------------------ |
+| Type           | Purpose                                               |
+| -------------- | ----------------------------------------------------- |
 | `RegisterData` | User registration data structure with full validation |
 
 **RegisterData fields:**

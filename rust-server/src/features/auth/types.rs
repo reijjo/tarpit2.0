@@ -1,5 +1,6 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use sqlx::types::Uuid;
 use validator::Validate;
 
 use crate::utils::validators::{validate_email, validate_password, validate_username};
@@ -28,5 +29,5 @@ pub struct RegisterData {
 pub struct Token {
     pub token: String,
     pub expires_at: DateTime<Utc>,
-    pub user_id: i32,
+    pub user_id: Uuid,
 }

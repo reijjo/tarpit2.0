@@ -29,29 +29,30 @@ pub async fn create_user(
         .await
         .map_err(|_| AppError::internal("Threading error"))??;
 
-    if find_user_by_email(state.db()?, &cleaned_data.email)
-        .await?
-        .is_some()
-    {
+    let db = state.db()?;
+
+    if find_user_by_email(db, &cleaned_data.email).await?.is_some() {
         return Err(AppError::conflict("Email already in use"));
     }
 
-    if find_user_by_username(state.db()?, &cleaned_data.username)
+    if find_user_by_username(db, &cleaned_data.username)
         .await?
         .is_some()
     {
         return Err(AppError::conflict("Username already in use"));
     }
 
-    register_user(
-        state.db()?,
+    let user_id = register_user(
+        db,
         &cleaned_data.email,
         &cleaned_data.username,
         &hashed_password,
     )
     .await?;
 
-    // TODO: CREATE TOKEN FOR USER VERIFICATION
+    eprintln!("USER ID {:?}", user_id);
+
+    // TODO: CREATE TOKEN FOR USER VERIFICATION FROM THE USER ID
     // TODO: SEND VERIFICATION EMAIL WITH RESEND
 
     Ok(ApiResponse::created(

@@ -77,10 +77,13 @@ impl IntoResponse for AppError {
                 sqlx::Error::RowNotFound => {
                     (StatusCode::NOT_FOUND, "Resource not found".to_string())
                 }
-                _ => (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    format!("Shady SQL error: {}", err),
-                ),
+                _ => {
+                    tracing::error!(?err, "Database query error");
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        format!("Shady SQL error: {}", err),
+                    )
+                }
             },
             AppError::Conflict(message) => (StatusCode::CONFLICT, message),
         };
