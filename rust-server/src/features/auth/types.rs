@@ -1,9 +1,9 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
 use crate::utils::validators::{validate_email, validate_password, validate_username};
 
-#[allow(dead_code)]
 #[derive(Serialize, Deserialize, Debug, Validate)]
 pub struct RegisterData {
     #[validate(custom(function = validate_email))]
@@ -22,4 +22,11 @@ pub struct RegisterData {
         message = "Password must be between 8 and 50 characters"
     ), custom(function = validate_password))]
     pub password: String,
+}
+
+#[allow(dead_code)]
+pub struct Token {
+    pub token: String,
+    pub expires_at: DateTime<Utc>,
+    pub user_id: i32,
 }
