@@ -22,6 +22,7 @@ src/
 │   │   ├── mod.rs
 │   │   ├── types.rs      # Auth data structures (RegisterData with validation)
 │   │   ├── queries.rs    # Auth-specific database operations
+│   │   ├── service.rs    # Auth business logic (user creation, token generation)
 │   │   ├── routes.rs     # Auth routes (/api/auth/register)
 │   │   └── handlers.rs   # Auth handler functions
 │   └── health/
@@ -38,6 +39,7 @@ src/
 └── utils/                # Utility modules
     ├── mod.rs
     ├── api_response.rs   # Structured API response types
+    ├── email.rs          # Email sending utilities (verification emails)
     ├── password.rs       # Password hashing and verification utilities
     ├── tracing.rs        # init_tracing() function
     └── validators.rs     # Input validation functions (email, username, password)
@@ -69,6 +71,7 @@ tests/
 | File              | Purpose                                                     |
 | ----------------- | ----------------------------------------------------------- |
 | `api_response.rs` | Structured API response types for consistent JSON responses |
+| `email.rs`        | Email sending utilities (verification emails)               |
 | `password.rs`     | Password hashing and verification utilities                 |
 | `tracing.rs`      | Rust logging setup (`tracing_subscriber`)                   |
 | `validators.rs`   | Input validation functions for user data                    |
@@ -286,6 +289,40 @@ pub fn validate_password(password: &str) -> Result<(), ValidationError> {
             "Must contain one special character (!@#$%&*_+-=.?)",
         ));
     }
+
+    Ok(())
+}
+```
+
+</details>
+
+<details>
+<summary><strong>email.rs</strong></summary>
+
+Email sending utilities for verification emails and other notifications.
+
+**Key functions:**
+
+- `send_verification_email()` - Sends a verification email to a user with a token
+
+**Usage patterns:**
+
+- Takes recipient email and verification token as parameters
+- Returns `Result<(), AppError>` for error handling
+- Currently a placeholder implementation (logs to stderr)
+
+**Example usage:**
+
+```rs
+// Send verification email after user registration
+send_verification_email("user@example.com", "verification-token-123").await?;
+```
+
+```rs
+use crate::errors::AppError;
+
+pub async fn send_verification_email(to_email: &str, token: &str) -> Result<(), AppError> {
+    eprintln!("Sending verification email to: {to_email} with token: {token}");
 
     Ok(())
 }
@@ -651,34 +688,26 @@ Authentication-specific database operations for user registration and management
 
 **Key functions:**
 
-- `register_user()` - Inserts a new user into the database with email, username, and password
+- `create_user()` - Creates a new user in the database and returns the user's UUID
+- `create_verification_token()` - Creates a verification token for email verification
 
 **Usage patterns:**
 
-- Takes database pool and user registration data as parameters
-- Returns `Result<(), AppError>` for error handling
+- Takes database executor (pool or transaction) and user data as parameters
+- Returns `Result<Uuid, AppError>` for user creation (returns the new user's ID)
+- Returns `Result<(), AppError>` for token creation
 - Integrates with `AppError::Sql` for proper database error handling
-- Used by authentication handlers for user registration workflow
+- Used by authentication service layer for user registration workflow
 
 **Example usage:**
 
 ```rs
-// Register a new user
-let result = register_user(&db_pool, &email, &username, &password_hash).await;
-match result {
-    Ok(()) => {
-        // User successfully registered
-        Ok(ApiResponse::created("User registered successfully", None))
-    }
-    Err(AppError::Sql(sqlx::Error::Database(db_err))) if db_err.is_unique_violation() => {
-        // Handle duplicate email or username
-        Err(AppError::Conflict("Email or username already exists".to_string()))
-    }
-    Err(err) => {
-        // Handle other database errors
-        Err(err)
-    }
-}
+// Create a new user
+let user_id = create_user(&db_pool, "user@example.com", "username", "hashed_password").await?;
+
+// Create verification token
+let expires_at = chrono::Utc::now() + chrono::Duration::hours(24);
+create_verification_token(&db_pool, user_id, "token-123", expires_at).await?;
 ```
 
 **Error handling:**
@@ -693,20 +722,49 @@ match result {
 Authentication-specific database operations for user registration:
 
 ```rs
-use sqlx::PgPool;
+#![allow(dead_code)]
+use chrono::{DateTime, Utc};
+use sqlx::{Executor, Postgres, types::Uuid};
 
 use crate::errors::AppError;
 
-pub async fn register_user(
-    db: &PgPool,
+// Create user - POST
+pub async fn create_user<'e, E>(
+    db: E,
     email: &str,
     username: &str,
     password: &str,
-) -> Result<(), AppError> {
-    sqlx::query("INSERT INTO users (email, username, password) VALUES ($1, $2, $3)")
-        .bind(email)
-        .bind(username)
-        .bind(password)
+) -> Result<Uuid, AppError>
+where
+    E: Executor<'e, Database = Postgres>,
+{
+    let row = sqlx::query_scalar::<_, Uuid>(
+        "INSERT INTO users (email, username, password) VALUES ($1, $2, $3) RETURNING id",
+    )
+    .bind(email)
+    .bind(username)
+    .bind(password)
+    .fetch_one(db)
+    .await
+    .map_err(AppError::Sql)?;
+
+    Ok(row)
+}
+
+// Create verification token - POST
+pub async fn create_verification_token<'e, E>(
+    db: E,
+    user_id: Uuid,
+    token: &str,
+    expires_at: DateTime<Utc>,
+) -> Result<(), AppError>
+where
+    E: Executor<'e, Database = Postgres>,
+{
+    sqlx::query("INSERT INTO tokens (user_id, token, expires_at) VALUES ($1, $2, $3)")
+        .bind(user_id)
+        .bind(token)
+        .bind(expires_at)
         .execute(db)
         .await
         .map_err(AppError::Sql)?;
