@@ -1,7 +1,8 @@
 use crate::db::queries::{find_user_by_email, find_user_by_username};
-use crate::features::auth::queries::register_user;
+use crate::features::auth::service::new_user;
 use crate::state::AppState;
 use crate::utils::api_response::ApiResponse;
+use crate::utils::email::send_verification_email;
 use crate::utils::password::hash_password;
 use crate::{errors::AppError, features::auth::types::RegisterData};
 use axum::extract::rejection::JsonRejection;
@@ -14,7 +15,7 @@ use validator::Validate;
 // POST
 // Create new user
 // ----------------------
-pub async fn create_user(
+pub async fn register_user(
     State(state): State<AppState>,
     payload: Result<Json<RegisterData>, JsonRejection>,
 ) -> Result<ApiResponse<()>, AppError> {
@@ -42,7 +43,7 @@ pub async fn create_user(
         return Err(AppError::conflict("Username already in use"));
     }
 
-    let user_id = register_user(
+    let (user_id, token) = new_user(
         db,
         &cleaned_data.email,
         &cleaned_data.username,
@@ -50,13 +51,16 @@ pub async fn create_user(
     )
     .await?;
 
-    eprintln!("USER ID {:?}", user_id);
+    eprintln!("USER ID: {:#?}", user_id);
+    eprintln!("VERIFICATION TOKEN: {:#?}", token);
 
-    // TODO: CREATE TOKEN FOR USER VERIFICATION FROM THE USER ID
     // TODO: SEND VERIFICATION EMAIL WITH RESEND
+    if !state.config.app_env.is_test() {
+        send_verification_email(&cleaned_data.email, &token).await?;
+    };
 
     Ok(ApiResponse::created(
-        "Check your email to validate your account.",
+        "Check your email to validate your account",
         None,
     ))
 }

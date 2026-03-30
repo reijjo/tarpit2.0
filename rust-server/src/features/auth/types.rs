@@ -26,6 +26,7 @@ pub struct RegisterData {
 }
 
 #[allow(dead_code)]
+#[derive(Serialize, Debug)]
 pub struct Token {
     pub token: String,
     pub expires_at: DateTime<Utc>,
