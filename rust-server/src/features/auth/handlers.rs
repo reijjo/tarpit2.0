@@ -1,8 +1,8 @@
 use crate::db::queries::{find_user_by_email, find_user_by_username};
+use crate::features::auth::queries::delete_user;
 use crate::features::auth::service::new_user;
 use crate::state::AppState;
 use crate::utils::api_response::ApiResponse;
-use crate::utils::email::send_verification_email;
 use crate::utils::password::hash_password;
 use crate::{errors::AppError, features::auth::types::RegisterData};
 use axum::extract::rejection::JsonRejection;
@@ -51,13 +51,24 @@ pub async fn register_user(
     )
     .await?;
 
-    eprintln!("USER ID: {:#?}", user_id);
-    eprintln!("VERIFICATION TOKEN: {:#?}", token);
-
-    // TODO: SEND VERIFICATION EMAIL WITH RESEND
-    if !state.config.app_env.is_test() {
-        send_verification_email(&cleaned_data.email, &token).await?;
-    };
+    // Send verification email - if it fails, delete user (compensating transaction)
+    if !state.config.app_env.is_test()
+        && let Err(email_err) = state
+            .email
+            .send_verification_email(&cleaned_data.email, &token)
+            .await
+    {
+        // Compensating action: delete the user we just created
+        tracing::error!("Failed to send verification email: {:#?}", email_err);
+        if let Err(delete_err) = delete_user(db, user_id).await {
+            tracing::error!(
+                user_id = %user_id,
+               ?delete_err,
+                "Failed to delete user during compensation"
+            );
+        }
+        return Err(email_err);
+    }
 
     Ok(ApiResponse::created(
         "Check your email to validate your account",
