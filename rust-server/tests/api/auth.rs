@@ -944,13 +944,13 @@ async fn register_concurrent_same_email() {
 
     if res1.status_code().is_success() {
         success_count += 1;
-    } else if res1.status_code() == 409 {
+    } else if res1.status_code() == StatusCode::CONFLICT {
         conflict_count += 1;
     }
 
     if res2.status_code().is_success() {
         success_count += 1;
-    } else if res2.status_code() == 409 {
+    } else if res2.status_code() == StatusCode::CONFLICT {
         conflict_count += 1;
     }
 
