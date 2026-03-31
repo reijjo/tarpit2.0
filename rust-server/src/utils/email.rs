@@ -25,10 +25,11 @@ impl EmailService {
         to_email: &str,
         token: &str,
     ) -> Result<(), AppError> {
+        let encoded_token = urlencoding::encode(token);
         let verify_url = format!(
             "{}/verify?token={}",
             self.frontend_url.trim_end_matches('/'),
-            token
+            encoded_token
         );
 
         let html = build_verification_html(&verify_url);

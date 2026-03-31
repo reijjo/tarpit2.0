@@ -59,7 +59,7 @@ pub async fn register_user(
             .await
     {
         // Compensating action: delete the user we just created
-        tracing::error!("Failed to create user: {:#?}", email_err);
+        tracing::error!("Failed to send verification email: {:#?}", email_err);
         delete_user(db, user_id).await?;
         return Err(email_err);
     }

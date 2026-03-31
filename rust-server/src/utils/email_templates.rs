@@ -65,6 +65,6 @@ pub fn build_verification_text(verify_url: &str) -> String {
          Thank you for registering. Please verify your email to activate your account.\n\
          This link expires in 24 hours.\n\n\
          Verify your email: {verify_url}\n\n\
-         If the button in the email does not work, copy the link above into your browser."
+         Copy and paste the link above into your browser if it doesn't open automatically."
     )
 }

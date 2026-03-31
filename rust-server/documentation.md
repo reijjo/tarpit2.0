@@ -20,7 +20,7 @@ src/
 │   ├── mod.rs
 │   ├── auth/             # Authentication feature
 │   │   ├── mod.rs
-│   │   ├── types.rs      # Auth data structures (RegisterData with validation)
+│   │   ├── types.rs      # Auth data structures (RegisterData, Token with validation)
 │   │   ├── queries.rs    # Auth-specific database operations
 │   │   ├── service.rs    # Auth business logic (user creation, token generation)
 │   │   ├── routes.rs     # Auth routes (/api/auth/register)
@@ -39,7 +39,8 @@ src/
 └── utils/                # Utility modules
     ├── mod.rs
     ├── api_response.rs   # Structured API response types
-    ├── email.rs          # Email sending utilities (verification emails)
+    ├── email.rs          # EmailService struct using Resend API
+    ├── email_templates.rs # HTML and plain text email templates
     ├── password.rs       # Password hashing and verification utilities
     ├── tracing.rs        # init_tracing() function
     └── validators.rs     # Input validation functions (email, username, password)
@@ -71,7 +72,7 @@ tests/
 | File              | Purpose                                                     |
 | ----------------- | ----------------------------------------------------------- |
 | `api_response.rs` | Structured API response types for consistent JSON responses |
-| `email.rs`        | Email sending utilities (verification emails)               |
+| `email.rs`        | EmailService struct using Resend API                        |
 | `password.rs`     | Password hashing and verification utilities                 |
 | `tracing.rs`      | Rust logging setup (`tracing_subscriber`)                   |
 | `validators.rs`   | Input validation functions for user data                    |
@@ -233,6 +234,7 @@ Input validation functions for user registration and authentication data.
 
 **Key validation functions:**
 
+- `validate_email()` - Validates email format using regex pattern
 - `validate_username()` - Validates username format (alphanumeric, dots, underscores, hyphens)
 - `validate_password()` - Validates password strength (uppercase, lowercase, number, special character)
 
@@ -299,32 +301,92 @@ pub fn validate_password(password: &str) -> Result<(), ValidationError> {
 <details>
 <summary><strong>email.rs</strong></summary>
 
-Email sending utilities for verification emails and other notifications.
+EmailService struct for sending verification emails using the Resend API.
+
+**Key types:**
+
+- `EmailService` - Struct containing Resend client and configuration
 
 **Key functions:**
 
+- `EmailService::new()` - Creates a new EmailService instance
 - `send_verification_email()` - Sends a verification email to a user with a token
 
 **Usage patterns:**
 
 - Takes recipient email and verification token as parameters
 - Returns `Result<(), AppError>` for error handling
-- Currently a placeholder implementation (logs to stderr)
+- Uses Resend API for actual email delivery
+- Generates verification URL using frontend_url and token
 
 **Example usage:**
 
 ```rs
+// Create email service
+let email_service = EmailService::new(
+    Resend::new(&config.resend_api_key),
+    &config.frontend_url,
+    &config.tarpit_domain,
+);
+
 // Send verification email after user registration
-send_verification_email("user@example.com", "verification-token-123").await?;
+email_service.send_verification_email("user@example.com", "verification-token-123").await?;
 ```
 
 ```rs
+use resend_rs::Resend;
+use resend_rs::types::CreateEmailBaseOptions;
+
 use crate::errors::AppError;
+use crate::utils::email_templates::{build_verification_html, build_verification_text};
 
-pub async fn send_verification_email(to_email: &str, token: &str) -> Result<(), AppError> {
-    eprintln!("Sending verification email to: {to_email} with token: {token}");
+#[derive(Clone)]
+pub struct EmailService {
+    resend: Resend,
+    frontend_url: String,
+    from_email: String,
+}
 
-    Ok(())
+impl EmailService {
+    pub fn new(resend: Resend, frontend_url: &str, tarpit_domain: &str) -> Self {
+        Self {
+            resend,
+            frontend_url: frontend_url.to_string(),
+            from_email: format!("noreply@{tarpit_domain}"),
+        }
+    }
+
+    pub async fn send_verification_email(
+        &self,
+        to_email: &str,
+        token: &str,
+    ) -> Result<(), AppError> {
+        let encoded_token = urlencoding::encode(token);
+        let verify_url = format!(
+            "{}/verify?token={}",
+            self.frontend_url.trim_end_matches('/'),
+            encoded_token
+        );
+
+        let html = build_verification_html(&verify_url);
+        let text = build_verification_text(&verify_url);
+
+        let email = CreateEmailBaseOptions::new(
+            &self.from_email,
+            [to_email],
+            "Welcome to Tarpit - verify your email",
+        )
+        .with_html(&html)
+        .with_text(&text);
+
+        self.resend.emails.send(email).await.map_err(|e| {
+            tracing::error!(?e, "Failed to send verification email");
+            AppError::internal("Failed to send verification email")
+        })?;
+
+        tracing::info!(to = to_email, "Verification email sent");
+        Ok(())
+    }
 }
 ```
 
@@ -545,7 +607,7 @@ Example:
 - Then create the schema in it:
 
 ```sql
-CREATE TYPE user_role AS ENUM ('GUEST', 'GUEST2');
+CREATE TYPE user_role AS ENUM ('GUEST', 'PAID', 'BOSS');
 
 
 CREATE TABLE IF NOT EXISTS users (
@@ -696,6 +758,7 @@ async fn run_migrations(pool: &PgPool) -> Result<(), DbError> {
 | Type           | Purpose                                               |
 | -------------- | ----------------------------------------------------- |
 | `RegisterData` | User registration data structure with full validation |
+| `Token`        | Verification token structure with expiration          |
 
 **RegisterData fields:**
 
@@ -1032,7 +1095,7 @@ curl http://127.0.0.1:3001/THIS_DOES_NOT_EXIST
 
 - Integration tests live in crate-root `tests/` (not inside `src/`).
 - Single integration target entrypoint: `tests/api.rs`.
-- Shared test server helper: `tests/api/common.rs`.
+- Shared test server helper: `tests/api/common.rs` (includes `build_test_server()` and `build_test_server_without_db()`).
 - Current API test modules: `tests/api/health.rs`.
 - Tests use `axum-test::TestServer` to call routes in-process.
 - Test helper forces `AppEnv::Test` and maps `db_url` to `db_test_url` for safety.
@@ -1245,6 +1308,52 @@ cargo install sqlx-cli --no-default-features --features postgres,rustls
 ```bash
 cargo add validator --features derive
 cargo add regex
+```
+
+</details>
+
+<details>
+<summary><strong>uuid</strong></summary>
+
+**uuid** — UUID generation and parsing library.
+
+- Version: `1.23.0`
+- Features: `serde`, `v4`
+- Purpose: UUID generation for user IDs and verification tokens
+- Documentation: https://docs.rs/uuid/latest/uuid/
+
+```bash
+cargo add uuid --features serde,v4
+```
+
+</details>
+
+<details>
+<summary><strong>resend-rs</strong></summary>
+
+**resend-rs** — Resend email API client.
+
+- Version: `0.21.1`
+- Purpose: Send transactional emails via Resend API
+- Documentation: https://docs.rs/resend-rs/latest/resend_rs/
+
+```bash
+cargo add resend-rs
+```
+
+</details>
+
+<details>
+<summary><strong>urlencoding</strong></summary>
+
+**urlencoding** — URL encoding/decoding library.
+
+- Version: `2.1.3`
+- Purpose: Encode verification tokens in email URLs
+- Documentation: https://docs.rs/urlencoding/latest/urlencoding/
+
+```bash
+cargo add urlencoding
 ```
 
 </details>
