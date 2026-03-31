@@ -7,7 +7,7 @@ use crate::utils::validators::{validate_email, validate_password, validate_usern
 
 #[derive(Serialize, Deserialize, Debug, Validate)]
 pub struct RegisterData {
-    #[validate(custom(function = validate_email))]
+    #[validate(length(max = 255, message = "Email must be at most 255 characters"), custom(function = validate_email))]
     pub email: String,
 
     #[validate(length(
