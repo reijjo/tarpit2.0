@@ -7,6 +7,7 @@ mod middleware;
 mod state;
 mod utils;
 
+use resend_rs::Resend;
 use std::sync::Arc;
 use std::time::Instant;
 use tokio::net::TcpListener;
@@ -14,6 +15,7 @@ use tokio::net::TcpListener;
 use crate::config::Config;
 use crate::db::connect::DbError;
 use crate::db::connect::init_db;
+use crate::utils::email::EmailService;
 use crate::utils::tracing::init_tracing;
 
 impl From<DbError> for StartupError {
@@ -62,6 +64,11 @@ async fn main() -> Result<(), StartupError> {
         config: Arc::clone(&config),
         start_time,
         db,
+        email: EmailService::new(
+            Resend::new(&config.resend_api_key),
+            &config.frontend_url,
+            &config.tarpit_domain,
+        ),
     };
 
     let app = app::create_app(state).map_err(|err| {

@@ -330,6 +330,33 @@ pub async fn send_verification_email(to_email: &str, token: &str) -> Result<(), 
 
 </details>
 
+<details>
+<summary><strong>email_templates.rs</strong></summary>
+
+HTML and plain text email templates for verification emails.
+
+**Key functions:**
+
+- `build_verification_html()` - Generates HTML email template with verification link
+- `build_verification_text()` - Generates plain text fallback for email clients
+
+**Features:**
+
+- Dark header with gradient background (with solid color fallback for email clients that don't support gradients)
+- Text-based emoji logo (🎣) for maximum email client compatibility
+- Responsive design with max-width container
+- Yellow CTA button for verification link
+- Fallback plain text link for accessibility
+
+**Email client compatibility:**
+
+- Uses `background-color` fallback before `linear-gradient` for Outlook and older clients
+- Text-based logo instead of external images (images often blocked by email clients)
+- Inline styles for maximum compatibility
+- Table-based layout for consistent rendering
+
+</details>
+
 ---
 
 ## 🛡️ src/middleware/
@@ -690,12 +717,13 @@ Authentication-specific database operations for user registration and management
 
 - `create_user()` - Creates a new user in the database and returns the user's UUID
 - `create_verification_token()` - Creates a verification token for email verification
+- `delete_user()` - Deletes a user from the database (used for compensating transactions)
 
 **Usage patterns:**
 
 - Takes database executor (pool or transaction) and user data as parameters
 - Returns `Result<Uuid, AppError>` for user creation (returns the new user's ID)
-- Returns `Result<(), AppError>` for token creation
+- Returns `Result<(), AppError>` for token creation and user deletion
 - Integrates with `AppError::Sql` for proper database error handling
 - Used by authentication service layer for user registration workflow
 
@@ -708,6 +736,9 @@ let user_id = create_user(&db_pool, "user@example.com", "username", "hashed_pass
 // Create verification token
 let expires_at = chrono::Utc::now() + chrono::Duration::hours(24);
 create_verification_token(&db_pool, user_id, "token-123", expires_at).await?;
+
+// Delete user (compensating transaction if email fails)
+delete_user(&db_pool, user_id).await?;
 ```
 
 **Error handling:**
@@ -765,6 +796,20 @@ where
         .bind(user_id)
         .bind(token)
         .bind(expires_at)
+        .execute(db)
+        .await
+        .map_err(AppError::Sql)?;
+
+    Ok(())
+}
+
+// Delete user - DELETE (compensating transaction for failed email)
+pub async fn delete_user<'e, E>(db: E, user_id: Uuid) -> Result<(), AppError>
+where
+    E: Executor<'e, Database = Postgres>,
+{
+    sqlx::query("DELETE FROM users WHERE id = $1")
+        .bind(user_id)
         .execute(db)
         .await
         .map_err(AppError::Sql)?;

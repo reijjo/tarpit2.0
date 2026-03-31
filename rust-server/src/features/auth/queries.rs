@@ -47,3 +47,17 @@ where
 
     Ok(())
 }
+
+// Delete user - DELETE (compensating transaction for failed email)
+pub async fn delete_user<'e, E>(db: E, user_id: Uuid) -> Result<(), AppError>
+where
+    E: Executor<'e, Database = Postgres>,
+{
+    sqlx::query("DELETE FROM users WHERE id = $1")
+        .bind(user_id)
+        .execute(db)
+        .await
+        .map_err(AppError::Sql)?;
+
+    Ok(())
+}
