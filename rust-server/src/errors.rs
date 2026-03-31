@@ -77,6 +77,9 @@ impl IntoResponse for AppError {
                 sqlx::Error::RowNotFound => {
                     (StatusCode::NOT_FOUND, "Resource not found".to_string())
                 }
+                sqlx::Error::Database(db_err) if db_err.code().as_deref() == Some("23505") => {
+                    (StatusCode::CONFLICT, "Resource already exists".to_string())
+                }
                 _ => {
                     tracing::error!(?err, "Database query error");
                     (
