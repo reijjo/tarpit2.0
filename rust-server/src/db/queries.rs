@@ -1,4 +1,5 @@
 use sqlx::{PgPool, postgres::PgRow};
+use uuid::Uuid;
 
 use crate::errors::AppError;
 
@@ -16,4 +17,23 @@ pub async fn find_user_by_username(db: &PgPool, username: &str) -> Result<Option
         .fetch_optional(db)
         .await
         .map_err(AppError::Sql)
+}
+
+#[allow(dead_code)]
+pub async fn find_user_by_id(db: &PgPool, id: Uuid) -> Result<Option<PgRow>, AppError> {
+    sqlx::query("SELECT id FROM users WHERE id = $1")
+        .bind(id)
+        .fetch_optional(db)
+        .await
+        .map_err(AppError::Sql)
+}
+
+pub async fn find_token_by_value(db: &PgPool, token: &str) -> Result<Option<PgRow>, AppError> {
+    let row = sqlx::query("SELECT * FROM tokens WHERE token = $1")
+        .bind(token)
+        .fetch_optional(db)
+        .await
+        .map_err(AppError::Sql)?;
+
+    Ok(row)
 }

@@ -5,6 +5,9 @@ use validator::Validate;
 
 use crate::utils::validators::{validate_email, validate_password, validate_username};
 
+// -----------------------
+// Register data
+// -----------------------
 #[derive(Serialize, Deserialize, Debug, Validate)]
 pub struct RegisterData {
     #[validate(length(max = 255, message = "Email must be at most 255 characters"), custom(function = validate_email))]
@@ -25,6 +28,24 @@ pub struct RegisterData {
     pub password: String,
 }
 
+// -----------------------
+// Queries (params)
+// -----------------------
+#[derive(Deserialize)]
+pub struct AvailabilityQuery {
+    pub email: Option<String>,
+    pub username: Option<String>,
+}
+
+#[derive(Deserialize)]
+
+pub struct VerifyQuery {
+    pub token: Option<String>,
+}
+
+// -----------------------
+// Token
+// -----------------------
 #[allow(dead_code)]
 #[derive(Serialize, Debug)]
 pub struct Token {

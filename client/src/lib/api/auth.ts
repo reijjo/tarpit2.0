@@ -7,7 +7,7 @@ import type {
   RegisterUserData,
 } from "../types/auth";
 
-const AUTH_URL = `${config.BACKEND_URL}/auth`;
+const AUTH_URL = `${config.BACKEND_URL}/api/auth`;
 
 // auth/available
 // GET
@@ -86,3 +86,10 @@ export const loggingIn = async (
     return { success: false, error: "Network error" };
   }
 };
+
+// auth/verify
+// GET
+// Verify email with token
+// export const verifyAccount = async
+
+// TOdO: Implement verifyAccount function when needed

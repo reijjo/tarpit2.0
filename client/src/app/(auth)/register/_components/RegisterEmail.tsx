@@ -39,7 +39,7 @@ export default function RegisterEmail({
           id="email"
           type="email"
           placeholder="Enter your email"
-          autoComplete="on"
+          autoComplete="email"
           className="auth-form-field"
           required
           errors={formState.errors?.email ?? []}
