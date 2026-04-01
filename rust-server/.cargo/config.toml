@@ -1,7 +1,3 @@
-[env]
-# Test configuration
-
-[test]
-# Run tests serially to avoid database race conditions
-# Each test truncates the database, so concurrent execution causes conflicts
-test-threads = 1
+# Force single-threaded test execution to avoid database race conditions.
+# Each test truncates the database, so concurrent execution causes conflicts.
+RUST_TEST_THREADS = "1"

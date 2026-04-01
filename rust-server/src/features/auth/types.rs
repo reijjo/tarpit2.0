@@ -32,7 +32,7 @@ pub struct RegisterData {
 // Queries (params)
 // -----------------------
 #[derive(Deserialize)]
-pub struct AvailibilityQuery {
+pub struct AvailabilityQuery {
     pub email: Option<String>,
     pub username: Option<String>,
 }

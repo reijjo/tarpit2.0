@@ -7,7 +7,6 @@ export default function VerifyPage() {
 
   // TODO: Implement actual verification logic by sending the token to the server for validation
 
-  console.log("token:", token);
   return (
     <div className="auth-verify">
       <div className="container">

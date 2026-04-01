@@ -1,14 +1,17 @@
 use crate::db::queries::{find_token_by_value, find_user_by_email, find_user_by_username};
 use crate::features::auth::queries::{delete_user, verify_user};
 use crate::features::auth::service::new_user;
-use crate::features::auth::types::{AvailibilityQuery, VerifyQuery};
+use crate::features::auth::types::{AvailabilityQuery, VerifyQuery};
 use crate::state::AppState;
 use crate::utils::api_response::ApiResponse;
 use crate::utils::password::hash_password;
 use crate::{errors::AppError, features::auth::types::RegisterData};
 use axum::extract::rejection::JsonRejection;
 use axum::extract::{Json, Query, State};
+use chrono::{DateTime, Utc};
+use sqlx::Row;
 use tokio::task::spawn_blocking;
+use uuid::Uuid;
 use validator::Validate;
 
 // ----------------------
@@ -83,7 +86,7 @@ pub async fn register_user(
 // ----------------------
 pub async fn check_availability(
     State(state): State<AppState>,
-    Query(params): Query<AvailibilityQuery>,
+    Query(params): Query<AvailabilityQuery>,
 ) -> Result<ApiResponse<()>, AppError> {
     match (&params.email, &params.username) {
         (None, None) => return Err(AppError::bad_request("Invalid query")),
@@ -93,16 +96,24 @@ pub async fn check_availability(
 
     let db = state.db()?;
 
-    if let Some(email) = &params.email
-        && find_user_by_email(db, email).await?.is_some()
-    {
-        return Err(AppError::conflict("Email already in use"));
+    if let Some(email) = &params.email {
+        let email = email.trim().to_lowercase();
+        if email.is_empty() {
+            return Err(AppError::bad_request("Invalid query"));
+        }
+        if find_user_by_email(db, &email).await?.is_some() {
+            return Err(AppError::conflict("Email already in use"));
+        }
     }
 
-    if let Some(username) = &params.username
-        && find_user_by_username(db, username).await?.is_some()
-    {
-        return Err(AppError::conflict("Username already in use"));
+    if let Some(username) = &params.username {
+        let username = username.trim().to_lowercase();
+        if username.is_empty() {
+            return Err(AppError::bad_request("Invalid query"));
+        }
+        if find_user_by_username(db, &username).await?.is_some() {
+            return Err(AppError::conflict("Username already in use"));
+        }
     }
 
     Ok(ApiResponse::ok("No duplicates found", None))
@@ -123,9 +134,16 @@ pub async fn verify_account(
     };
 
     let db = state.db()?;
-    let user_id = find_token_by_value(db, &token)
+    let row = find_token_by_value(db, &token)
         .await?
         .ok_or_else(|| AppError::not_found("Invalid token"))?;
+
+    let user_id: Uuid = row.get("user_id");
+    let expires_at: DateTime<Utc> = row.get("expires_at");
+
+    if Utc::now() > expires_at {
+        return Err(AppError::bad_request("Token has expired"));
+    }
 
     verify_user(db, user_id).await?;
 

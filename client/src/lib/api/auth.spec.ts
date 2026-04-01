@@ -1,6 +1,9 @@
+import {
+  checkDuplicateEmail,
+  checkDuplicateUsername,
+  createUser,
+} from "./auth";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-
-import { checkDuplicateEmail, checkDuplicateUsername, createUser } from "./auth";
 
 import type { RegisterUserData } from "../types/auth";
 
@@ -17,7 +20,9 @@ describe("auth api", () => {
   beforeEach(() => {
     fetchMock.mockReset();
     vi.stubGlobal("fetch", fetchMock);
-    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    consoleErrorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
   });
 
   afterEach(() => {
@@ -37,24 +42,21 @@ describe("auth api", () => {
         "user@example.com&admin=true",
         "user%40example.com%26admin%3Dtrue",
       ],
-    ])(
-      "encodes input safely for %s",
-      async (_label, email, encodedEmail) => {
-        fetchMock.mockResolvedValue(
-          jsonResponse({
-            success: true,
-            message: "No duplicate email/username found.",
-          }),
-        );
+    ])("encodes input safely for %s", async (_label, email, encodedEmail) => {
+      fetchMock.mockResolvedValue(
+        jsonResponse({
+          success: true,
+          message: "No duplicate email/username found.",
+        }),
+      );
 
-        const result = await checkDuplicateEmail(email);
+      const result = await checkDuplicateEmail(email);
 
-        expect(fetchMock).toHaveBeenCalledWith(
-          `http://localhost:3001/auth/available?email=${encodedEmail}`,
-        );
-        expect(result.success).toBe(true);
-      },
-    );
+      expect(fetchMock).toHaveBeenCalledWith(
+        `http://localhost:3001/api/auth/available?email=${encodedEmail}`,
+      );
+      expect(result.success).toBe(true);
+    });
 
     it("returns API error payload when backend responds with non-OK", async () => {
       fetchMock.mockResolvedValue(
@@ -119,7 +121,7 @@ describe("auth api", () => {
         const result = await checkDuplicateUsername(username);
 
         expect(fetchMock).toHaveBeenCalledWith(
-          `http://localhost:3001/auth/available?username=${encodedUsername}`,
+          `http://localhost:3001/api/auth/available?username=${encodedUsername}`,
         );
         expect(result.success).toBe(true);
       },
@@ -144,7 +146,7 @@ describe("auth api", () => {
       const result = await createUser(credentials);
 
       expect(fetchMock).toHaveBeenCalledWith(
-        "http://localhost:3001/auth/register",
+        "http://localhost:3001/api/auth/register",
         expect.objectContaining({
           method: "POST",
           headers: { "Content-Type": "application/json" },

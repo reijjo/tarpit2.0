@@ -10,7 +10,7 @@ use axum::{
 
 pub fn auth_router() -> Router<AppState> {
     Router::new()
-        .route("/auth/register", post(register_user))
-        .route("/auth/available", get(check_availability))
-        .route("/auth/verify", get(verify_account))
+        .route("/register", post(register_user))
+        .route("/available", get(check_availability))
+        .route("/verify", get(verify_account))
 }

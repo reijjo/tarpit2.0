@@ -1,4 +1,4 @@
-use sqlx::{PgPool, Row, postgres::PgRow};
+use sqlx::{PgPool, postgres::PgRow};
 use uuid::Uuid;
 
 use crate::errors::AppError;
@@ -28,12 +28,12 @@ pub async fn find_user_by_id(db: &PgPool, id: Uuid) -> Result<Option<PgRow>, App
         .map_err(AppError::Sql)
 }
 
-pub async fn find_token_by_value(db: &PgPool, token: &str) -> Result<Option<Uuid>, AppError> {
-    let row = sqlx::query("SELECT user_id FROM tokens WHERE token = $1")
+pub async fn find_token_by_value(db: &PgPool, token: &str) -> Result<Option<PgRow>, AppError> {
+    let row = sqlx::query("SELECT * FROM tokens WHERE token = $1")
         .bind(token)
         .fetch_optional(db)
         .await
         .map_err(AppError::Sql)?;
 
-    Ok(row.map(|r| r.get("user_id")))
+    Ok(row)
 }
