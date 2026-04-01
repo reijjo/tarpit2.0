@@ -1,12 +1,13 @@
-use crate::db::queries::{find_user_by_email, find_user_by_username};
-use crate::features::auth::queries::delete_user;
+use crate::db::queries::{find_token_by_value, find_user_by_email, find_user_by_username};
+use crate::features::auth::queries::{delete_user, verify_user};
 use crate::features::auth::service::new_user;
+use crate::features::auth::types::{AvailibilityQuery, VerifyQuery};
 use crate::state::AppState;
 use crate::utils::api_response::ApiResponse;
 use crate::utils::password::hash_password;
 use crate::{errors::AppError, features::auth::types::RegisterData};
 use axum::extract::rejection::JsonRejection;
-use axum::extract::{Json, State};
+use axum::extract::{Json, Query, State};
 use tokio::task::spawn_blocking;
 use validator::Validate;
 
@@ -25,11 +26,6 @@ pub async fn register_user(
     };
 
     let cleaned_data = validate_registerdata(payload)?;
-
-    let hashed_password = spawn_blocking(move || hash_password(&cleaned_data.password))
-        .await
-        .map_err(|_| AppError::internal("Threading error"))??;
-
     let db = state.db()?;
 
     if find_user_by_email(db, &cleaned_data.email).await?.is_some() {
@@ -42,6 +38,10 @@ pub async fn register_user(
     {
         return Err(AppError::conflict("Username already in use"));
     }
+
+    let hashed_password = spawn_blocking(move || hash_password(&cleaned_data.password))
+        .await
+        .map_err(|_| AppError::internal("Threading error"))??;
 
     let (user_id, token) = new_user(
         db,
@@ -74,6 +74,62 @@ pub async fn register_user(
         "Check your email to validate your account",
         None,
     ))
+}
+
+// ----------------------
+// /api/auth/available - params: email, username
+// GET
+// Check if email or username is available
+// ----------------------
+pub async fn check_availability(
+    State(state): State<AppState>,
+    Query(params): Query<AvailibilityQuery>,
+) -> Result<ApiResponse<()>, AppError> {
+    match (&params.email, &params.username) {
+        (None, None) => return Err(AppError::bad_request("Invalid query")),
+        (Some(_), Some(_)) => return Err(AppError::bad_request("Too many params")),
+        _ => {}
+    }
+
+    let db = state.db()?;
+
+    if let Some(email) = &params.email
+        && find_user_by_email(db, email).await?.is_some()
+    {
+        return Err(AppError::conflict("Email already in use"));
+    }
+
+    if let Some(username) = &params.username
+        && find_user_by_username(db, username).await?.is_some()
+    {
+        return Err(AppError::conflict("Username already in use"));
+    }
+
+    Ok(ApiResponse::ok("No duplicates found", None))
+}
+
+// ----------------------
+// /api/auth/verify - params: token
+// GET
+// Account verification
+// ----------------------
+pub async fn verify_account(
+    State(state): State<AppState>,
+    Query(params): Query<VerifyQuery>,
+) -> Result<ApiResponse<()>, AppError> {
+    let token = match &params.token {
+        Some(t) if !t.trim().is_empty() => t.trim().to_string(),
+        _ => return Err(AppError::bad_request("Invalid or missing token")),
+    };
+
+    let db = state.db()?;
+    let user_id = find_token_by_value(db, &token)
+        .await?
+        .ok_or_else(|| AppError::not_found("Invalid token"))?;
+
+    verify_user(db, user_id).await?;
+
+    Ok(ApiResponse::ok("Email verified successfully", None))
 }
 
 // -----------------

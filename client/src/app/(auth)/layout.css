@@ -4,7 +4,8 @@
 
 .auth-register,
 .auth-login,
-.auth-forgot {
+.auth-forgot,
+.auth-verify {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 0;
@@ -14,6 +15,30 @@
   @media screen and (width <= 800px) {
     grid-template-columns: 1fr;
   }
+}
+
+.auth-verify {
+  grid-template-columns: 1fr;
+  place-items: center;
+  background-image: radial-gradient(
+    at 50% 50%,
+    rgb(from var(--primary-500) r g b / 25%) 0,
+    transparent 80%
+  );
+}
+
+.container {
+  border: 1px solid rgb(from white r g b / 25%);
+  border-radius: 8px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  text-align: center;
+  text-wrap: balance;
+  width: min(95%, 600px);
+  background: var(--primary-900);
+  box-shadow: var(--box-shadow-xl);
 }
 
 .form-container {

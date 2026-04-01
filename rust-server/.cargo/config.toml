@@ -1,0 +1,7 @@
+[env]
+# Test configuration
+
+[test]
+# Run tests serially to avoid database race conditions
+# Each test truncates the database, so concurrent execution causes conflicts
+test-threads = 1

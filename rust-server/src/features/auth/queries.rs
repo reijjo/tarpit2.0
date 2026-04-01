@@ -61,3 +61,17 @@ where
 
     Ok(())
 }
+
+// Verify account - UPDATE
+pub async fn verify_user<'e, E>(db: E, user_id: Uuid) -> Result<(), AppError>
+where
+    E: Executor<'e, Database = Postgres>,
+{
+    sqlx::query("UPDATE users SET verified = true WHERE id = $1")
+        .bind(user_id)
+        .execute(db)
+        .await
+        .map_err(AppError::Sql)?;
+
+    Ok(())
+}

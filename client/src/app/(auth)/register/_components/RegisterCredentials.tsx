@@ -36,7 +36,7 @@ export default function RegisterCredentials({
           label="username"
           name="username"
           id="username"
-          autoComplete="on"
+          autoComplete="username"
           type="text"
           placeholder="Username"
           className="auth-form-field"
@@ -49,7 +49,7 @@ export default function RegisterCredentials({
           name="password"
           id="password"
           type="password"
-          autoComplete="on"
+          autoComplete="new-password"
           placeholder="Password"
           className="auth-form-field"
           required
