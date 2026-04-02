@@ -21,7 +21,7 @@ pub async fn find_user_by_username(db: &PgPool, username: &str) -> Result<Option
 
 #[allow(dead_code)]
 pub async fn find_user_by_id(db: &PgPool, id: Uuid) -> Result<Option<PgRow>, AppError> {
-    sqlx::query("SELECT id FROM users WHERE id = $1")
+    sqlx::query("SELECT id, email FROM users WHERE id = $1")
         .bind(id)
         .fetch_optional(db)
         .await

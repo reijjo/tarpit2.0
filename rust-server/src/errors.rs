@@ -12,14 +12,16 @@ use crate::db::connect::DbError;
 #[derive(Debug)]
 #[allow(dead_code)]
 pub enum AppError {
-    NotFound(String),
-    Internal(String),
-    Database(String),
-    BadRequest(String),
-    Json(JsonRejection),
-    Validation(ValidationErrors),
-    Sql(sqlx::Error),
-    Conflict(String),
+    NotFound(String),             // 404
+    Internal(String),             // 500
+    Database(String),             // 503
+    BadRequest(String),           // 400
+    Json(JsonRejection),          // 400 with detailed JSON error
+    Validation(ValidationErrors), // 400 with validation error details
+    Sql(sqlx::Error), // 404 for RowNotFound, 409 for unique constraint violation, 500 for others
+    Conflict(String), // 409
+    Gone(String),     // 410
+    TooManyRequests(String), // 429
 }
 
 #[derive(Serialize)]
@@ -30,24 +32,39 @@ struct ErrorBody {
 
 #[allow(dead_code)]
 impl AppError {
+    // 404 Not Found
     pub fn not_found(message: impl Into<String>) -> Self {
         Self::NotFound(message.into())
     }
 
+    // 500 Internal Server Error
     pub fn internal(message: impl Into<String>) -> Self {
         Self::Internal(message.into())
     }
 
+    // 503 Service Unavailable (for database errors)
     pub fn database(message: impl Into<String>) -> Self {
         Self::Database(message.into())
     }
 
+    // 400 Bad Request
     pub fn bad_request(message: impl Into<String>) -> Self {
         Self::BadRequest(message.into())
     }
 
+    // 409 Conflict
     pub fn conflict(message: impl Into<String>) -> Self {
         Self::Conflict(message.into())
+    }
+
+    // 410 Gone
+    pub fn gone(message: impl Into<String>) -> Self {
+        Self::Gone(message.into())
+    }
+
+    // 429 Too Many Requests
+    pub fn too_many_requests(message: impl Into<String>) -> Self {
+        Self::TooManyRequests(message.into())
     }
 }
 
@@ -58,6 +75,8 @@ impl IntoResponse for AppError {
             AppError::Internal(message) => (StatusCode::INTERNAL_SERVER_ERROR, message),
             AppError::Database(message) => (StatusCode::SERVICE_UNAVAILABLE, message),
             AppError::BadRequest(message) => (StatusCode::BAD_REQUEST, message),
+            AppError::Gone(message) => (StatusCode::GONE, message),
+            AppError::TooManyRequests(message) => (StatusCode::TOO_MANY_REQUESTS, message),
             AppError::Json(rejection) => {
                 let message = match rejection {
                     JsonRejection::JsonDataError(e) => format!("Invalid JSON: {}", e),

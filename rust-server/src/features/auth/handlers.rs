@@ -1,7 +1,9 @@
-use crate::db::queries::{find_token_by_value, find_user_by_email, find_user_by_username};
-use crate::features::auth::queries::{delete_user, verify_user};
+use crate::db::queries::{
+    find_token_by_value, find_user_by_email, find_user_by_id, find_user_by_username,
+};
+use crate::features::auth::queries::{delete_user, update_verification_token, verify_user};
 use crate::features::auth::service::new_user;
-use crate::features::auth::types::{AvailabilityQuery, VerifyQuery};
+use crate::features::auth::types::{AvailabilityQuery, ResendTokenData, VerifyQuery};
 use crate::state::AppState;
 use crate::utils::api_response::ApiResponse;
 use crate::utils::password::hash_password;
@@ -142,12 +144,51 @@ pub async fn verify_account(
     let expires_at: DateTime<Utc> = row.get("expires_at");
 
     if Utc::now() > expires_at {
-        return Err(AppError::bad_request("Token has expired"));
+        return Err(AppError::gone("Token has expired"));
     }
 
     verify_user(db, user_id).await?;
 
     Ok(ApiResponse::ok("Email verified successfully", None))
+}
+
+// ----------------------
+// /api/auth/verify
+// POST
+// Update verification token (for resending verification email)
+// ----------------------
+pub async fn resend_token(
+    State(state): State<AppState>,
+    Query(params): Query<ResendTokenData>,
+) -> Result<ApiResponse<()>, AppError> {
+    let token = &params.token;
+
+    let db = state.db()?;
+    let result = find_token_by_value(db, token)
+        .await?
+        .ok_or_else(|| AppError::not_found("Token not found"));
+
+    let user = find_user_by_id(db, result?.get("user_id"))
+        .await?
+        .ok_or_else(|| AppError::not_found("User not found"))?;
+    eprint!("RESULT: {:#?}", user);
+
+    let new_token = update_verification_token(db, user.get("id")).await?;
+
+    if !state.config.app_env.is_test()
+        && let Err(email_err) = state
+            .email
+            .send_verification_email(user.get("email"), &new_token)
+            .await
+    {
+        tracing::error!("Failed to send verification email: {:#?}", email_err);
+        return Err(email_err);
+    }
+
+    Ok(ApiResponse::ok(
+        "Verification email resent. Check your inbox.",
+        None,
+    ))
 }
 
 // -----------------

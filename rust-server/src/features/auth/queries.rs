@@ -4,7 +4,7 @@ use sqlx::{Executor, Postgres, types::Uuid};
 
 use crate::errors::AppError;
 
-// Create user - POST
+// Create user - CREATE
 pub async fn create_user<'e, E>(
     db: E,
     email: &str,
@@ -27,7 +27,7 @@ where
     Ok(row)
 }
 
-// Create verification token - POST
+// Create verification token - CREATE
 pub async fn create_verification_token<'e, E>(
     db: E,
     user_id: Uuid,
@@ -74,4 +74,23 @@ where
         .map_err(AppError::Sql)?;
 
     Ok(())
+}
+
+// Update token - UPDATE (for resending verification email)
+pub async fn update_verification_token<'e, E>(db: E, user_id: Uuid) -> Result<String, AppError>
+where
+    E: Executor<'e, Database = Postgres>,
+{
+    let new_token = Uuid::new_v4().to_string();
+    let new_expires_at = Utc::now() + chrono::Duration::hours(24);
+
+    sqlx::query("UPDATE tokens SET token = $1, expires_at = $2 WHERE user_id = $3")
+        .bind(&new_token)
+        .bind(new_expires_at)
+        .bind(user_id)
+        .execute(db)
+        .await
+        .map_err(AppError::Sql)?;
+
+    Ok(new_token)
 }
