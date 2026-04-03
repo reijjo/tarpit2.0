@@ -1,20 +1,25 @@
-"use client";
-import { useSearchParams } from "next/navigation";
+import VerifyContent from "./VerifyContent";
+import { Suspense } from "react";
 
-export default function VerifyPage() {
-  const searchParams = useSearchParams();
-  const token = searchParams.get("token");
+type VerifyPageProps = {
+  searchParams: Promise<{
+    token?: string;
+  }>;
+};
 
-  // TODO: Implement actual verification logic by sending the token to the server for validation
+export default async function VerifyPage({ searchParams }: VerifyPageProps) {
+  const params = await searchParams;
+
+  if (!params.token) {
+    return <p>Invalid verification link</p>;
+  }
 
   return (
     <div className="auth-verify">
       <div className="container">
-        <h1>Verify your email</h1>
-        <p>
-          A verification link has been sent to your email. Please check your
-          inbox and click the link to verify your account.
-        </p>
+        <Suspense fallback={<p>Verifying account...</p>}>
+          <VerifyContent token={params.token} />
+        </Suspense>
       </div>
     </div>
   );

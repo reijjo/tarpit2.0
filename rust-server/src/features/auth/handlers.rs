@@ -159,9 +159,12 @@ pub async fn verify_account(
 // ----------------------
 pub async fn resend_token(
     State(state): State<AppState>,
-    Query(params): Query<ResendTokenData>,
+    Json(params): Json<ResendTokenData>,
 ) -> Result<ApiResponse<()>, AppError> {
-    let token = &params.token;
+    let token = params.token.trim();
+    if token.is_empty() {
+        return Err(AppError::bad_request("Invalid token"));
+    }
 
     let db = state.db()?;
     let result = find_token_by_value(db, token)
@@ -171,7 +174,6 @@ pub async fn resend_token(
     let user = find_user_by_id(db, result?.get("user_id"))
         .await?
         .ok_or_else(|| AppError::not_found("User not found"))?;
-    eprint!("RESULT: {:#?}", user);
 
     let new_token = update_verification_token(db, user.get("id")).await?;
 
