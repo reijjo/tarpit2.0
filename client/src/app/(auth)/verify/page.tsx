@@ -9,8 +9,9 @@ type VerifyPageProps = {
 
 export default async function VerifyPage({ searchParams }: VerifyPageProps) {
   const params = await searchParams;
+  const token = params.token?.trim();
 
-  if (!params.token) {
+  if (!token) {
     return <p>Invalid verification link</p>;
   }
 
@@ -18,7 +19,7 @@ export default async function VerifyPage({ searchParams }: VerifyPageProps) {
     <div className="auth-verify">
       <div className="container">
         <Suspense fallback={<p>Verifying account...</p>}>
-          <VerifyContent token={params.token} />
+          <VerifyContent token={token} />
         </Suspense>
       </div>
     </div>
