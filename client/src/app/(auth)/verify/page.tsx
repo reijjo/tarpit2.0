@@ -11,15 +11,11 @@ export default async function VerifyPage({ searchParams }: VerifyPageProps) {
   const params = await searchParams;
   const token = params.token?.trim();
 
-  if (!token) {
-    return <p>Invalid verification link</p>;
-  }
-
   return (
     <div className="auth-verify">
       <div className="container">
         <Suspense fallback={<p>Verifying account...</p>}>
-          <VerifyContent token={token} />
+          <VerifyContent token={token ?? ""} />
         </Suspense>
       </div>
     </div>
