@@ -29,6 +29,14 @@ pub struct RegisterData {
 }
 
 // -----------------------
+// Resend token data
+// -----------------------
+#[derive(Deserialize)]
+pub struct ResendTokenData {
+    pub token: String,
+}
+
+// -----------------------
 // Queries (params)
 // -----------------------
 #[derive(Deserialize)]
@@ -38,7 +46,6 @@ pub struct AvailabilityQuery {
 }
 
 #[derive(Deserialize)]
-
 pub struct VerifyQuery {
     pub token: Option<String>,
 }

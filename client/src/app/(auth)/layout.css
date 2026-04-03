@@ -33,12 +33,21 @@
   padding: 2rem;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 2rem;
   text-align: center;
   text-wrap: balance;
-  width: min(95%, 600px);
+  width: min(95%, 500px);
   background: var(--primary-900);
   box-shadow: var(--box-shadow-xl);
+
+  & h1 {
+    font-size: 2rem;
+  }
+
+  & button {
+    width: max-content;
+  }
 }
 
 .form-container {

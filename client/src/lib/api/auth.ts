@@ -1,3 +1,5 @@
+import { ApiResponse } from "../types/apiResponse";
+
 import { config } from "../utils/envConfig";
 
 import type {
@@ -9,7 +11,7 @@ import type {
 
 const AUTH_URL = `${config.BACKEND_URL}/api/auth`;
 
-// auth/available
+// api/auth/available
 // GET
 // Check if email/username is available
 const checkDuplicateField = async (
@@ -37,7 +39,7 @@ export const checkDuplicateEmail = (value: string) =>
 export const checkDuplicateUsername = (value: string) =>
   checkDuplicateField("username", value);
 
-// auth/register
+// api/auth/register
 // POST
 // Create new user
 export const createUser = async (
@@ -62,7 +64,7 @@ export const createUser = async (
   }
 };
 
-// auth/login
+// api/auth/login
 // POST
 // Log in
 export const loggingIn = async (
@@ -87,9 +89,33 @@ export const loggingIn = async (
   }
 };
 
-// auth/verify
+// api/auth/verify - params: token
 // GET
 // Verify email with token
-// export const verifyAccount = async
+export const verifyAccount = async (token: string): Promise<ApiResponse> => {
+  try {
+    const res = await fetch(
+      `${AUTH_URL}/verify?token=${encodeURIComponent(token)}`,
+      {
+        cache: "no-store",
+      },
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      return {
+        success: false,
+        error: data.error ?? "Verification request failed.",
+        status: res.status,
+      };
+    }
+
+    return data;
+  } catch (err) {
+    console.error("Error: ", err);
+    return { success: false, error: "Network error" };
+  }
+};
 
 // TOdO: Implement verifyAccount function when needed
