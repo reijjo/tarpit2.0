@@ -1,5 +1,6 @@
-import VerifyContent from "./VerifyContent";
 import { Suspense } from "react";
+
+import VerifyContent from "./_components/VerifyContent";
 
 type VerifyPageProps = {
   searchParams: Promise<{
@@ -9,7 +10,7 @@ type VerifyPageProps = {
 
 export default async function VerifyPage({ searchParams }: VerifyPageProps) {
   const params = await searchParams;
-  const token = params.token?.trim();
+  const token = new URLSearchParams(params).get("token")?.trim();
 
   return (
     <div className="auth-verify">

@@ -1,6 +1,7 @@
+import ResendButton from "./ResendButton";
+
 import { verifyAccount } from "@/lib/api/auth";
 
-import { Button } from "@/components/ui/button/Button";
 import { LinkButton } from "@/components/ui/button/LinkButton";
 
 export default async function VerifyContent({ token }: { token: string }) {
@@ -18,9 +19,11 @@ export default async function VerifyContent({ token }: { token: string }) {
 
   return (
     <>
-      <h1>Verification failed</h1>
+      <h1>{res.status === 409 ? "All good!" : "Verification failed"} </h1>
       <p>{res.error}</p>
-      {res.status === 410 && <Button>Resend verification email</Button>}
+
+      {res.status === 410 && <ResendButton token={token} />}
+      {res.status === 409 && <LinkButton href="/login">Go to login</LinkButton>}
     </>
   );
 }

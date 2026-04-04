@@ -29,11 +29,13 @@ pub async fn find_user_by_id(db: &PgPool, id: Uuid) -> Result<Option<PgRow>, App
 }
 
 pub async fn find_token_by_value(db: &PgPool, token: &str) -> Result<Option<PgRow>, AppError> {
-    let row = sqlx::query("SELECT * FROM tokens WHERE token = $1")
-        .bind(token)
-        .fetch_optional(db)
-        .await
-        .map_err(AppError::Sql)?;
-
-    Ok(row)
+    sqlx::query(
+        "SELECT t.*, u.verified FROM tokens t
+         JOIN users u ON t.user_id = u.id
+         WHERE t.token = $1",
+    )
+    .bind(token)
+    .fetch_optional(db)
+    .await
+    .map_err(AppError::Sql)
 }
