@@ -8,8 +8,8 @@
 src/
 ├── app/ # Routes & pages
 ├── components/ # Reusable UI
-├── lib/ # Route logic
-└── utils/ # Helpers & types
+├── lib/ # Business logic, API layer, schemas, actions
+└── test/ # Test utilities and fixtures
 ```
 
 ---
@@ -45,6 +45,8 @@ Static assets directory for images, fonts, and other media files.
 
 - **login/** - User authentication
 - **register/** - New user signup
+- **verify/** - Email verification
+- **forgot/** - Password reset
 
 </details>
 
@@ -66,18 +68,43 @@ App structure: `Navbar`, `Footer`, `Sidebar`
 
 ## 📚 `src/lib/`
 
-Route-specific components and functions that contain business logic.
+Business logic layer organized by concern.
+
+| Directory | Purpose |
+| --------- | ------- |
+| `actions/` | Next.js Server Actions |
+| `api/` | Backend API client wrappers |
+| `schemas/` | Zod validation schemas |
+| `types/` | TypeScript type definitions |
+| `utils/` | Pure utility functions and helpers |
 
 ---
 
-## 🔧 `src/utils/`
+### `src/lib/actions/`
 
-### `types.ts`
+Next.js Server Actions for form submissions and server-side operations
 
-TypeScript definitions:
+### `src/lib/api/`
 
+Typed API client functions for communicating with the Rust backend
+
+### `src/lib/schemas/`
+
+Zod validation schemas for all user inputs and API responses
+
+### `src/lib/types/`
+
+TypeScript interfaces and type definitions:
+- `apiResponse.ts` - Standard API response formats
+- `auth.ts` - Authentication related types
 - `Bet` - Bet record interface
 - `User` - User profile types
+
+---
+
+## 🧪 `src/test/`
+
+Test utilities, fixtures, and setup files
 
 ---
 
