@@ -118,4 +118,32 @@ export const verifyAccount = async (token: string): Promise<ApiResponse> => {
   }
 };
 
-// TOdO: Implement verifyAccount function when needed
+// api/auth/verify - body: token
+// POST
+// Create new verification token and send email
+export const resendVerificationEmailRequest = async (
+  token: string,
+): Promise<ApiResponse> => {
+  try {
+    const res = await fetch(`${AUTH_URL}/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      return {
+        success: false,
+        error: data.error ?? "Resend request failed.",
+        status: res.status,
+      };
+    }
+
+    return data;
+  } catch (err) {
+    console.error("Error: ", err);
+    return { success: false, error: "Network error" };
+  }
+};

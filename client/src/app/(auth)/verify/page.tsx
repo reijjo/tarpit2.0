@@ -1,5 +1,6 @@
-import VerifyContent from "./VerifyContent";
 import { Suspense } from "react";
+
+import VerifyContent from "./_components/VerifyContent";
 
 type VerifyPageProps = {
   searchParams: Promise<{

@@ -6,7 +6,9 @@ import {
   checkDuplicateUsername,
   createUser,
   loggingIn,
+  resendVerificationEmailRequest,
 } from "../api/auth";
+import { ApiResponse } from "../types/apiResponse";
 
 import { LoginSchema, RegisterSchema } from "../schemas/auth";
 import {
@@ -166,6 +168,40 @@ export async function loginUser(
       error: "Login failed. Please try again",
       login: result.data.login,
       password: "",
+    };
+  }
+}
+
+// Resend verification email
+export async function resendVerificationEmailAction(
+  _prevState: ApiResponse,
+  data: FormData,
+): Promise<ApiResponse> {
+  const token = data.get("token");
+  if (typeof token !== "string" || !token.trim()) {
+    return {
+      success: false,
+      error: "Missing verification token.",
+    };
+  }
+  try {
+    const res = await resendVerificationEmailRequest(token);
+    if (!res.success) {
+      return {
+        success: false,
+        error:
+          res.error ?? "Failed to resend verification email. Please try again.",
+      };
+    }
+    return {
+      success: true,
+      message: res.message ?? "Check your email for the new verification link.",
+    };
+  } catch (error) {
+    console.error("Error resending verification email:", error);
+    return {
+      success: false,
+      error: "Failed to resend verification email. Please try again.",
     };
   }
 }
