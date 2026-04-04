@@ -24,13 +24,8 @@ export default function ResendButton({ token }: { token: string }) {
           message={formState.message ?? "Check your email."}
         />
       )}
-      {formState.error && (
-        <FormErrorMessage
-          message={
-            formState.error ??
-            "Failed to resend verification email. Please try again."
-          }
-        />
+      {!formState.success && formState.error && (
+        <FormErrorMessage message={formState.error} />
       )}
 
       {!formState.success && (

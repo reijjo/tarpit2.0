@@ -177,20 +177,31 @@ export async function resendVerificationEmailAction(
   _prevState: ApiResponse,
   data: FormData,
 ): Promise<ApiResponse> {
-  const token = data.get("token") as string;
-
-  const res = await resendVerificationEmailRequest(token);
-
-  if (!res.success) {
+  const token = data.get("token");
+  if (typeof token !== "string" || !token.trim()) {
     return {
       success: false,
-      error:
-        res.error ?? "Failed to resend verification email. Please try again.",
+      error: "Missing verification token.",
     };
   }
-
-  return {
-    success: true,
-    message: res.message ?? "Check your email for the new verification link.",
-  };
+  try {
+    const res = await resendVerificationEmailRequest(token);
+    if (!res.success) {
+      return {
+        success: false,
+        error:
+          res.error ?? "Failed to resend verification email. Please try again.",
+      };
+    }
+    return {
+      success: true,
+      message: res.message ?? "Check your email for the new verification link.",
+    };
+  } catch (error) {
+    console.error("Error resending verification email:", error);
+    return {
+      success: false,
+      error: "Failed to resend verification email. Please try again.",
+    };
+  }
 }

@@ -10,7 +10,7 @@ type VerifyPageProps = {
 
 export default async function VerifyPage({ searchParams }: VerifyPageProps) {
   const params = await searchParams;
-  const token = new URLSearchParams(params).get("token")?.trim();
+  const token = params.token?.trim();
 
   return (
     <div className="auth-verify">
