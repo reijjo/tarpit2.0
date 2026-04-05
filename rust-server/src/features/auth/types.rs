@@ -32,9 +32,20 @@ pub struct RegisterData {
 // --- Login data ---
 // -----------------------
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Validate)]
 pub struct LoginData {
+    #[validate(length(
+        min = 3,
+        max = 20,
+        message = "Login must be between 3 and 20 characters"
+    ))]
     pub login: String,
+
+    #[validate(length(
+        min = 8,
+        max = 50,
+        message = "Password must be between 8 and 50 characters"
+    ))]
     pub password: String,
 }
 

@@ -200,7 +200,6 @@ export async function loginUser(
 
     return {
       success: true,
-      message: "Logging you in...",
     };
   } catch (error) {
     console.error("Error logging in: ", error);

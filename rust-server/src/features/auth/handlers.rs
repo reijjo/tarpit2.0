@@ -201,7 +201,7 @@ pub async fn resend_token(
 }
 
 // ----------------------
-// /api/auth/login - body: { username/email, password }
+// /api/auth/login - body: { login, password }
 // POST
 // Log in
 // ----------------------
@@ -215,8 +215,11 @@ pub async fn login_user(
     };
 
     let cleaned_data = validate_logindata(payload)?;
+    cleaned_data.validate().map_err(AppError::Validation)?;
+
     let db = state.db()?;
 
+    // Find user
     let user = if cleaned_data.login.contains('@') {
         find_user_by_email(db, &cleaned_data.login).await?
     } else {
@@ -224,11 +227,7 @@ pub async fn login_user(
     }
     .ok_or_else(|| AppError::not_found("User not found"))?;
 
-    let is_verified: bool = user.get("verified");
-    if !is_verified {
-        return Err(AppError::forbidden("Account not verified"));
-    }
-
+    // Check the password
     let password_hash: String = user.get("password");
     let password_valid =
         spawn_blocking(move || password::verify_password(&cleaned_data.password, &password_hash))
@@ -242,6 +241,14 @@ pub async fn login_user(
     if !password_valid {
         return Err(AppError::unauthorized("Invalid password"));
     }
+
+    // Check if verified
+    let is_verified: bool = user.get("verified");
+    if !is_verified {
+        return Err(AppError::forbidden("Account not verified"));
+    }
+
+    // TODO: Generate and return auth token (JWT or similar)
 
     Ok(ApiResponse::ok("Welcome!", None))
 }
