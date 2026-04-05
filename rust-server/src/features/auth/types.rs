@@ -36,8 +36,8 @@ pub struct RegisterData {
 pub struct LoginData {
     #[validate(length(
         min = 3,
-        max = 20,
-        message = "Login must be between 3 and 20 characters"
+        max = 255,
+        message = "Login must be between 3 and 255 characters"
     ))]
     pub login: String,
 

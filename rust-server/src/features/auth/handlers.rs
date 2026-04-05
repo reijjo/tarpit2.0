@@ -163,7 +163,7 @@ pub async fn verify_account(
 }
 
 // ----------------------
-// /api/auth/verify
+// /api/auth/verify - body: { token }
 // POST
 // Update verification token (for resending verification email)
 // ----------------------
@@ -215,7 +215,6 @@ pub async fn login_user(
     };
 
     let cleaned_data = validate_logindata(payload)?;
-    cleaned_data.validate().map_err(AppError::Validation)?;
 
     let db = state.db()?;
 
@@ -284,5 +283,7 @@ fn validate_logindata(input: LoginData) -> Result<LoginData, AppError> {
         return Err(AppError::bad_request("Missing fields."));
     }
 
-    Ok(LoginData { login, password })
+    let cleaned = LoginData { login, password };
+    cleaned.validate().map_err(AppError::Validation)?;
+    Ok(cleaned)
 }
