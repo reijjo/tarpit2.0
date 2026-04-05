@@ -19,8 +19,7 @@ export default function Login() {
 
   useEffect(() => {
     if (formState.success) {
-      console.log("FORMSTATE", formState);
-      // router.push("/dash") Uncomment when backend done
+      router.push("/dash");
     }
   }, [formState, formState.success, router]);
 
