@@ -1,5 +1,6 @@
 use crate::db::queries::{
-    find_token_by_value, find_user_by_email, find_user_by_id, find_user_by_username,
+    find_login_user_by_email, find_login_user_by_username, find_token_by_value, find_user_by_email,
+    find_user_by_id, find_user_by_username,
 };
 use crate::features::auth::queries::{delete_user, update_verification_token, verify_user};
 use crate::features::auth::service::new_user;
@@ -220,9 +221,9 @@ pub async fn login_user(
 
     // Find user
     let user = if cleaned_data.login.contains('@') {
-        find_user_by_email(db, &cleaned_data.login).await?
+        find_login_user_by_email(db, &cleaned_data.login).await?
     } else {
-        find_user_by_username(db, &cleaned_data.login).await?
+        find_login_user_by_username(db, &cleaned_data.login).await?
     }
     .ok_or_else(|| AppError::not_found("User not found"))?;
 
