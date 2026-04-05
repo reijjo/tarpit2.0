@@ -11,7 +11,11 @@ import type {
 
 const AUTH_URL = `${config.BACKEND_URL}/api/auth`;
 
-// api/auth/available
+// ----------------------------
+// --- /api/auth/available ---
+// ----------------------------
+
+// api/auth/available - query: email or username
 // GET
 // Check if email/username is available
 const checkDuplicateField = async (
@@ -39,7 +43,11 @@ export const checkDuplicateEmail = (value: string) =>
 export const checkDuplicateUsername = (value: string) =>
   checkDuplicateField("username", value);
 
-// api/auth/register
+// ----------------------------
+// --- /api/auth/register ---
+// ----------------------------
+
+// api/auth/register - body: { email, username, password }
 // POST
 // Create new user
 export const createUser = async (
@@ -64,7 +72,11 @@ export const createUser = async (
   }
 };
 
-// api/auth/login
+// ----------------------------
+// --- /api/auth/login ---
+// ----------------------------
+
+// api/auth/login - body: { username, password }
 // POST
 // Log in
 export const loggingIn = async (
@@ -88,6 +100,10 @@ export const loggingIn = async (
     return { success: false, error: "Network error" };
   }
 };
+
+// ----------------------------
+// --- api/auth/verify ---
+// ----------------------------
 
 // api/auth/verify - params: token
 // GET

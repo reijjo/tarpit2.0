@@ -1,6 +1,6 @@
 use super::handlers::register_user;
 use crate::{
-    features::auth::handlers::{check_availability, resend_token, verify_account},
+    features::auth::handlers::{check_availability, login_user, resend_token, verify_account},
     state::AppState,
 };
 use axum::{
@@ -13,4 +13,5 @@ pub fn auth_router() -> Router<AppState> {
         .route("/register", post(register_user))
         .route("/available", get(check_availability))
         .route("/verify", get(verify_account).post(resend_token))
+        .route("/login", post(login_user))
 }

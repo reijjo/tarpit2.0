@@ -12,16 +12,18 @@ use crate::db::connect::DbError;
 #[derive(Debug)]
 #[allow(dead_code)]
 pub enum AppError {
-    NotFound(String),             // 404
-    Internal(String),             // 500
-    Database(String),             // 503
     BadRequest(String),           // 400
     Json(JsonRejection),          // 400 with detailed JSON error
     Validation(ValidationErrors), // 400 with validation error details
+    Unauthorized(String),         // 401
+    Forbidden(String),            // 403
+    NotFound(String),             // 404
     Sql(sqlx::Error), // 404 for RowNotFound, 409 for unique constraint violation, 500 for others
     Conflict(String), // 409
     Gone(String),     // 410
     TooManyRequests(String), // 429
+    Internal(String), // 500
+    Database(String), // 503
 }
 
 #[derive(Serialize)]
@@ -32,24 +34,24 @@ struct ErrorBody {
 
 #[allow(dead_code)]
 impl AppError {
-    // 404 Not Found
-    pub fn not_found(message: impl Into<String>) -> Self {
-        Self::NotFound(message.into())
-    }
-
-    // 500 Internal Server Error
-    pub fn internal(message: impl Into<String>) -> Self {
-        Self::Internal(message.into())
-    }
-
-    // 503 Service Unavailable (for database errors)
-    pub fn database(message: impl Into<String>) -> Self {
-        Self::Database(message.into())
-    }
-
     // 400 Bad Request
     pub fn bad_request(message: impl Into<String>) -> Self {
         Self::BadRequest(message.into())
+    }
+
+    // 401 Unauthorized
+    pub fn unauthorized(message: impl Into<String>) -> Self {
+        Self::Unauthorized(message.into())
+    }
+
+    // 403 Forbidden
+    pub fn forbidden(message: impl Into<String>) -> Self {
+        Self::Forbidden(message.into())
+    }
+
+    // 404 Not Found
+    pub fn not_found(message: impl Into<String>) -> Self {
+        Self::NotFound(message.into())
     }
 
     // 409 Conflict
@@ -66,12 +68,23 @@ impl AppError {
     pub fn too_many_requests(message: impl Into<String>) -> Self {
         Self::TooManyRequests(message.into())
     }
+
+    // 500 Internal Server Error
+    pub fn internal(message: impl Into<String>) -> Self {
+        Self::Internal(message.into())
+    }
+
+    // 503 Service Unavailable (for database errors)
+    pub fn database(message: impl Into<String>) -> Self {
+        Self::Database(message.into())
+    }
 }
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         let (status, message) = match self {
             AppError::NotFound(message) => (StatusCode::NOT_FOUND, message),
+            AppError::Unauthorized(message) => (StatusCode::UNAUTHORIZED, message),
             AppError::Internal(message) => (StatusCode::INTERNAL_SERVER_ERROR, message),
             AppError::Database(message) => (StatusCode::SERVICE_UNAVAILABLE, message),
             AppError::BadRequest(message) => (StatusCode::BAD_REQUEST, message),
@@ -108,6 +121,7 @@ impl IntoResponse for AppError {
                 }
             },
             AppError::Conflict(message) => (StatusCode::CONFLICT, message),
+            AppError::Forbidden(message) => (StatusCode::FORBIDDEN, message),
         };
 
         let body = ErrorBody {
