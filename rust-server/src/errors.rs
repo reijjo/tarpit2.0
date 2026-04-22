@@ -113,10 +113,10 @@ impl IntoResponse for AppError {
                     (StatusCode::CONFLICT, "Resource already exists".to_string())
                 }
                 _ => {
-                    tracing::error!(?err, "Database query error");
+                    tracing::error!(?err, "Database query error: {}", err);
                     (
                         StatusCode::INTERNAL_SERVER_ERROR,
-                        format!("Shady SQL error: {}", err),
+                        "Database error".to_string(),
                     )
                 }
             },

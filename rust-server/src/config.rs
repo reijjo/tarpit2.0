@@ -47,6 +47,10 @@ pub struct Config {
     pub frontend_url: String,
     pub resend_api_key: String,
     pub tarpit_domain: String,
+    pub jwt_access_secret: String,
+    pub jwt_access_ttl_seconds: i64,
+    pub refresh_ttl_seconds: i64,
+    pub refresh_token_pepper: String,
 }
 
 impl Config {

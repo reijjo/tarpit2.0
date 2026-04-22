@@ -5,6 +5,7 @@ mod errors;
 mod features;
 mod middleware;
 mod state;
+mod types;
 mod utils;
 
 use resend_rs::Resend;

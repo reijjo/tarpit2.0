@@ -17,7 +17,8 @@ use tokio::sync::OnceCell;
 static TEST_DB_RESET_ONCE: OnceCell<()> = OnceCell::const_new();
 static ACTIVE_TEST_SERVERS: AtomicUsize = AtomicUsize::new(0);
 static TEST_DB_URL: OnceLock<String> = OnceLock::new();
-const TEST_DB_TRUNCATE_QUERY: &str = "TRUNCATE TABLE tokens, users RESTART IDENTITY CASCADE";
+const TEST_DB_TRUNCATE_QUERY: &str =
+    "TRUNCATE TABLE auth_sessions, tokens, users RESTART IDENTITY CASCADE";
 
 pub struct TestServerHandle {
     server: TestServer,
