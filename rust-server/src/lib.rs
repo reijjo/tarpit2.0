@@ -5,4 +5,5 @@ pub mod errors;
 pub mod features;
 pub mod middleware;
 pub mod state;
+pub mod types;
 pub mod utils;

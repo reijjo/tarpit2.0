@@ -1,8 +1,7 @@
-use super::handlers::register_user;
-use crate::{
-    features::auth::handlers::{check_availability, login_user, resend_token, verify_account},
-    state::AppState,
-};
+use crate::features::auth::handlers::login::login_user;
+use crate::features::auth::handlers::register::{check_availability, register_user};
+use crate::features::auth::handlers::verify::{resend_token, verify_account};
+use crate::state::AppState;
 use axum::{
     Router,
     routing::{get, post},

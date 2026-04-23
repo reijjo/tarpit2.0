@@ -1,10 +1,17 @@
 use sqlx::{PgPool, types::Uuid};
 
 use crate::{
+    db::queries::find_login_user_by_username,
     errors::AppError,
     features::auth::queries::{create_user, create_verification_token},
+    types::User,
 };
 
+use crate::db::queries::find_login_user_by_email;
+
+// ---------------------
+// --- Register ---
+// ---------------------
 pub async fn new_user(
     db: &PgPool,
     email: &str,
@@ -22,4 +29,18 @@ pub async fn new_user(
     tx.commit().await.map_err(AppError::Sql)?;
 
     Ok((user_id, token))
+}
+
+// ---------------------
+// --- Login ---
+// ---------------------
+pub async fn find_login_user(login: &str, db: &PgPool) -> Result<User, AppError> {
+    let user = if login.contains('@') {
+        find_login_user_by_email(db, login).await?
+    } else {
+        find_login_user_by_username(db, login).await?
+    }
+    .ok_or_else(|| AppError::not_found("User not found"))?;
+
+    Ok(user)
 }

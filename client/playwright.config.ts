@@ -33,7 +33,7 @@ export default defineConfig({
     },
     // playwright.config.ts
     {
-      command: "bun run dev",
+      command: "bun --bun next dev",
       cwd: path.resolve(__dirname),
       url: "http://127.0.0.1:3000",
       reuseExistingServer: !process.env.CI,
