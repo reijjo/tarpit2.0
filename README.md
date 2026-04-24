@@ -73,7 +73,7 @@ Use the same Adminer URL for both databases.
 ### Frontend (`client/.env`)
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXT_PUBLIC_DEV_BACKEND=http://localhost:3001
 ```
 
 ### Backend (`rust-server/.env`)
@@ -99,6 +99,16 @@ POSTGRES_PASSWORD=<your_password>
 # URLs
 BACKEND_URL=http://localhost:3001
 FRONTEND_URL=http://localhost:3000
+
+# Email
+RESEND_API_KEY=<your_resend_api_key>
+TARPIT_DOMAIN=<your_domain>
+
+# Authentication
+JWT_ACCESS_SECRET=<openssl_rand_hex_64>
+JWT_ACCESS_TTL_SECONDS=600
+REFRESH_TOKEN_PEPPER=<openssl_rand_hex_64>
+REFRESH_TTL_SECONDS=604800
 ```
 
 ---
@@ -112,12 +122,6 @@ FRONTEND_URL=http://localhost:3000
 ```bash
 cd client/
 bun test
-```
-
-Run tests in watch mode:
-
-```bash
-bun test:watch
 ```
 
 **E2E tests:**

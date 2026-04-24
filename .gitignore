@@ -145,6 +145,7 @@ vite.config.ts.timestamp-*
 AGENTS.md
 **/.clinerules
 .clineignore
+CLAUDE.md
 
 # Other files
 **/dist/

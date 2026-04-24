@@ -1,3 +1,4 @@
+use axum::http::{HeaderMap, header};
 use sqlx::{PgPool, types::Uuid};
 
 use crate::{
@@ -43,4 +44,19 @@ pub async fn find_login_user(login: &str, db: &PgPool) -> Result<User, AppError>
     .ok_or_else(|| AppError::not_found("User not found"))?;
 
     Ok(user)
+}
+
+// ---------------------
+// --- Authorization ---
+// ---------------------
+#[allow(dead_code)]
+pub fn read_bearer(headers: &HeaderMap) -> Result<&str, AppError> {
+    let raw = headers
+        .get(header::AUTHORIZATION)
+        .ok_or_else(|| AppError::unauthorized("Missing Authorization header"))?
+        .to_str()
+        .map_err(|_| AppError::unauthorized("Invalid Authrozation header"))?;
+
+    raw.strip_prefix("Bearer ")
+        .ok_or_else(|| AppError::unauthorized("Expected Bearer token"))
 }

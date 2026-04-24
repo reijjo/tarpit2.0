@@ -29,7 +29,7 @@ Static assets directory for images, fonts, and other media files.
 | `error.tsx`     | Error boundary fallback    |
 | `layout.tsx`    | Root app layout            |
 | `not-found.tsx` | 404 handler                |
-| `page.tsx`      | Home/landing page          |
+| `(public)/page.tsx` | Home/landing page      |
 | `globals.css`   | App-wide styles & CSS vars |
 
 <details>
@@ -58,11 +58,11 @@ Shared, reusable components organized by purpose.
 
 ### `ui/`
 
-Primitive components: `Button`, `Input`
+Primitive components: `Button`, `TextInput`, `Divider`
 
 ### `layout/`
 
-App structure: `Navbar`, `Footer`, `Sidebar`
+App structure: `Navbar`, `Footer`
 
 ---
 
@@ -97,8 +97,8 @@ Zod validation schemas for all user inputs and API responses
 TypeScript interfaces and type definitions:
 - `apiResponse.ts` - Standard API response formats
 - `auth.ts` - Authentication related types
-- `Bet` - Bet record interface
-- `User` - User profile types
+- `RegisterState` / `RegisterUserData` - Register form + payload types
+- `LoginState` / `LoginData` - Login form + payload types
 
 ---
 
@@ -199,9 +199,10 @@ export default defineConfig({
         "src/app/**/page.tsx",
         "src/app/**/layout.tsx",
         "src/app/**/error.tsx",
+        "src/app/**/not-found.tsx",
       ],
     },
-    setupFiles: ["./vitest.setup.ts"],
+    setupFiles: ["./src/test/setup/vitest.setup.ts"],
   },
   resolve: {
     alias: {
@@ -211,7 +212,7 @@ export default defineConfig({
 });
 ```
 
-Create `vitest.setup.ts` file in the root of the `client/` folder
+Create `vitest.setup.ts` in `src/test/setup/`
 
 ```ts
 import "@testing-library/jest-dom";
@@ -283,11 +284,12 @@ Create `playwright.config.ts` file in the root of the `client/` folder:
 
 ```ts
 import { defineConfig, devices } from "@playwright/test";
+import path from "path";
 
 export default defineConfig({
   testDir: "./e2e",
   testMatch: "**/*.spec.ts",
-  fullyParallel: true,
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
@@ -306,12 +308,25 @@ export default defineConfig({
     },
   ],
 
-  webServer: {
-    command: "bun dev",
-    url: "http://localhost:3000",
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-  },
+  webServer: [
+    {
+      command: "APP_ENV=test cargo run",
+      cwd: path.resolve(__dirname, "../rust-server"),
+      url: "http://127.0.0.1:3001/health",
+      reuseExistingServer: !process.env.CI,
+      timeout: 120000,
+    },
+    {
+      command: "bun --bun next dev",
+      cwd: path.resolve(__dirname),
+      url: "http://127.0.0.1:3000",
+      reuseExistingServer: !process.env.CI,
+      timeout: 30000,
+      env: {
+        PORT: "3000",
+      },
+    },
+  ],
 });
 ```
 
@@ -327,9 +342,9 @@ Add the scripts to the `package.json` file:
     "lint": "eslint",
     "test": "vitest",
     "test:cover": "vitest run --coverage",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
-    "test:e2e:headed": "playwright test --headed"
+    "test:e2e": "NODE_ENV=test playwright test",
+    "test:e2e:ui": "NODE_ENV=test playwright test --ui",
+    "test:e2e:headed": "NODE_ENV=test playwright test --headed"
   },
   ...
 }

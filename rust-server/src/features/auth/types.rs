@@ -1,6 +1,4 @@
-use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::types::Uuid;
 use validator::Validate;
 
 use crate::utils::validators::{validate_email, validate_password, validate_username};
@@ -74,10 +72,18 @@ pub struct VerifyQuery {
 // -----------------------
 // --- Token ---
 // -----------------------
-#[allow(dead_code)]
 #[derive(Serialize, Debug)]
 pub struct Token {
     pub token: String,
-    pub expires_at: DateTime<Utc>,
-    pub user_id: Uuid,
+}
+
+// ----------
+// --- Me ---
+// ----------
+#[derive(Serialize, Debug)]
+pub struct MeResponse {
+    pub id: String,
+    pub email: String,
+    pub username: String,
+    pub role: String,
 }

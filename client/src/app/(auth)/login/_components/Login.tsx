@@ -1,5 +1,6 @@
 "use client";
 import { loginUser } from "@/lib/actions/auth";
+import { setAccessToken } from "@/lib/auth/tokenStorage";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -18,7 +19,9 @@ export default function Login() {
   const router = useRouter();
 
   useEffect(() => {
-    if (formState.success) {
+    console.log("state", formState);
+    if (formState.success && formState.token) {
+      setAccessToken(formState.token);
       router.push("/dash");
     }
   }, [formState, formState.success, router]);
