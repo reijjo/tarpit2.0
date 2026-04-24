@@ -39,7 +39,7 @@ pub async fn find_login_user_by_username(
 }
 
 pub async fn find_user_by_id(db: &PgPool, id: Uuid) -> Result<Option<PgRow>, AppError> {
-    sqlx::query("SELECT id, email, username, role FROM users WHERE id = $1")
+    sqlx::query("SELECT id, email, username, role::text AS role FROM users WHERE id = $1")
         .bind(id)
         .fetch_optional(db)
         .await

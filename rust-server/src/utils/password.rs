@@ -9,7 +9,6 @@ pub fn hash_password(password: &str) -> Result<String, argon2::password_hash::Er
     Ok(hash.to_string())
 }
 
-#[allow(dead_code)]
 pub fn verify_password(password: &str, hash: &str) -> Result<bool, argon2::password_hash::Error> {
     let parsed_hash = PasswordHash::new(hash)?;
     Ok(Argon2::default()

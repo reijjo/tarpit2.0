@@ -10,6 +10,7 @@ import type {
 } from "../types/auth";
 
 const AUTH_URL = `${config.BACKEND_URL}/api/auth`;
+const getAuthUrl = () => `${process.env.NEXT_PUBLIC_DEV_BACKEND}/api/auth`;
 
 // ----------------------------
 // --- /api/auth/available ---
@@ -81,7 +82,7 @@ export const createUser = async (
 // Log in
 export const loggingIn = async (
   credentials: LoginData,
-): Promise<LoginState> => {
+): Promise<ApiResponse<LoginState>> => {
   try {
     const res = await fetch(`${AUTH_URL}/login`, {
       method: "POST",
@@ -160,6 +161,36 @@ export const resendVerificationEmailRequest = async (
     return data;
   } catch (err) {
     console.error("Error: ", err);
+    return { success: false, error: "Network error" };
+  }
+};
+
+// -------------------
+// --- api/auth/me ---
+// -------------------
+
+// api/auth/me
+// GET
+// Checks authorization
+export const getMe = async (token: string): Promise<ApiResponse> => {
+  try {
+    const res = await fetch(`${getAuthUrl()}/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok)
+      return {
+        success: false,
+        error: data.error ?? "Unauthorized",
+        status: res.status,
+      };
+
+    return data;
+  } catch (err) {
+    console.error("ME ERROR: ", err);
     return { success: false, error: "Network error" };
   }
 };

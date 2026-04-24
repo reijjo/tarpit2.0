@@ -1,4 +1,4 @@
-use crate::features::auth::service::find_login_user;
+use crate::features::auth::{jwt::sign_access_token, service::find_login_user, types::Token};
 use axum::{
     Json,
     extract::{State, rejection::JsonRejection},
@@ -20,7 +20,7 @@ use crate::{errors::AppError, state::AppState, utils::api_response::ApiResponse}
 pub async fn login_user(
     State(state): State<AppState>,
     payload: Result<Json<LoginData>, JsonRejection>,
-) -> Result<ApiResponse<()>, AppError> {
+) -> Result<ApiResponse<Token>, AppError> {
     let Json(payload) = match payload {
         Ok(json) => json,
         Err(rejection) => return Err(AppError::Json(rejection)),
@@ -51,10 +51,9 @@ pub async fn login_user(
         return Err(AppError::forbidden("Account not verified"));
     }
 
-    // // Create access token and auth session
-    // let _user_id: Uuid = user.get("id");
+    let token = sign_access_token(&state.config, user.id, "GUEST".to_string())?;
 
-    Ok(ApiResponse::ok("Welcome!", None))
+    Ok(ApiResponse::ok("Welcome!", Some(Token { token })))
 }
 
 // -----------------

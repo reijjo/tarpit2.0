@@ -24,7 +24,7 @@ src/
 │   │   ├── queries.rs    # Auth-specific database operations
 │   │   ├── service.rs    # Auth business logic (user creation, token generation)
 │   │   ├── routes.rs     # Auth routes (/api/auth/register)
-│   │   └── handlers.rs   # Auth handler functions
+│   │   └── handlers/     # Auth handler modules (login, register, verify)
 │   └── health/
 │       ├── mod.rs
 │       ├── routes.rs     # Router for /health
@@ -49,6 +49,7 @@ tests/
 ├── api.rs                # single integration test target
 └── api/
     ├── common.rs         # shared build_test_server() helper
+    ├── auth.rs           # auth endpoint integration tests
     └── health.rs         # health endpoint integration tests
 ```
 
@@ -467,14 +468,18 @@ pub fn build_cors(frontend_url: &str) -> Result<CorsLayer, String> {
 
 **Current `AppError` variants:**
 
+- `Unauthorized(String)` - Authentication required / invalid auth (401)
+- `Forbidden(String)` - Authenticated but not allowed (403)
 - `NotFound(String)` - Resource not found errors
 - `Internal(String)` - Internal server errors
 - `Database(String)` - Database connection and migration errors
 - `BadRequest(String)` - Invalid request data
 - `Json(JsonRejection)` - JSON parsing/validation errors
 - `Validation(ValidationErrors)` - Input validation errors
-- `Sql(sqlx::Error)` - Database query errors (conditional status mapping)
+- `Sql(sqlx::Error)` - Database query errors (404/409/500 conditional status mapping)
 - `Conflict(String)` - Resource conflict errors (e.g., duplicate username/email)
+- `Gone(String)` - Expired resource state (410)
+- `TooManyRequests(String)` - Rate limit style responses (429)
 
 **Response shape:**
 
@@ -488,13 +493,17 @@ pub fn build_cors(frontend_url: &str) -> Result<CorsLayer, String> {
 **Status mapping:**
 
 - `NotFound` → 404
+- `Unauthorized` → 401
+- `Forbidden` → 403
 - `Internal` → 500
 - `Database` → 503 (Service Unavailable)
 - `BadRequest` → 400
 - `Json` → 400 (with specific error messages)
 - `Validation` → 400
-- `Sql` → 404 (RowNotFound) or 500 (other SQL errors)
+- `Sql` → 404 (RowNotFound), 409 (unique constraint `23505`), or 500 (other SQL errors)
 - `Conflict` → 409 (Conflict)
+- `Gone` → 410
+- `TooManyRequests` → 429
 
 ### Database Error Integration
 
@@ -533,11 +542,12 @@ Used when a resource conflict occurs, typically during user registration:
 - Duplicate email during registration
 - Attempting to create a resource that already exists
 
-#### SQL Error (Conditional 404/500)
+#### SQL Error (Conditional 404/409/500)
 
 Provides conditional status mapping based on the specific SQL error:
 
 - `sqlx::Error::RowNotFound` → HTTP 404 (Resource not found)
+- `sqlx::Error::Database` with code `23505` → HTTP 409 (Resource already exists)
 - All other SQL errors → HTTP 500 (Internal server error)
 
 **Example responses:**
@@ -563,8 +573,7 @@ Database error:
 **Common scenarios:**
 
 - Querying for a non-existent user → 404
-- Database connection issues → 500
-- Constraint violations → 500
+- Unique constraint violations → 409
 - Query syntax errors → 500
 
 ---
@@ -1096,7 +1105,7 @@ curl http://127.0.0.1:3001/THIS_DOES_NOT_EXIST
 - Integration tests live in crate-root `tests/` (not inside `src/`).
 - Single integration target entrypoint: `tests/api.rs`.
 - Shared test server helper: `tests/api/common.rs` (includes `build_test_server()` and `build_test_server_without_db()`).
-- Current API test modules: `tests/api/health.rs`.
+- Current API test modules: `tests/api/health.rs`, `tests/api/auth.rs`.
 - Tests use `axum-test::TestServer` to call routes in-process.
 - Test helper forces `AppEnv::Test` and maps `db_url` to `db_test_url` for safety.
 - Database connection is optional - tests can run with or without database
@@ -1106,6 +1115,7 @@ curl http://127.0.0.1:3001/THIS_DOES_NOT_EXIST
 - Health check with database connection
 - Health check without database connection (graceful degradation)
 - Environment detection in test mode
+- Auth registration and validation flows
 
 Run integration API tests:
 
@@ -1354,6 +1364,43 @@ cargo add resend-rs
 
 ```bash
 cargo add urlencoding
+```
+
+</details>
+
+<details>
+<summary><strong>jsonwebtoken</strong></summary>
+
+**jsonwebtoken** — JWT signing and verification library.
+
+- Version: `10.3.0`
+- Purpose: Access token generation and validation
+- Documentation: https://docs.rs/jsonwebtoken/latest/jsonwebtoken/
+
+```bash
+cargo add jsonwebtoken
+```
+
+</details>
+
+<details>
+<summary><strong>sha2 + hex</strong></summary>
+
+**sha2** — SHA-2 hashing algorithms.
+
+- Version: `0.11.0`
+- Purpose: Token/session hashing helpers
+- Documentation: https://docs.rs/sha2/latest/sha2/
+
+**hex** — Hex encoding/decoding utilities.
+
+- Version: `0.4.3`
+- Purpose: Hex formatting for hashed values
+- Documentation: https://docs.rs/hex/latest/hex/
+
+```bash
+cargo add sha2
+cargo add hex
 ```
 
 </details>
