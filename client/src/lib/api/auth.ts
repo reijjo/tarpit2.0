@@ -1,5 +1,7 @@
 import { ApiResponse } from "../types/apiResponse";
 
+import { config } from "../utils/envConfig";
+
 import type {
   LoginData,
   LoginState,
@@ -7,7 +9,8 @@ import type {
   RegisterUserData,
 } from "../types/auth";
 
-const AUTH_URL = `${process.env.NEXT_PUBLIC_DEV_BACKEND}/api/auth`;
+const AUTH_URL = `${config.BACKEND_URL}/api/auth`;
+const getAuthUrl = () => `${process.env.NEXT_PUBLIC_DEV_BACKEND}/api/auth`;
 
 // ----------------------------
 // --- /api/auth/available ---
@@ -171,7 +174,7 @@ export const resendVerificationEmailRequest = async (
 // Checks authorization
 export const getMe = async (token: string): Promise<ApiResponse> => {
   try {
-    const res = await fetch(`${AUTH_URL}/me`, {
+    const res = await fetch(`${getAuthUrl()}/me`, {
       headers: { Authorization: `Bearer ${token}` },
       cache: "no-store",
     });
