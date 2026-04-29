@@ -1,6 +1,5 @@
 "use client";
 import { loginUser } from "@/lib/actions/auth";
-import { setAccessToken } from "@/lib/auth/tokenStorage";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -19,12 +18,12 @@ export default function Login() {
   const router = useRouter();
 
   useEffect(() => {
-    console.log("state", formState);
-    if (formState.success && formState.token) {
-      setAccessToken(formState.token);
+    if (formState.success) {
       router.push("/dash");
     }
-  }, [formState, formState.success, router]);
+  }, [formState.success, router]);
+
+  console.log("Login form state: ", formState);
 
   return (
     <div className="auth-container">

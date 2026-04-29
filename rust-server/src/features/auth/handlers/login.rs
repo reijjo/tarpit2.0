@@ -1,11 +1,12 @@
-use crate::features::auth::{jwt::sign_access_token, service::find_login_user, types::Token};
+use crate::features::auth::{
+    service::login_and_create_session, tokens::cookies::access_cookie, types::LoginResponse,
+};
 use axum::{
     Json,
     extract::{State, rejection::JsonRejection},
 };
+use axum_extra::extract::CookieJar;
 
-use crate::utils::password;
-use tokio::task::spawn_blocking;
 use validator::Validate;
 
 use crate::features::auth::types::LoginData;
@@ -20,7 +21,7 @@ use crate::{errors::AppError, state::AppState, utils::api_response::ApiResponse}
 pub async fn login_user(
     State(state): State<AppState>,
     payload: Result<Json<LoginData>, JsonRejection>,
-) -> Result<ApiResponse<Token>, AppError> {
+) -> Result<(CookieJar, ApiResponse<LoginResponse>), AppError> {
     let Json(payload) = match payload {
         Ok(json) => json,
         Err(rejection) => return Err(AppError::Json(rejection)),
@@ -29,31 +30,26 @@ pub async fn login_user(
     let cleaned_data = validate_logindata(payload)?;
     let db = state.db()?;
 
-    let user = find_login_user(&cleaned_data.login, db).await?;
+    let session = login_and_create_session(
+        db,
+        &state.config,
+        &cleaned_data.login,
+        &cleaned_data.password,
+    )
+    .await?;
 
-    // Check the password
-    let password_hash: String = user.password;
-    let password_valid =
-        spawn_blocking(move || password::verify_password(&cleaned_data.password, &password_hash))
-            .await
-            .map_err(|_| AppError::internal("Threading error"))?
-            .map_err(|e| {
-                tracing::error!(?e, "Password verification error");
-                AppError::internal("Password verification failed")
-            })?;
-    if !password_valid {
-        return Err(AppError::unauthorized("Invalid credentials"));
-    }
+    let jar = CookieJar::new().add(access_cookie(&state.config, session.access_token));
 
-    // Check if verified
-    let is_verified: bool = user.verified;
-    if !is_verified {
-        return Err(AppError::forbidden("Account not verified"));
-    }
-
-    let token = sign_access_token(&state.config, user.id, "GUEST".to_string())?;
-
-    Ok(ApiResponse::ok("Welcome!", Some(Token { token })))
+    Ok((
+        jar,
+        ApiResponse::ok(
+            "Welcome!",
+            Some(LoginResponse {
+                user_id: session.user_id.to_string(),
+                role: session.role,
+            }),
+        ),
+    ))
 }
 
 // -----------------

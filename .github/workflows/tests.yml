@@ -159,6 +159,7 @@ jobs:
       CARGO_INCREMENTAL: "0"
       RUSTFLAGS: "-C linker=clang -C link-arg=-fuse-ld=lld"
       NEXT_PUBLIC_DEV_BACKEND: http://localhost:3001
+      NEXT_PUBLIC_DEV_FRONTEND: http://localhost:3000
 
     services:
       postgres:

@@ -1,18 +1,23 @@
 use axum::http::{HeaderMap, header};
 use sqlx::{PgPool, types::Uuid};
+use tokio::task::spawn_blocking;
 
 use crate::{
-    db::queries::find_login_user_by_username,
+    config::Config,
+    db::queries::{find_login_user_by_email, find_login_user_by_username},
     errors::AppError,
-    features::auth::queries::{create_user, create_verification_token},
+    features::auth::{
+        queries::{create_user, create_verification_token},
+        tokens::jwt::sign_access_token,
+        types::LoginSessionResult,
+    },
     types::User,
+    utils::password,
 };
 
-use crate::db::queries::find_login_user_by_email;
-
-// ---------------------
+// ----------------
 // --- Register ---
-// ---------------------
+// ----------------
 pub async fn new_user(
     db: &PgPool,
     email: &str,
@@ -32,9 +37,9 @@ pub async fn new_user(
     Ok((user_id, token))
 }
 
-// ---------------------
+// -------------
 // --- Login ---
-// ---------------------
+// -------------
 pub async fn find_login_user(login: &str, db: &PgPool) -> Result<User, AppError> {
     let user = if login.contains('@') {
         find_login_user_by_email(db, login).await?
@@ -44,6 +49,44 @@ pub async fn find_login_user(login: &str, db: &PgPool) -> Result<User, AppError>
     .ok_or_else(|| AppError::not_found("User not found"))?;
 
     Ok(user)
+}
+
+pub async fn login_and_create_session(
+    db: &PgPool,
+    config: &Config,
+    login: &str,
+    raw_password: &str,
+) -> Result<LoginSessionResult, AppError> {
+    let user = find_login_user(login, db).await?;
+
+    let password_hash = user.password.clone();
+    let password_input = raw_password.to_string();
+
+    let password_valid =
+        spawn_blocking(move || password::verify_password(&password_input, &password_hash))
+            .await
+            .map_err(|_| AppError::internal("Threading error"))?
+            .map_err(|e| {
+                tracing::error!(?e, "Password verification error");
+                AppError::internal("Password verification failed")
+            })?;
+
+    if !password_valid {
+        return Err(AppError::unauthorized("Invalid credentials"));
+    }
+
+    if !user.verified {
+        return Err(AppError::forbidden("Account not verified"));
+    }
+
+    let role = user.role.clone();
+    let access_token = sign_access_token(config, user.id, role.clone())?;
+
+    Ok(LoginSessionResult {
+        access_token,
+        user_id: user.id,
+        role,
+    })
 }
 
 // ---------------------
