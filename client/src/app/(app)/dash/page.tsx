@@ -1,10 +1,10 @@
 "use client";
 
-import { useRequireAuth } from "@/lib/auth/useRequireAuth";
+// import { useRequireAuth } from "@/lib/auth/useRequireAuth";
 
 function DashContent() {
-  const { ready } = useRequireAuth();
-  if (!ready) return <div>Checking session...</div>;
+  // const { ready } = useRequireAuth();
+  // if (!ready) return <div>Checking session...</div>;
 
   return (
     <div className="dash-container">

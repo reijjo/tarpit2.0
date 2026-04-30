@@ -4,12 +4,27 @@ use axum::{
 };
 use uuid::Uuid;
 
-use crate::{errors::AppError, features::auth::jwt::verify_access_token, state::AppState};
+use crate::{
+    errors::AppError,
+    features::auth::tokens::{cookies::ACCESS_COOKIE, jwt::verify_access_token},
+    state::AppState,
+};
 
 #[derive(Debug)]
 pub struct AuthUser {
     pub user_id: Uuid,
     pub role: String,
+}
+
+fn read_cookie_value(cookie_header: &str, target: &str) -> Option<String> {
+    cookie_header.split(';').map(|p| p.trim()).find_map(|kv| {
+        let (name, value) = kv.split_once('=')?;
+        if name == target {
+            Some(value.to_string())
+        } else {
+            None
+        }
+    })
 }
 
 impl FromRequestParts<AppState> for AuthUser {
@@ -19,18 +34,17 @@ impl FromRequestParts<AppState> for AuthUser {
         parts: &mut Parts,
         state: &AppState,
     ) -> Result<Self, Self::Rejection> {
-        let auth_header = parts
+        let cookie_header = parts
             .headers
-            .get(header::AUTHORIZATION)
-            .ok_or_else(|| AppError::unauthorized("Missing Authorization header"))?
+            .get(header::COOKIE)
+            .ok_or_else(|| AppError::unauthorized("Missing cookie header"))?
             .to_str()
-            .map_err(|_| AppError::unauthorized("Expected Bearer token"))?;
+            .map_err(|_| AppError::unauthorized("Invalid cookie header"))?;
 
-        let token = auth_header
-            .strip_prefix("Bearer ")
-            .ok_or_else(|| AppError::unauthorized("Expected Bearer token"))?;
+        let access_token = read_cookie_value(cookie_header, ACCESS_COOKIE)
+            .ok_or_else(|| AppError::unauthorized("Missing access token cookie"))?;
 
-        let claims = verify_access_token(&state.config, token)?;
+        let claims = verify_access_token(&state.config, &access_token)?;
 
         Ok(AuthUser {
             user_id: claims.sub,

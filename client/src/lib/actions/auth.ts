@@ -200,7 +200,6 @@ export async function loginUser(
 
     return {
       success: true,
-      token: user.data?.token,
     };
   } catch (error) {
     console.error("Error logging in: ", error);

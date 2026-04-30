@@ -10,7 +10,6 @@ import type {
 } from "../types/auth";
 
 const AUTH_URL = `${config.BACKEND_URL}/api/auth`;
-const getAuthUrl = () => `${process.env.NEXT_PUBLIC_DEV_BACKEND}/api/auth`;
 
 // ----------------------------
 // --- /api/auth/available ---
@@ -88,6 +87,7 @@ export const loggingIn = async (
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(credentials),
+      credentials: "include",
     });
 
     const data = await res.json();
@@ -172,21 +172,23 @@ export const resendVerificationEmailRequest = async (
 // api/auth/me
 // GET
 // Checks authorization
-export const getMe = async (token: string): Promise<ApiResponse> => {
+export const getMe = async (): Promise<ApiResponse> => {
   try {
-    const res = await fetch(`${getAuthUrl()}/me`, {
-      headers: { Authorization: `Bearer ${token}` },
+    const res = await fetch(`${AUTH_URL}/me`, {
+      method: "GET",
+      credentials: "include",
       cache: "no-store",
     });
 
     const data = await res.json();
 
-    if (!res.ok)
+    if (!res.ok) {
       return {
         success: false,
         error: data.error ?? "Unauthorized",
         status: res.status,
       };
+    }
 
     return data;
   } catch (err) {

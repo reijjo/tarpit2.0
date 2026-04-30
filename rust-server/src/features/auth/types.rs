@@ -1,11 +1,12 @@
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 use validator::Validate;
 
 use crate::utils::validators::{validate_email, validate_password, validate_username};
 
-// -----------------------
-// --- Register data ---
-// -----------------------
+// ----------------
+// --- Register ---
+// ----------------
 #[derive(Serialize, Deserialize, Debug, Validate)]
 pub struct RegisterData {
     #[validate(length(max = 255, message = "Email must be at most 255 characters"), custom(function = validate_email))]
@@ -26,9 +27,28 @@ pub struct RegisterData {
     pub password: String,
 }
 
-// -----------------------
-// --- Login data ---
-// -----------------------
+#[derive(Deserialize)]
+pub struct AvailabilityQuery {
+    pub email: Option<String>,
+    pub username: Option<String>,
+}
+
+// --------------
+// --- Verify ---
+// --------------
+#[derive(Deserialize)]
+pub struct ResendTokenData {
+    pub token: String,
+}
+
+#[derive(Deserialize)]
+pub struct VerifyQuery {
+    pub token: Option<String>,
+}
+
+// ------------
+// --- Auth ---
+// ------------
 
 #[derive(Deserialize, Validate)]
 pub struct LoginData {
@@ -46,44 +66,28 @@ pub struct LoginData {
     ))]
     pub password: String,
 }
-
-// -------------------------
-// --- Resend token data ---
-// -------------------------
-#[derive(Deserialize)]
-pub struct ResendTokenData {
-    pub token: String,
-}
-
-// ------------------------
-// --- Queries (params) ---
-// ------------------------
-#[derive(Deserialize)]
-pub struct AvailabilityQuery {
-    pub email: Option<String>,
-    pub username: Option<String>,
-}
-
-#[derive(Deserialize)]
-pub struct VerifyQuery {
-    pub token: Option<String>,
-}
-
-// -----------------------
-// --- Token ---
-// -----------------------
-#[derive(Serialize, Debug)]
-pub struct Token {
-    pub token: String,
-}
-
-// ----------
-// --- Me ---
-// ----------
 #[derive(Serialize, Debug)]
 pub struct MeResponse {
     pub id: String,
     pub email: String,
     pub username: String,
+    pub role: String,
+}
+
+#[derive(Serialize, Debug)]
+#[allow(dead_code)]
+pub struct Token {
+    pub token: String,
+}
+
+#[derive(Serialize, Debug)]
+pub struct LoginResponse {
+    pub user_id: String,
+    pub role: String,
+}
+
+pub struct LoginSessionResult {
+    pub access_token: String,
+    pub user_id: Uuid,
     pub role: String,
 }

@@ -94,3 +94,68 @@ where
 
     Ok(new_token)
 }
+
+// Create auth session - CREATE
+pub async fn create_auth_session<'e, E>(
+    db: E,
+    user_id: Uuid,
+    refresh_token_hash: &str,
+    expires_at: DateTime<Utc>,
+    rotated_from_id: Option<Uuid>,
+) -> Result<Uuid, AppError>
+where
+    E: Executor<'e, Database = Postgres>,
+{
+    let id = sqlx::query_scalar::<_, Uuid>(
+				"INSERT INTO auth_sessions (user_id, refresh_token_hash, expires_at, rotated_from_id) VALUES ($1, $2, $3, $4) RETURNING id",
+		)
+		.bind(user_id)
+		.bind(refresh_token_hash)
+		.bind(expires_at)
+		.bind(rotated_from_id)
+		.fetch_one(db)
+		.await
+		.map_err(AppError::Sql)?;
+
+    Ok(id)
+}
+
+// Find auth session - READ
+pub async fn find_auth_session_by_hash<'e, E>(
+    db: E,
+    refresh_token_hash: &str,
+) -> Result<Option<(Uuid, Uuid, DateTime<Utc>, Option<DateTime<Utc>>)>, AppError>
+where
+    E: Executor<'e, Database = Postgres>,
+{
+    let row = sqlx::query_as::<_, (Uuid, Uuid, DateTime<Utc>, Option<DateTime<Utc>>)>(
+        "SELECT id, user_id, expires_at, revoked_at
+         FROM auth_sessions
+         WHERE refresh_token_hash = $1
+         LIMIT 1",
+    )
+    .bind(refresh_token_hash)
+    .fetch_optional(db)
+    .await
+    .map_err(AppError::Sql)?;
+
+    Ok(row)
+}
+
+// Update auth session (revoke old, create new) - UPDATE
+pub async fn revoke_auth_session<'e, E>(db: E, session_id: Uuid) -> Result<(), AppError>
+where
+    E: Executor<'e, Database = Postgres>,
+{
+    sqlx::query(
+        "UPDATE auth_sessions
+         SET revoked_at = now()
+         WHERE id = $1 AND revoked_at IS NULL",
+    )
+    .bind(session_id)
+    .execute(db)
+    .await
+    .map_err(AppError::Sql)?;
+
+    Ok(())
+}

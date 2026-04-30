@@ -26,7 +26,6 @@ export type LoginState = ApiResponse & {
   };
   login?: string;
   password?: string;
-  token?: string;
 };
 
 export type LoginData = {
