@@ -5,18 +5,12 @@ import {
   checkDuplicateEmail,
   checkDuplicateUsername,
   createUser,
-  loggingIn,
   resendVerificationEmailRequest,
 } from "../api/auth";
 import { ApiResponse } from "../types/apiResponse";
 
-import { LoginSchema, RegisterSchema } from "../schemas/auth";
-import {
-  LoginData,
-  LoginState,
-  RegisterState,
-  RegisterUserData,
-} from "../types/auth";
+import { RegisterSchema } from "../schemas/auth";
+import { RegisterState, RegisterUserData } from "../types/auth";
 
 // ----------------------------
 // --- Registration Actions ---
@@ -156,58 +150,6 @@ export async function resendVerificationEmailAction(
     return {
       success: false,
       error: "Failed to resend verification email. Please try again.",
-    };
-  }
-}
-
-// ----------------------------
-// --- Login Actions ---
-// ----------------------------
-export async function loginUser(
-  _prevState: LoginState,
-  data: FormData,
-): Promise<LoginState> {
-  const login = data.get("login");
-  const password = data.get("password");
-
-  const result = LoginSchema.safeParse({ login, password });
-  if (!result.success) {
-    const { fieldErrors } = z.flattenError(result.error);
-
-    return {
-      success: false,
-      errors: fieldErrors,
-      login: String(login || ""),
-      password: "",
-    };
-  }
-
-  try {
-    const credentials: LoginData = {
-      login: result.data.login,
-      password: result.data.password,
-    };
-
-    const user = await loggingIn(credentials);
-    if (!user.success) {
-      return {
-        success: false,
-        error: user.error ?? "Login failed. Please try again",
-        login: result.data.login,
-        password: "",
-      };
-    }
-
-    return {
-      success: true,
-    };
-  } catch (error) {
-    console.error("Error logging in: ", error);
-    return {
-      success: false,
-      error: "Login failed. Please try again",
-      login: result.data.login,
-      password: "",
     };
   }
 }

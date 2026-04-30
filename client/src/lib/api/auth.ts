@@ -172,27 +172,53 @@ export const resendVerificationEmailRequest = async (
 // api/auth/me
 // GET
 // Checks authorization
-export const getMe = async (): Promise<ApiResponse> => {
+// export const getMe = async (): Promise<ApiResponse> => {
+//   try {
+//     const res = await fetch(`${AUTH_URL}/me`, {
+//       method: "GET",
+//       credentials: "include",
+//       cache: "no-store",
+//     });
+
+//     const data = await res.json();
+
+//     if (!res.ok) {
+//       return {
+//         success: false,
+//         error: data.error ?? "Unauthorized",
+//         status: res.status,
+//       };
+//     }
+
+//     return data;
+//   } catch (err) {
+//     console.error("ME ERROR: ", err);
+//     return { success: false, error: "Network error" };
+//   }
+// };
+
+// ------------------------
+// --- /api/auth/logout ---
+// ------------------------
+
+// api/auth/logout
+// POST
+// Log out
+export const loggingOut = async (): Promise<ApiResponse> => {
   try {
-    const res = await fetch(`${AUTH_URL}/me`, {
-      method: "GET",
+    const res = await fetch(`${AUTH_URL}/logout`, {
+      method: "POST",
       credentials: "include",
-      cache: "no-store",
     });
 
     const data = await res.json();
 
     if (!res.ok) {
-      return {
-        success: false,
-        error: data.error ?? "Unauthorized",
-        status: res.status,
-      };
+      return { success: false, error: data.error ?? "Logout failed." };
     }
-
     return data;
   } catch (err) {
-    console.error("ME ERROR: ", err);
+    console.error("Logout error: ", err);
     return { success: false, error: "Network error" };
   }
 };
