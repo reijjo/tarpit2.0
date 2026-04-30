@@ -23,8 +23,6 @@ export default function Login() {
     }
   }, [formState.success, router]);
 
-  console.log("Login form state: ", formState);
-
   return (
     <div className="auth-container">
       <form className="auth-form" action={formAction}>

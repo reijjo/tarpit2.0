@@ -10,7 +10,6 @@ import type {
 } from "../types/auth";
 
 const AUTH_URL = `${config.BACKEND_URL}/api/auth`;
-const FRONT_AUTH_URL = `${config.FRONTEND_URL}/api/auth`;
 
 // ----------------------------
 // --- /api/auth/available ---
@@ -84,7 +83,7 @@ export const loggingIn = async (
   credentials: LoginData,
 ): Promise<ApiResponse<LoginState>> => {
   try {
-    const res = await fetch(`${FRONT_AUTH_URL}/login`, {
+    const res = await fetch(`${AUTH_URL}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(credentials),

@@ -4,7 +4,7 @@ use tokio::task::spawn_blocking;
 
 use crate::{
     config::Config,
-    db::queries::{find_login_user_by_email, find_login_user_by_username},
+    db::queries::{find_user_by_email, find_user_by_username},
     errors::AppError,
     features::auth::{
         queries::{create_user, create_verification_token},
@@ -42,9 +42,9 @@ pub async fn new_user(
 // -------------
 pub async fn find_login_user(login: &str, db: &PgPool) -> Result<User, AppError> {
     let user = if login.contains('@') {
-        find_login_user_by_email(db, login).await?
+        find_user_by_email(db, login).await?
     } else {
-        find_login_user_by_username(db, login).await?
+        find_user_by_username(db, login).await?
     }
     .ok_or_else(|| AppError::not_found("User not found"))?;
 
