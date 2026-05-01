@@ -165,38 +165,6 @@ export const resendVerificationEmailRequest = async (
   }
 };
 
-// -------------------
-// --- api/auth/me ---
-// -------------------
-
-// api/auth/me
-// GET
-// Checks authorization
-// export const getMe = async (): Promise<ApiResponse> => {
-//   try {
-//     const res = await fetch(`${AUTH_URL}/me`, {
-//       method: "GET",
-//       credentials: "include",
-//       cache: "no-store",
-//     });
-
-//     const data = await res.json();
-
-//     if (!res.ok) {
-//       return {
-//         success: false,
-//         error: data.error ?? "Unauthorized",
-//         status: res.status,
-//       };
-//     }
-
-//     return data;
-//   } catch (err) {
-//     console.error("ME ERROR: ", err);
-//     return { success: false, error: "Network error" };
-//   }
-// };
-
 // ------------------------
 // --- /api/auth/logout ---
 // ------------------------

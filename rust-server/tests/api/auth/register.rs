@@ -1,23 +1,8 @@
-use super::common::{build_test_server, build_test_server_without_db};
+use super::support::{
+    build_test_server, build_test_server_without_db, unique_email, unique_username, valid_password,
+};
 use axum::http::StatusCode;
 use serde_json::{Value, json};
-
-// ============================================================================
-// HELPER: Generate unique test data to avoid conflicts between tests
-// ============================================================================
-
-fn unique_email() -> String {
-    format!("test_{}@example.com", uuid::Uuid::new_v4().simple())
-}
-
-fn unique_username() -> String {
-    let id = uuid::Uuid::new_v4().simple().to_string();
-    format!("u{}", &id[..11])
-}
-
-fn valid_password() -> &'static str {
-    "Test123!@#"
-}
 
 // ============================================================================
 // SUCCESSFUL REGISTRATION TESTS

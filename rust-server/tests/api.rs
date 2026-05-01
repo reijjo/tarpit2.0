@@ -4,5 +4,5 @@ mod common;
 #[path = "api/health.rs"]
 mod health;
 
-#[path = "api/auth.rs"]
+#[path = "api/auth/mod.rs"]
 mod auth;

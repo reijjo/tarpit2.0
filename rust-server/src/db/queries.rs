@@ -37,6 +37,7 @@ pub async fn find_user_by_id(db: &PgPool, id: Uuid) -> Result<Option<PgRow>, App
         .await
         .map_err(AppError::Sql)
 }
+
 // -------------------------------
 // --- Find verification token ---
 // -------------------------------
