@@ -1,5 +1,5 @@
 "use client";
-import { loginUser } from "@/lib/actions/auth";
+import { loginUser } from "@/lib/actions/loginClient";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
