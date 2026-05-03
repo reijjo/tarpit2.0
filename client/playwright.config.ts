@@ -40,10 +40,8 @@ export default defineConfig({
       timeout: 30000,
       env: {
         PORT: "3000",
-        NEXT_PUBLIC_DEV_BACKEND:
-          process.env.NEXT_PUBLIC_DEV_BACKEND ?? "http://localhost:3001",
-        NEXT_PUBLIC_DEV_FRONTEND:
-          process.env.NEXT_PUBLIC_DEV_FRONTEND ?? "http://localhost:3000",
+        NEXT_PUBLIC_DEV_BACKEND: "http://127.0.0.1:3001",
+        NEXT_PUBLIC_DEV_FRONTEND: "http://127.0.0.1:3000",
       },
     },
   ],
