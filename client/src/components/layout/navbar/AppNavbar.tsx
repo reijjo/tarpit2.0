@@ -1,5 +1,4 @@
 import "./AppNavbar.css";
-import "./Navbar.css";
 import { Menu } from "lucide-react";
 
 import { Button } from "@/components/ui/button/Button";
