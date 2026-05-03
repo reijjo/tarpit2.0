@@ -159,7 +159,7 @@ jobs:
       CARGO_INCREMENTAL: "0"
       RUSTFLAGS: "-C linker=clang -C link-arg=-fuse-ld=lld"
       NEXT_PUBLIC_DEV_BACKEND: http://127.0.0.1:3001
-      NEXT_PUBLIC_DEV_FRONTEND: http://127.0.0.1:3000
+      NEXT_PUBLIC_DEV_FRONTEND: http://127.0.0.1:3001
 
     services:
       postgres:
@@ -228,6 +228,15 @@ jobs:
       - name: Install system dependencies (cache hit)
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: bunx playwright install-deps chromium
+
+      - name: Debug networking
+        run: |
+          echo "=== curl backend health ==="
+          curl -v http://127.0.0.1:3001/health
+          echo "=== curl localhost backend ==="
+          curl -v http://localhost:3001/health
+          echo "=== curl frontend ==="
+          curl -v http://127.0.0.1:3000
 
       - name: Run E2E tests
         run: bun test:e2e
