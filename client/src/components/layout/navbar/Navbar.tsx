@@ -6,7 +6,7 @@ import { LinkButton } from "@/components/ui/button/LinkButton";
 
 export default function Navbar() {
   return (
-    <nav className="navbar">
+    <nav className="navbar public-nav">
       <div className="nav-wrapper wrapper">
         <Link href="/" className="nav-logo">
           <Image

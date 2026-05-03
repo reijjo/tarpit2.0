@@ -1,5 +1,8 @@
+import "./layout.css";
 import { getMe } from "@/lib/auth/getMe";
 import { redirect } from "next/navigation";
+
+import AppContent from "@/components/layout/app-content/AppContent";
 
 export default async function AppLayout({
   children,
@@ -14,5 +17,9 @@ export default async function AppLayout({
     return redirect("/login");
   }
 
-  return <main>{children}</main>;
+  return (
+    <main className="app-layout">
+      <AppContent>{children}</AppContent>
+    </main>
+  );
 }

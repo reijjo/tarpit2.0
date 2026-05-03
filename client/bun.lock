@@ -6,27 +6,28 @@
       "name": "client",
       "dependencies": {
         "lucide-react": "^0.563.0",
-        "next": "^16.1.6",
+        "next": "^16.2.4",
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "zod": "^4.3.6",
+        "zustand": "^5.0.12",
       },
       "devDependencies": {
-        "@playwright/test": "^1.58.2",
+        "@playwright/test": "^1.59.1",
         "@testing-library/jest-dom": "^6.9.1",
         "@testing-library/react": "^16.3.2",
         "@trivago/prettier-plugin-sort-imports": "^6.0.2",
-        "@types/node": "^20.19.33",
+        "@types/node": "^20.19.39",
         "@types/react": "^19.2.14",
         "@types/react-dom": "^19.2.3",
-        "@vitejs/plugin-react": "^5.1.4",
+        "@vitejs/plugin-react": "^5.2.0",
         "@vitest/coverage-v8": "4.0.18",
         "babel-plugin-react-compiler": "1.0.0",
-        "eslint": "^9.39.3",
-        "eslint-config-next": "^16.1.6",
+        "eslint": "^9.39.4",
+        "eslint-config-next": "^16.2.4",
         "jsdom": "^28.1.0",
         "typescript": "^5.9.3",
-        "vitest": "^4.0.18",
+        "vitest": "^4.1.5",
       },
     },
   },
@@ -1115,9 +1116,11 @@
 
     "yocto-queue": ["yocto-queue@0.1.0", "", {}, "sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q=="],
 
-    "zod": ["zod@4.3.6", "", {}, "sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg=="],
+    "zod": ["zod@4.4.2", "", {}, "sha512-IynmDyxsEsb9RKzO3J9+4SxXnl2FTFSzNBaKKaMV6tsSk0rw9gYw9gs+JFCq/qk2LCZ78KDwyj+Z289TijSkUw=="],
 
     "zod-validation-error": ["zod-validation-error@4.0.2", "", { "peerDependencies": { "zod": "^3.25.0 || ^4.0.0" } }, "sha512-Q6/nZLe6jxuU80qb/4uJ4t5v2VEZ44lzQjPDhYJNztRQ4wyWc6VF3D3Kb/fAuPetZQnhS3hnajCf9CsWesghLQ=="],
+
+    "zustand": ["zustand@5.0.12", "", { "peerDependencies": { "@types/react": ">=18.0.0", "immer": ">=9.0.6", "react": ">=18.0.0", "use-sync-external-store": ">=1.2.0" }, "optionalPeers": ["@types/react", "immer", "react", "use-sync-external-store"] }, "sha512-i77ae3aZq4dhMlRhJVCYgMLKuSiZAaUPAct2AksxQ+gOtimhGMdXljRT21P5BNpeT4kXlLIckvkPM029OljD7g=="],
 
     "@babel/code-frame/js-tokens": ["js-tokens@4.0.0", "", {}, "sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ=="],
 

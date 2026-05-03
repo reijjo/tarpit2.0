@@ -33,6 +33,13 @@
   font-size: 1rem;
 }
 
+.btn--icon {
+  padding: 0.5rem;
+  font-size: 1rem;
+  display: grid;
+  place-items: center;
+}
+
 /* Variants */
 .btn--primary {
   color: var(--text-dark);

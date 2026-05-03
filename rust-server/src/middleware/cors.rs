@@ -1,8 +1,7 @@
+use axum::http::{HeaderValue, Method, header};
 use tower_http::cors::CorsLayer;
 
 pub fn build_cors(frontend_url: &str) -> Result<CorsLayer, String> {
-    use axum::http::{HeaderValue, Method, header};
-
     let origin: HeaderValue = frontend_url
         .parse()
         .map_err(|_| format!("Invalid FRONTEND_URL '{frontend_url}'"))?;

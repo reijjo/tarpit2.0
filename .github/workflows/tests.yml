@@ -149,7 +149,7 @@ jobs:
       POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       BACKEND_URL: http://localhost:3001
-      FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+      FRONTEND_URL: http://localhost:3000
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
       TARPIT_DOMAIN: ${{ secrets.TARPIT_DOMAIN }}
       JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
@@ -159,7 +159,7 @@ jobs:
       CARGO_INCREMENTAL: "0"
       RUSTFLAGS: "-C linker=clang -C link-arg=-fuse-ld=lld"
       NEXT_PUBLIC_DEV_BACKEND: http://localhost:3001
-      NEXT_PUBLIC_DEV_FRONTEND: http://localhost:3000
+      NEXT_PUBLIC_DEV_FRONTEND: http://localhost:3001
 
     services:
       postgres:

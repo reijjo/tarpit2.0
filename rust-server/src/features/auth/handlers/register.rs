@@ -58,6 +58,8 @@ pub async fn register_user(
     )
     .await?;
 
+    eprintln!("APP ENV: {}", state.config.app_env);
+
     // Send verification email - if it fails, delete user (compensating transaction)
     if !state.config.app_env.is_test()
         && let Err(email_err) = state
