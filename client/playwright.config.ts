@@ -25,7 +25,7 @@ export default defineConfig({
 
   webServer: [
     {
-      command: "APP_ENV=test cargo run",
+      command: "APP_ENV=test HOST=0.0.0.0 cargo run",
       cwd: path.resolve(__dirname, "../rust-server"),
       url: "http://127.0.0.1:3001/health",
       reuseExistingServer: !process.env.CI,
