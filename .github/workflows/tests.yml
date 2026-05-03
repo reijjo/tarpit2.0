@@ -148,8 +148,8 @@ jobs:
       DB_TEST_URL: ${{ secrets.DB_TEST_URL }}
       POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      BACKEND_URL: http://127.0.0.1:3001
-      FRONTEND_URL: http://127.0.0.1:3000
+      BACKEND_URL: http://localhost:3001
+      FRONTEND_URL: http://localhost:3000
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
       TARPIT_DOMAIN: ${{ secrets.TARPIT_DOMAIN }}
       JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
@@ -158,8 +158,8 @@ jobs:
       REFRESH_TTL_SECONDS: ${{ secrets.REFRESH_TTL_SECONDS }}
       CARGO_INCREMENTAL: "0"
       RUSTFLAGS: "-C linker=clang -C link-arg=-fuse-ld=lld"
-      NEXT_PUBLIC_DEV_BACKEND: http://127.0.0.1:3001
-      NEXT_PUBLIC_DEV_FRONTEND: http://127.0.0.1:3001
+      NEXT_PUBLIC_DEV_BACKEND: http://localhost:3001
+      NEXT_PUBLIC_DEV_FRONTEND: http://localhost:3001
 
     services:
       postgres:
@@ -232,11 +232,11 @@ jobs:
       - name: Debug networking
         run: |
           echo "=== curl backend health ==="
-          curl -v http://127.0.0.1:3001/health
+          curl -v http://localhost:3001/health
           echo "=== curl localhost backend ==="
           curl -v http://localhost:3001/health
           echo "=== curl frontend ==="
-          curl -v http://127.0.0.1:3000
+          curl -v http://localhost:3000
 
       - name: Run E2E tests
         run: bun test:e2e

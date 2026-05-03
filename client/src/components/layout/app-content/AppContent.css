@@ -1,0 +1,16 @@
+.app-content {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr;
+  min-height: 100dvh;
+  height: 100%;
+  width: 100%;
+
+  @media screen and (max-width: 1250px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.app-main {
+  display: grid;
+  grid-template-rows: var(--nav-height) 1fr auto;
+}

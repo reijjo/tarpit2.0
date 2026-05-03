@@ -1,0 +1,21 @@
+.app-navbar {
+  border-bottom: 1px solid var(--primary-500);
+  background-color: var(--primary-900);
+  height: var(--nav-height);
+  z-index: 10;
+  position: sticky;
+  top: 0;
+}
+
+.app-nav-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.app-nav-toggle {
+  display: grid;
+  place-items: center;
+  height: 100%;
+}
