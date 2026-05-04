@@ -1,0 +1,40 @@
+# Frontend Guidelines
+
+## Technology Stack Standards
+
+- Use Next.js 16+ app router patterns.
+- Use React 19+ features where they fit the codebase.
+- Write all code in TypeScript.
+- Do not use `any`; define proper types instead.
+- Do not use `@ts-ignore`; fix the type issue properly.
+- Use Zod for form validation, API schemas, and runtime validation.
+- Keep TypeScript strict and resolve type errors instead of suppressing them.
+
+## Implementation Standards
+
+- Prefer app-router conventions with clear server/client boundaries.
+- Keep components, hooks, and utilities small and focused.
+- Use proper types for props, state, API responses, and form data.
+- Handle errors explicitly and use typed error states where needed.
+- Follow the existing project patterns before introducing a new approach.
+
+## Package Management
+
+- Use Bun exclusively for installs and scripts.
+- Use `bun install`, `bun add`, and `bun remove` for dependency changes.
+- Do not introduce npm or yarn commands into the workflow.
+
+## Testing and Verification
+
+- Check the implementation before writing tests.
+- Follow existing test structure and naming: `*.spec.ts` for utilities, `*.spec.tsx` for components.
+- Focus on real scenarios, not coverage padding or mock-only tests.
+- Use `bun lint`, `bun run test`, `bun run test:cover`, and `bun run test:e2e` as the standard checks.
+- Use `bun run test:e2e:ui` or `bun run test:e2e:headed` only when debugging.
+- When changing UI, forms, routing, or client-side state, add or update tests in the same area.
+
+## Documentation
+
+- Update frontend docs when behavior, setup, or user flows change.
+- Keep docs short and practical, using relative paths only.
+- Keep docs aligned with the code, especially `client/documentation.md` and related setup notes.

@@ -1,6 +1,9 @@
 import "./Sidebar.css";
+import { X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+
+import { Button } from "@/components/ui/button/Button";
 
 export default function Sidebar() {
   return (
@@ -10,12 +13,15 @@ export default function Sidebar() {
           <Image
             src="/icons/fishing.png"
             alt="logo"
-            height={24}
-            width={24}
+            height={28}
+            width={28}
             loading="eager"
           />
           Tärpit
         </Link>
+        <Button variant="outline" size="icon">
+          <X size={20} />
+        </Button>
       </div>
       <ul>
         <li>

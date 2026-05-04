@@ -56,7 +56,7 @@ POSTGRES_PASSWORD=<your_password>
 
 # Other required vars
 BACKEND_URL=http://localhost:3001
-FRONTEND_URL=http://localhost:5173
+FRONTEND_URL=http://localhost:3000
 RESEND_API_KEY=re_xxxx
 TARPIT_DOMAIN=spam.example.com
 ```
