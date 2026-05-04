@@ -58,7 +58,7 @@
   place-items: center;
   background-image: radial-gradient(
     at 50% 50%,
-    rgb(from var(--primary-500) r g b / 50%) 0,
+    rgb(from var(--primary-xdark) r g b / 50%) 0,
     transparent 80%
   );
 

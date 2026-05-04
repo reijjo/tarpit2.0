@@ -5,10 +5,10 @@
 
   background: linear-gradient(
     to bottom,
-    var(--primary) 0%,
-    var(--primary) 50%,
-    var(--primary-800) 50%,
-    var(--primary-800) 100%
+    var(--primary-dark) 0%,
+    var(--primary-dark) 50%,
+    var(--primary-xdark) 50%,
+    var(--primary-xdark) 100%
   );
 
   & > div {

@@ -2,8 +2,8 @@
   background:
     linear-gradient(
       to bottom,
-      rgb(from var(--primary) r g b / 100%) 0,
-      rgb(from var(--primary) r g b / 25%)
+      rgb(from var(--primary-xdark) r g b / 100%) 0,
+      rgb(from var(--primary-dark) r g b / 25%)
     ),
     url("/images/homepage/soccer-wide.jpeg");
   background-position: center;
@@ -51,7 +51,7 @@
   justify-content: space-around;
   gap: 1rem;
   padding: 2rem;
-  background-color: rgb(from var(--primary) r g b / 0.75);
+  background-color: rgb(from var(--primary-dark) r g b / 0.75);
   box-shadow: var(--box-shadow-xl);
   backdrop-filter: blur(2px);
 }
