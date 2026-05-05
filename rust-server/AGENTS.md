@@ -41,3 +41,13 @@
 - Keep docs short and practical, using relative paths only.
 - Keep `rust-server/documentation.md` and migration notes accurate.
 - Skip docs for refactors or style-only changes, and say why when skipping.
+
+## Project Layout
+
+- `src/features/` holds the domain modules, including routes, handlers, service logic, queries, and feature-local types.
+- `src/middleware/` holds Axum middleware and request plumbing.
+- `src/db/` holds connection and query helpers that are shared across features.
+- `src/utils/` holds cross-cutting helpers such as validation, logging, email, tokens, and response helpers.
+- `tests/` holds unit and integration coverage grouped by area.
+- `migrations/` holds SQL migration files.
+- Keep feature-specific logic inside the feature module unless it is clearly shared by more than one feature.

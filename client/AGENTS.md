@@ -38,3 +38,13 @@
 - Update frontend docs when behavior, setup, or user flows change.
 - Keep docs short and practical, using relative paths only.
 - Keep docs aligned with the code, especially `client/documentation.md` and related setup notes.
+
+## Project Layout
+
+- `src/app/` contains route groups, layouts, pages, and route-local components.
+- `src/components/` holds reusable UI and layout pieces.
+- `src/lib/` holds API clients, actions, schemas, stores, types, and client-side helpers.
+- `src/test/` contains shared test setup, fixtures, and utilities.
+- `e2e/` contains Playwright tests and helpers.
+- `public/` holds static assets.
+- Keep route-specific logic close to the route when that makes the code easier to follow; promote only reusable pieces into `src/components/` or `src/lib/`.

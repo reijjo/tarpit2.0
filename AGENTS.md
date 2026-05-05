@@ -1,4 +1,4 @@
-## Core Principles
+# Core Principles
 
 - Write simple, readable code that matches existing project patterns.
 - Prefer small functions/components; split when a unit becomes hard to scan or reason about.
@@ -55,3 +55,11 @@
 - Do not guess — ask when unclear
 - Avoid generic boilerplate answers; re-check the repo and task if the answer starts sounding generic.
 - Treat `server/` as legacy/deprecated. Ignore it for normal frontend/backend work unless a task explicitly names it.
+
+## Repo Map
+
+- `client/` - Next.js frontend. Use `client/AGENTS.md` for app-specific guidance before making changes there.
+- `rust-server/` - Rust/Axum backend. Use `rust-server/AGENTS.md` for backend-specific guidance before making changes there.
+- `server/` - Legacy/deprecated backend area. Leave untouched unless the task explicitly targets it.
+- `README.md`, `DATABASE.md`, and the app docs are the shared top-level references.
+- When a task crosses folders, check the matching subfolder instructions for each area instead of relying only on the root file.

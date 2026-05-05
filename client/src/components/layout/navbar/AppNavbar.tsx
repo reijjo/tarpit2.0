@@ -1,3 +1,4 @@
+"use client";
 import "./AppNavbar.css";
 import { useSidebarStore } from "@/lib/stores/sidebarStore";
 import { Menu } from "lucide-react";
