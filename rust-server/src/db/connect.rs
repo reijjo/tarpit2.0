@@ -18,7 +18,7 @@ pub async fn init_db(config: &Config) -> Result<PgPool, DbError> {
 async fn connect_db(config: &Config) -> Result<PgPool, DbError> {
     let url = &config.active_db_url();
     let (max_connections, min_connections, acquire_timeout) = if config.app_env.is_test() {
-        (4, 0, Duration::from_secs(15))
+        (1, 0, Duration::from_secs(15))
     } else {
         (20, 1, Duration::from_secs(5))
     };

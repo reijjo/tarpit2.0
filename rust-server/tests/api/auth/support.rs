@@ -1,21 +1,14 @@
-pub use crate::common::{build_test_server, build_test_server_without_db};
+pub use crate::common::{build_test_server, build_test_server_without_db, shared_test_db_pool};
 
 use axum_test::TestResponse;
 use rust_server::{
-    config::AppEnv,
-    config::Config,
     features::auth::{
         queries::{create_user, verify_user},
         tokens::cookies::ACCESS_COOKIE,
     },
     utils::password::hash_password,
 };
-use sqlx::{PgPool, postgres::PgPoolOptions};
-use std::time::Duration;
-use tokio::sync::OnceCell;
 use uuid::Uuid;
-
-static TEST_DB_POOL: OnceCell<PgPool> = OnceCell::const_new();
 
 pub struct LoginFixture {
     pub user_id: Uuid,
@@ -37,30 +30,8 @@ pub fn valid_password() -> &'static str {
     "Test123!@#"
 }
 
-async fn test_db_pool() -> &'static PgPool {
-    TEST_DB_POOL
-        .get_or_init(|| async {
-            let config = Config::from_env().expect("failed to load .env config for test");
-            let is_test = matches!(config.app_env, AppEnv::Test);
-            let (max_connections, min_connections, acquire_timeout) = if is_test {
-                (4, 0, Duration::from_secs(15))
-            } else {
-                (10, 1, Duration::from_secs(5))
-            };
-
-            PgPoolOptions::new()
-                .max_connections(max_connections)
-                .min_connections(min_connections)
-                .acquire_timeout(acquire_timeout)
-                .connect(&config.db_test_url)
-                .await
-                .expect("failed to connect to test database")
-        })
-        .await
-}
-
 pub async fn create_login_fixture(verified: bool) -> LoginFixture {
-    let db = test_db_pool().await;
+    let db = shared_test_db_pool().await;
     let email = unique_email();
     let username = unique_username();
     let password = valid_password().to_string();
