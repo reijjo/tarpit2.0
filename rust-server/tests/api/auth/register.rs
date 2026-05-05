@@ -1166,3 +1166,73 @@ async fn register_username_case_insensitive_conflict() {
 
     res.assert_status_conflict();
 }
+
+// ============================================================================
+// SECURITY REGRESSION TESTS
+// ============================================================================
+
+#[tokio::test]
+async fn register_rejects_malicious_payloads_without_server_errors() {
+    let server = build_test_server().await;
+
+    let cases = [
+        json!({
+            "email": unique_email(),
+            "username": "<script>alert(1)</script>",
+            "password": valid_password()
+        }),
+        json!({
+            "email": unique_email(),
+            "username": "admin' OR 1=1 --",
+            "password": valid_password()
+        }),
+        json!({
+            "email": "test@example.com\r\nBcc:attacker@example.com",
+            "username": unique_username(),
+            "password": valid_password()
+        }),
+    ];
+
+    for payload in cases {
+        let res = server.post("/api/auth/register").json(&payload).await;
+
+        res.assert_status(StatusCode::BAD_REQUEST);
+
+        let body: Value = res.json();
+        assert_eq!(body["success"], false);
+    }
+}
+
+#[tokio::test]
+async fn availability_treats_malicious_inputs_as_literal_values() {
+    let server = build_test_server().await;
+
+    let cases = [
+        (
+            "/api/auth/available?username=%3Cscript%3Ealert(1)%3C%2Fscript%3E",
+            "username",
+        ),
+        (
+            "/api/auth/available?username=admin%27%20OR%201%3D1%20--",
+            "username",
+        ),
+        (
+            "/api/auth/available?email=test%40example.com%0D%0ABcc%3Aattacker%40example.com",
+            "email",
+        ),
+        (
+            "/api/auth/available?email=test%40example.com%26admin%3Dtrue",
+            "email",
+        ),
+    ];
+
+    for (path, field) in cases {
+        let res = server.get(path).await;
+
+        res.assert_status(StatusCode::OK);
+
+        let body: Value = res.json();
+        assert_eq!(body["success"], true, "unexpected failure for {field}");
+        assert_eq!(body["message"], "No duplicates found");
+    }
+}
