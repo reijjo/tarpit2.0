@@ -2,6 +2,7 @@ pub use crate::common::{build_test_server, build_test_server_without_db};
 
 use axum_test::TestResponse;
 use rust_server::{
+    config::AppEnv,
     config::Config,
     features::auth::{
         queries::{create_user, verify_user},
@@ -9,7 +10,8 @@ use rust_server::{
     },
     utils::password::hash_password,
 };
-use sqlx::PgPool;
+use sqlx::{PgPool, postgres::PgPoolOptions};
+use std::time::Duration;
 use tokio::sync::OnceCell;
 use uuid::Uuid;
 
@@ -39,7 +41,18 @@ async fn test_db_pool() -> &'static PgPool {
     TEST_DB_POOL
         .get_or_init(|| async {
             let config = Config::from_env().expect("failed to load .env config for test");
-            PgPool::connect(&config.db_test_url)
+            let is_test = matches!(config.app_env, AppEnv::Test);
+            let (max_connections, min_connections, acquire_timeout) = if is_test {
+                (4, 0, Duration::from_secs(15))
+            } else {
+                (10, 1, Duration::from_secs(5))
+            };
+
+            PgPoolOptions::new()
+                .max_connections(max_connections)
+                .min_connections(min_connections)
+                .acquire_timeout(acquire_timeout)
+                .connect(&config.db_test_url)
                 .await
                 .expect("failed to connect to test database")
         })
