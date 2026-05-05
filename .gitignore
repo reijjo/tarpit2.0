@@ -142,7 +142,6 @@ vite.config.ts.timestamp-*
 .agent
 .agent/*
 **/.cursorrules
-AGENTS.md
 **/.clinerules
 .clineignore
 CLAUDE.md

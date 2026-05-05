@@ -47,7 +47,7 @@ The backend will run on `http://localhost:3001`
 
 ## 🗄️ Database Setup
 
-Local PostgreSQL + Adminer + Prisma setup is documented in:
+Local PostgreSQL + Adminer + sqlx setup is documented in:
 
 - [DATABASE.md](./DATABASE.md)
 
