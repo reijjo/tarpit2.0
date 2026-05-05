@@ -31,7 +31,8 @@
 - Focus on real scenarios, not coverage padding or mock-only tests.
 - Use `bun lint`, `bun run test`, `bun run test:cover`, and `bun run test:e2e` as the standard checks.
 - Use `bun run test:e2e:ui` or `bun run test:e2e:headed` only when debugging.
-- When changing UI, forms, routing, or client-side state, add or update tests in the same area.
+- Do not add or update tests unless the user explicitly asks for test changes.
+- Still run the relevant tests after making code changes so regressions are caught.
 
 ## Documentation
 

@@ -10,7 +10,35 @@
   }
 }
 
+.app-sidebar-overlay {
+  display: none;
+}
+
 .app-main {
   display: grid;
   grid-template-rows: var(--nav-height) 1fr auto;
+  min-width: 0;
+}
+
+@media screen and (max-width: 1250px) {
+  .app-sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 14;
+    border: 0;
+    padding: 0;
+    background: rgb(0 0 0 / 55%);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 220ms ease,
+      backdrop-filter 220ms ease;
+  }
+
+  .app-sidebar-overlay[data-open="true"] {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }

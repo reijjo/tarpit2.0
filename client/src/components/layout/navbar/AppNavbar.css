@@ -19,3 +19,7 @@
   place-items: center;
   height: 100%;
 }
+
+.app-nav-buttons {
+  margin-left: auto;
+}

@@ -1,9 +1,12 @@
 "use client";
 import "./AppContent.css";
+import { SIDEBAR_DESKTOP_QUERY } from "@/lib/constants/layout";
 import { useSidebarStore } from "@/lib/stores/sidebarStore";
-import { Activity, useEffect } from "react";
+import { useSidebarBreakpointSync } from "./useSidebarBreakpoint";
+import { useEffect } from "react";
 
 import Sidebar from "@/components/layout/sidebar/Sidebar";
+import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 
 import Footer from "../footer/Footer";
 import AppNavbar from "../navbar/AppNavbar";
@@ -13,27 +16,38 @@ export default function AppContent({
 }: {
   children: React.ReactNode;
 }) {
-  const { open, close, isOpen } = useSidebarStore();
+  useSidebarBreakpointSync();
+
+  const { close, isOpen } = useSidebarStore();
+  const isDesktop = useMediaQuery(SIDEBAR_DESKTOP_QUERY);
+  const shouldShowOverlay = isOpen && !isDesktop;
 
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 1250) open();
-      else close();
-    };
+    if (!shouldShowOverlay) {
+      return;
+    }
 
-    window.addEventListener("resize", handleResize);
-    handleResize();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
 
     return () => {
-      window.removeEventListener("resize", handleResize);
+      document.body.style.overflow = previousOverflow;
     };
-  }, [close, open]);
+  }, [shouldShowOverlay]);
 
   return (
     <div className="app-content">
-      <Activity mode={isOpen ? "visible" : "hidden"}>
-        <Sidebar />
-      </Activity>
+      {isDesktop ? null : (
+        <button
+          aria-label="Close sidebar"
+          className="app-sidebar-overlay"
+          data-open={shouldShowOverlay}
+          disabled={!shouldShowOverlay}
+          type="button"
+          onClick={close}
+        />
+      )}
+      <Sidebar />
       <section className="app-main">
         <AppNavbar />
         {children}
