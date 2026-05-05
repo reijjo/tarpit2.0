@@ -196,3 +196,57 @@ async fn login_invalid_password_too_short_returns_400() {
 
     res.assert_status(StatusCode::BAD_REQUEST);
 }
+
+#[tokio::test]
+async fn login_rejects_malicious_login_values_without_server_errors() {
+    let server = build_test_server().await;
+
+    let cases = [
+        "admin' OR 1=1 --",
+        "<script>alert(1)</script>",
+        "test@example.com%0d%0aBcc:attacker@example.com",
+    ];
+
+    for login in cases {
+        let res = server
+            .post("/api/auth/login")
+            .json(&json!({
+                "login": login,
+                "password": valid_password()
+            }))
+            .await;
+
+        res.assert_status(StatusCode::NOT_FOUND);
+
+        let body: Value = res.json();
+        assert_eq!(body["success"], false);
+        assert_eq!(body["error"], "User not found");
+    }
+}
+
+#[tokio::test]
+async fn login_rejects_malicious_password_values_without_server_errors() {
+    let server = build_test_server().await;
+    let user = create_login_fixture(true).await;
+
+    let cases = [
+        "Password1!<script>alert(1)</script>",
+        "Password1!' OR 1=1 --",
+    ];
+
+    for password in cases {
+        let res = server
+            .post("/api/auth/login")
+            .json(&json!({
+                "login": user.email,
+                "password": password
+            }))
+            .await;
+
+        res.assert_status(StatusCode::UNAUTHORIZED);
+
+        let body: Value = res.json();
+        assert_eq!(body["success"], false);
+        assert_eq!(body["error"], "Invalid credentials");
+    }
+}

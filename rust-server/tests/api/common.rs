@@ -12,8 +12,10 @@ use rust_server::{
     state::AppState,
     utils::email::EmailService,
 };
+use sqlx::PgPool;
 use tokio::sync::OnceCell;
 
+static TEST_DB_POOL: OnceCell<PgPool> = OnceCell::const_new();
 static TEST_DB_RESET_ONCE: OnceCell<()> = OnceCell::const_new();
 static ACTIVE_TEST_SERVERS: AtomicUsize = AtomicUsize::new(0);
 static TEST_DB_URL: OnceLock<String> = OnceLock::new();
@@ -74,15 +76,29 @@ impl TestServerHandle {
     }
 }
 
-async fn reset_test_db_once(config: &Config) {
+pub async fn shared_test_db_pool() -> &'static PgPool {
+    TEST_DB_POOL
+        .get_or_init(|| async {
+            let mut config = Config::from_env().expect("failed to load .env config for test");
+            config.app_env = AppEnv::Test;
+            config.db_url = config.db_test_url.clone();
+
+            let _ = TEST_DB_URL.set(config.db_test_url.clone());
+
+            init_db(&config)
+                .await
+                .expect("Failed to connect to test database")
+        })
+        .await
+}
+
+async fn reset_test_db_once() {
     TEST_DB_RESET_ONCE
         .get_or_init(|| async {
-            let db = init_db(config)
-                .await
-                .expect("Failed to connect to test database for cleanup");
+            let db = shared_test_db_pool().await;
 
             sqlx::query(TEST_DB_TRUNCATE_QUERY)
-                .execute(&db)
+                .execute(db)
                 .await
                 .expect("Failed to reset test database tables");
         })
@@ -97,17 +113,13 @@ pub async fn build_test_server() -> TestServerHandle {
     // regardless of local APP_ENV in .env.
     config.app_env = AppEnv::Test;
     config.db_url = config.db_test_url.clone();
-    let test_db_url = config.db_test_url.clone();
-    let _ = TEST_DB_URL.set(test_db_url);
 
     assert!(matches!(config.app_env, AppEnv::Test));
     eprintln!("[test] APP_ENV={}", config.app_env);
 
-    reset_test_db_once(&config).await;
+    reset_test_db_once().await;
 
-    let db = init_db(&config)
-        .await
-        .expect("Failed to connect to test database");
+    let db = shared_test_db_pool().await.clone();
 
     let config = std::sync::Arc::new(config);
 
@@ -134,8 +146,6 @@ pub async fn build_test_server_without_db() -> TestServerHandle {
     // regardless of local APP_ENV in .env.
     config.app_env = AppEnv::Test;
     config.db_url = config.db_test_url.clone();
-    let test_db_url = config.db_test_url.clone();
-    let _ = TEST_DB_URL.set(test_db_url);
 
     assert!(matches!(config.app_env, AppEnv::Test));
     eprintln!("[test] APP_ENV={}", config.app_env);

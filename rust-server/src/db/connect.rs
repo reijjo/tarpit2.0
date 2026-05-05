@@ -17,13 +17,18 @@ pub async fn init_db(config: &Config) -> Result<PgPool, DbError> {
 
 async fn connect_db(config: &Config) -> Result<PgPool, DbError> {
     let url = &config.active_db_url();
+    let (max_connections, min_connections, acquire_timeout) = if config.app_env.is_test() {
+        (1, 0, Duration::from_secs(15))
+    } else {
+        (20, 1, Duration::from_secs(5))
+    };
 
     tracing::info!("Connecting to database...");
 
     let pool = PgPoolOptions::new()
-        .max_connections(20)
-        .min_connections(1)
-        .acquire_timeout(Duration::from_secs(5))
+        .max_connections(max_connections)
+        .min_connections(min_connections)
+        .acquire_timeout(acquire_timeout)
         .idle_timeout(Duration::from_secs(600))
         .connect(url)
         .await
