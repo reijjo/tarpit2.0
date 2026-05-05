@@ -8,22 +8,31 @@ import { useState } from "react";
 import { loggingOut } from "@/lib/api/auth";
 
 import { Button } from "@/components/ui/button/Button";
+import { FormErrorMessage } from "@/components/ui/messages/FormErrorMessage";
 
 export default function AppNavbar() {
   const { isOpen, toggle } = useSidebarStore();
-  const [isPending, setIsPending] = useState(false);
 
   const router = useRouter();
 
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const handleLogout = async () => {
     setIsPending(true);
-    const result = await loggingOut();
-
-    if (result.success) {
-      router.replace("/");
+    try {
+      const result = await loggingOut();
+      if (result.success) {
+        router.replace("/");
+      } else {
+        setError(result.error || "Logout failed");
+      }
+    } catch (err) {
+      console.error("Logout failed:", err);
+      setError("Logout failed. Please try again.");
+    } finally {
+      setIsPending(false);
     }
-
-    setIsPending(false);
   };
 
   return (
@@ -42,6 +51,7 @@ export default function AppNavbar() {
           </div>
         )}
         <div className="app-nav-buttons">
+          {error && <FormErrorMessage message={error} />}
           <Button variant="outline" onClick={handleLogout} disabled={isPending}>
             logout
           </Button>

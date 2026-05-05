@@ -29,7 +29,12 @@ export default function Sidebar() {
           Tärpit
         </Link>
         <Activity mode={isDesktop ? "hidden" : "visible"}>
-          <Button variant="outline" size="icon" onClick={toggle}>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={toggle}
+            aria-label="Close sidebar"
+          >
             <X size={20} />
           </Button>
         </Activity>
