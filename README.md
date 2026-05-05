@@ -189,3 +189,26 @@ tarpit2.0/
 ├── rust-server/     # Rust + Axum backend
 └── README.md
 ```
+
+## Just for me (React 19 stuff)
+
+| API              | Use it როცა…                                                                        | Good fit                                                  | Don’t use it for…                          |
+| ---------------- | ----------------------------------------------------------------------------------- | --------------------------------------------------------- | ------------------------------------------ |
+| useTransition    | You want an update to be non-blocking and show pending UI                           | tab switches, filters, navigation-like state changes      | handling API failures or mutation results  |
+| startTransition  | You need the same non-blocking behavior outside a hook context                      | wrapping a state update from an event or utility          | replacing proper async/error handling      |
+| useOptimistic    | You want to show the “probably true” UI immediately while a request is in flight    | likes, comments, toggles, inline mutations                | durable state you must not roll back       |
+| useActionState   | You have an async mutation/action and want one place for result, error, and pending | forms, submit flows, server actions, ordered mutations    | simple click handlers with no return state |
+| useFormStatus    | You are inside a form and want submit-state in a nested button/component            | disable submit, show spinner in a design-system button    | anything outside a parent <form>           |
+| useDeferredValue | A value changes fast, but part of the UI is expensive to rerender                   | search results, large lists, charts                       | delaying network requests themselves       |
+| use              | You want to read a Promise or context during render                                 | Server-to-client streaming, Suspense data, context access | try/catch, ordinary event handlers         |
+| cache            | You are in a Server Component and want shared memoization                           | expensive server fetches/computation                      | client components                          |
+
+A practical rule of thumb:
+
+- useTransition = “make this update feel less urgent”
+- useOptimistic = “show the final UI now, then reconcile later”
+- useActionState = “this mutation returns state/error/pending”
+- useFormStatus = “a child button needs form submit state”
+- useDeferredValue = “this rerender can lag behind”
+- use = “read a promise/context during render”
+- cache = “share work on the server”

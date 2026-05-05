@@ -1,0 +1,2 @@
+export const SIDEBAR_DESKTOP_MIN_WIDTH = 1251;
+export const SIDEBAR_DESKTOP_QUERY = `(min-width: ${SIDEBAR_DESKTOP_MIN_WIDTH}px)`;

@@ -9,6 +9,24 @@
   position: sticky;
   top: 0;
   height: 100dvh;
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease;
+}
+
+@media screen and (max-width: 1250px) {
+  .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: var(--sidebar-width);
+    max-width: 250px;
+    box-shadow: var(--box-shadow-xl);
+    transform: translateX(-100%);
+  }
+
+  .sidebar[data-open="true"] {
+    transform: translateX(0);
+  }
 }
 
 .sidebar-top {
