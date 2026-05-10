@@ -1,7 +1,7 @@
 import "./Sidebar.css";
 import { SIDEBAR_DESKTOP_QUERY } from "@/lib/constants/layout";
 import { useSidebarStore } from "@/lib/stores/sidebarStore";
-import { X } from "lucide-react";
+import { LayoutDashboard, X, User, Settings, LogOut } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Activity } from "react";
@@ -39,17 +39,21 @@ export default function Sidebar() {
           </Button>
         </Activity>
       </div>
-      <ul>
+      <ul className="sidebar-links-list">
         <li>
-          <a href="#">Home</a>
+          <LayoutDashboard size={18} />
+          <a href="#">Dashboard</a>
         </li>
         <li>
+          <User size={18} />
           <a href="#">Profile</a>
         </li>
         <li>
+          <Settings size={18} />
           <a href="#">Settings</a>
         </li>
         <li>
+          <LogOut size={18} />
           <a href="#">Logout</a>
         </li>
       </ul>

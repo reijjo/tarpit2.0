@@ -1,0 +1,19 @@
+.card {
+  border: 1px solid var(--primary-base);
+  border-radius: 1rem;
+  box-shadow:
+    inset 2px 2px 8px rgb(from var(--primary-light) r g b / 50%),
+    inset -2px -2px 8px rgb(from var(--primary-xxdark) r g b / 50%),
+    var(--box-shadow-s);
+  background: var(--primary-xdark);
+  padding: 1rem 2rem;
+
+  transition: box-shadow 0.25s ease;
+
+  &:hover {
+    box-shadow:
+      inset 2px 2px 8px rgb(from var(--primary-light) r g b / 50%),
+      inset -2px -2px 8px rgb(from var(--primary-xxdark) r g b / 50%),
+      var(--box-shadow-l);
+  }
+}

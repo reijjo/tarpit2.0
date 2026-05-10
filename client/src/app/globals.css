@@ -127,7 +127,8 @@ a {
   --primary-light: #92d5fe; /* 300 */
   --primary-base: #399ef8; /* 500 */
   --primary-dark: #1b6ada; /* 700 */
-  --primary-xdark: #162e55; /* 950 */
+  --primary-xdark: #1e5aba; /* 800 */
+  --primary-xxdark: #162e55; /* 950 */
 
   --accent: #ff9501;
   --accent-50: #fffaea;

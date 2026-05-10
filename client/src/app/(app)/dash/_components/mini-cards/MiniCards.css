@@ -1,0 +1,25 @@
+.dash-mini-summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  container-type: inline-size;
+}
+
+@container (max-width: 782px) {
+  .dash-mini-summary-cards > :last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+/* MiniSummaryCard */
+.mini-summary-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-transform: capitalize;
+}
+
+.mini-summary-card-values {
+  align-self: flex-end;
+  text-align: right;
+}

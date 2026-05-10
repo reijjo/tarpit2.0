@@ -1,8 +1,11 @@
+import { MiniCards } from "./_components/mini-cards/MiniCards";
+
 function DashContent() {
   return (
-    <div className="dash-page">
-      <h1>Welcome to your dashboard!</h1>
-      <p>This is where you can manage your account and view your data.</p>
+    <div className="dash-page wrapper">
+      <MiniCards />
+      <div>summary win%</div>
+      <div>monthly latest bets</div>
     </div>
   );
 }
