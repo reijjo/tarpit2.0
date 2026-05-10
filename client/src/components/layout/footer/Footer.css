@@ -8,8 +8,8 @@ footer {
   border-top: 1px solid var(--primary-base);
   background: linear-gradient(
     to bottom right,
-    var(--primary-dark),
-    var(--primary-xdark)
+    var(--primary-xdark),
+    var(--primary-xxdark)
   );
   grid-row: 3 / 4;
 }
