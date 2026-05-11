@@ -80,6 +80,11 @@
 
     &:hover {
       background-color: var(--primary-xdark);
+
+      &:last-child {
+        background-color: var(--error-xlight);
+        color: var(--error-dark);
+      }
     }
 
     & a {

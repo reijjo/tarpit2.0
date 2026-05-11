@@ -1,6 +1,10 @@
 .app-navbar {
   border-bottom: 1px solid rgb(from var(--primary-base) r g b / 75%);
-  background-color: var(--primary-xxdark);
+  background: linear-gradient(
+    to left,
+    var(--primary-xdark),
+    var(--primary-xxdark)
+  );
   height: var(--nav-height);
   z-index: 10;
   position: sticky;

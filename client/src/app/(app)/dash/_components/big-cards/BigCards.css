@@ -1,0 +1,20 @@
+.dash-summary-win-cards,
+.dash-monthly-latest-cards {
+  display: grid;
+  gap: 1rem;
+}
+
+.dash-summary-win-cards {
+  grid-template-columns: 2fr 1fr;
+}
+
+.dash-monthly-latest-cards {
+  grid-template-columns: 1fr 2fr;
+}
+
+@media (max-width: 1000px) {
+  .dash-summary-win-cards,
+  .dash-monthly-latest-cards {
+    grid-template-columns: 1fr;
+  }
+}

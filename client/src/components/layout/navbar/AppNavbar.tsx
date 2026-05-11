@@ -52,7 +52,7 @@ export default function AppNavbar() {
         )}
         <div className="app-nav-buttons">
           {error && <FormErrorMessage message={error} />}
-          <Button variant="outline" onClick={handleLogout} disabled={isPending}>
+          <Button variant="danger" onClick={handleLogout} disabled={isPending}>
             logout
           </Button>
         </div>
