@@ -1,6 +1,8 @@
 import "./LatestBet.css";
 import { Bet } from "@/lib/types/bets";
 
+import { getBetStatusClass } from "@/lib/utils/betHelpers";
+
 import { BetStatusBall } from "@/components/ui/bets/BetStatusBall";
 
 type LatestBetProps = {
@@ -14,13 +16,6 @@ export function LatestBet({ bet }: LatestBetProps) {
     return "- €";
   };
 
-  const statusColor = (status: string): string => {
-    if (status === "lost" || status === "halflost") return "betstatus-lost";
-    if (status === "won" || status === "halfwon") return "betstatus-won";
-    if (status === "void") return "betstatus-void";
-    return "betstatus-pending";
-  };
-
   return (
     <button type="button" className="latest-bet">
       <p className="latest-bet-date">{bet.date}</p>
@@ -31,7 +26,7 @@ export function LatestBet({ bet }: LatestBetProps) {
       </div>
       <p className="latest-bet-amount">{bet.stake.toFixed(2)} €</p>
       <p className="latest-bet-odds">{bet.odds.toFixed(2)}</p>
-      <div className={`latest-status ${statusColor(bet.status)}`}>
+      <div className={`latest-status ${getBetStatusClass(bet.status)}`}>
         <div className="latest-bet-visu">
           <BetStatusBall status={bet.status} />
           <p className="latest-bet-status">{bet.status}</p>

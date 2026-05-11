@@ -1,12 +1,8 @@
 import "./BetStatusBall.css";
+import { BetStatus } from "@/lib/types/bets";
 
-export const BetStatusBall = ({ status }: { status: string }) => {
-  const statusColor = (status: string): string => {
-    if (status === "lost" || status === "halflost") return "bet-ball-lost";
-    if (status === "won" || status === "halfwon") return "bet-ball-won";
-    if (status === "void") return "bet-ball-void";
-    return "bet-ball-pending";
-  };
+import { getBetBallClass } from "@/lib/utils/betHelpers";
 
-  return <div className={`bet-status-ball ${statusColor(status)}`}></div>;
+export const BetStatusBall = ({ status }: { status: BetStatus }) => {
+  return <div className={`bet-status-ball ${getBetBallClass(status)}`}></div>;
 };

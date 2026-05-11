@@ -72,7 +72,7 @@
   white-space: nowrap;
 }
 
-/*Statuscolor*/
+/* Statuscolor */
 .betstatus-lost {
   color: var(--error-xxlight);
 }
