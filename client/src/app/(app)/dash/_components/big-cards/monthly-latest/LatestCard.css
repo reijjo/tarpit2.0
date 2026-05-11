@@ -1,0 +1,12 @@
+.latest-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.latest-bets-group {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  height: 100%;
+}
