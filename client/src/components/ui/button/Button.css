@@ -104,3 +104,35 @@
     cursor: not-allowed;
   }
 }
+
+.btn--danger {
+  color: white;
+  background: var(--error-dark);
+  box-shadow:
+    inset 2px 2px 4px var(--error-base),
+    inset -2px -2px 4px var(--error-xdark);
+  border-color: transparent;
+  transition: all 0.25s ease-out;
+
+  &:hover:not(:disabled) {
+    box-shadow:
+      inset 2px 2px 4px var(--error-base),
+      inset -2px -2px 4px var(--error-xdark),
+      0 2px 4px rgba(0, 0, 0, 0.5),
+      0 8px 16px 4px rgb(from var(--error-xlight) r g b / 12.5%),
+      0 16px 32px 4px rgb(from var(--error-xlight) r g b / 7.5%);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+    background: var(--error-dark);
+    box-shadow:
+      inset 2px 2px 4px var(--error-xxdark),
+      inset -2px -2px 4px var(--error-xxdark);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

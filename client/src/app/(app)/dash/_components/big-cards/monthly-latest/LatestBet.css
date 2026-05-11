@@ -67,16 +67,24 @@
   min-width: 0;
 }
 
-.latest-bet-ball {
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  background-color: var(--primary-base);
-  border: 1px solid var(--primary-light);
-  box-shadow: 0 0 4px var(--primary-xlight);
-}
-
 .latest-bet-return {
   text-align: right;
   white-space: nowrap;
+}
+
+/*Statuscolor*/
+.betstatus-lost {
+  color: var(--error-xxlight);
+}
+
+.betstatus-won {
+  color: var(--success-xxlight);
+}
+
+.betstatus-void {
+  color: var(--warning-xxlight);
+}
+
+.betstatus-pending {
+  color: var(--info-xxlight);
 }

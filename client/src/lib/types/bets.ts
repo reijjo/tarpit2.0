@@ -1,3 +1,11 @@
+export type BetStatus =
+  | "won"
+  | "halfwon"
+  | "lost"
+  | "halflost"
+  | "void"
+  | "pending";
+
 export type Bet = {
   id: number;
   date: string;
@@ -6,5 +14,5 @@ export type Bet = {
   selection: string;
   stake: number;
   odds: number;
-  status: string;
+  status: BetStatus;
 };

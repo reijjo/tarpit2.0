@@ -2,7 +2,7 @@ import "./Button.css";
 import { ButtonHTMLAttributes } from "react";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "outline" | "ghost";
+  variant?: "primary" | "secondary" | "outline" | "danger";
   size?: "sm" | "md" | "lg" | "icon";
 }
 

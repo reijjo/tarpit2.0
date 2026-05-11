@@ -1,15 +1,25 @@
 import "./LatestBet.css";
 import { Bet } from "@/lib/types/bets";
 
+import { BetStatusBall } from "@/components/ui/bets/BetStatusBall";
+
 type LatestBetProps = {
   bet: Bet;
 };
 
 export function LatestBet({ bet }: LatestBetProps) {
-  const returnValue =
-    bet.status === "lost"
-      ? `- ${bet.stake.toFixed(2)} €`
-      : `${(bet.stake * bet.odds).toFixed(2)} €`;
+  const returnValue = (status: string): string => {
+    if (status === "lost") return `- ${bet.stake.toFixed(2)} €`;
+    if (status === "won") return `${(bet.stake * bet.odds).toFixed(2)} €`;
+    return "- €";
+  };
+
+  const statusColor = (status: string): string => {
+    if (status === "lost" || status === "halflost") return "betstatus-lost";
+    if (status === "won" || status === "halfwon") return "betstatus-won";
+    if (status === "void") return "betstatus-void";
+    return "betstatus-pending";
+  };
 
   return (
     <button type="button" className="latest-bet">
@@ -21,12 +31,12 @@ export function LatestBet({ bet }: LatestBetProps) {
       </div>
       <p className="latest-bet-amount">{bet.stake.toFixed(2)} €</p>
       <p className="latest-bet-odds">{bet.odds.toFixed(2)}</p>
-      <div className="latest-status">
+      <div className={`latest-status ${statusColor(bet.status)}`}>
         <div className="latest-bet-visu">
-          <div className="latest-bet-ball" />
+          <BetStatusBall status={bet.status} />
           <p className="latest-bet-status">{bet.status}</p>
         </div>
-        <p className="latest-bet-return">{returnValue}</p>
+        <p className="latest-bet-return">{returnValue(bet.status)}</p>
       </div>
     </button>
   );

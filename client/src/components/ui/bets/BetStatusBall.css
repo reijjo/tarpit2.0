@@ -1,0 +1,29 @@
+.bet-status-ball {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+}
+
+.bet-ball-won {
+  background-color: var(--success-base);
+  border: 1px solid var(--success-light);
+  box-shadow: 0 0 8px var(--success-xlight);
+}
+
+.bet-ball-lost {
+  background-color: var(--error-base);
+  border: 1px solid var(--error-light);
+  box-shadow: 0 0 8px var(--error-xlight);
+}
+
+.bet-ball-void {
+  background-color: var(--warning-base);
+  border: 1px solid var(--warning-light);
+  box-shadow: 0 0 8px var(--warning-xlight);
+}
+
+.bet-ball-pending {
+  background-color: var(--info-base);
+  border: 1px solid var(--info-light);
+  box-shadow: 0 0 8px var(--info-xlight);
+}
