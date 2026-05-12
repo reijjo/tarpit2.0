@@ -105,7 +105,7 @@ export function MonthlyCard({ data = buildDefaultData() }: MonthlyCardProps) {
       <h6>monthly</h6>
 
       <div className="monthly-card__chart-shell">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height={288}>
           <BarChart
             data={chartData}
             barCategoryGap="24%"

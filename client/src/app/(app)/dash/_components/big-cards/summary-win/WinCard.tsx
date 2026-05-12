@@ -96,7 +96,7 @@ export function WinCard({ summary = defaultSummary }: WinCardProps) {
       >
         {total > 0 ? (
           <>
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={256}>
               <PieChart>
                 <Pie
                   data={slices}
