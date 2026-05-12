@@ -13,7 +13,7 @@ export function LatestBet({ bet }: LatestBetProps) {
   const returnValue = (status: string): string => {
     if (status === "lost") return `- ${bet.stake.toFixed(2)} €`;
     if (status === "won") return `${(bet.stake * bet.odds).toFixed(2)} €`;
-    return "- €";
+    return `${(bet.stake * bet.odds).toFixed(2)} €`;
   };
 
   return (

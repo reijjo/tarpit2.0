@@ -143,6 +143,7 @@ a {
   --accent-900: #7c300b;
   --accent-950: #481700;
 
+  --accent-extralight: #fffaea;
   --accent-xxlight: #fff2c5; /* 100 */
   --accent-xlight: #ffe386; /* 200 */
   --accent-light: #ffce46; /* 300 */
@@ -163,6 +164,7 @@ a {
   --warning-900: #78350f;
   --warning-950: #451a03;
 
+  --warning-extralight: #fffbeb;
   --warning-xxlight: #fef3c7;
   --warning-xlight: #fde68a; /* 200 */
   --warning-light: #fcd34d; /* 300 */
@@ -183,6 +185,7 @@ a {
   --error-900: #7f1d1d;
   --error-950: #450a0a;
 
+  --error-extralight: #fef2f2;
   --error-xxlight: #fee2e2;
   --error-xlight: #fecaca; /* 200 */
   --error-light: #fca5a5; /* 300 */
@@ -203,6 +206,7 @@ a {
   --success-900: #14532d;
   --success-950: #052e16;
 
+  --success-extralight: #f0fdf4;
   --success-xxlight: #dcfce7;
   --success-xlight: #bbf7d0; /* 200 */
   --success-light: #86efac; /* 300 */

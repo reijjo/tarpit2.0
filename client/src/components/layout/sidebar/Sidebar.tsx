@@ -1,19 +1,31 @@
 import "./Sidebar.css";
 import { SIDEBAR_DESKTOP_QUERY } from "@/lib/constants/layout";
 import { useSidebarStore } from "@/lib/stores/sidebarStore";
-import { LayoutDashboard, X, User, Settings, LogOut } from "lucide-react";
+import {
+  LayoutDashboard,
+  X,
+  User,
+  LogOut,
+  SquarePen,
+  ChartColumn,
+  Landmark,
+  ListChecks,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Activity } from "react";
 
+import { useLogout } from "@/lib/hooks/useLogout";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 
 import { Button } from "@/components/ui/button/Button";
+import { FormErrorMessage } from "@/components/ui/messages/FormErrorMessage";
 
 export default function Sidebar() {
-  const { isOpen, toggle } = useSidebarStore();
+  const { isOpen, toggle, close } = useSidebarStore();
   const isDesktop = useMediaQuery(SIDEBAR_DESKTOP_QUERY);
   const isMobileOpen = !isDesktop && isOpen;
+  const { logout, isPending, error } = useLogout();
 
   return (
     <div className="sidebar" data-open={isMobileOpen}>
@@ -42,19 +54,40 @@ export default function Sidebar() {
       <ul className="sidebar-links-list">
         <li>
           <LayoutDashboard size={18} />
-          <a href="#">Dashboard</a>
+          <Link href="/dash" onClick={close}>
+            Dashboard
+          </Link>
+        </li>
+        <li>
+          <ChartColumn size={18} />
+          <Link href="/analytics">Analytics</Link>
+        </li>
+        <li>
+          <Landmark size={18} />
+          <Link href="/deposit">Deposit/Withdraw</Link>
+        </li>
+        <li>
+          <SquarePen size={18} />
+          <Link href="/add">Add Bet</Link>
+        </li>
+        <li>
+          <ListChecks size={18} />
+          <Link href="/bets">Bets</Link>
         </li>
         <li>
           <User size={18} />
-          <a href="#">Profile</a>
+          <Link href="#">Profile</Link>
         </li>
-        <li>
-          <Settings size={18} />
-          <a href="#">Settings</a>
-        </li>
+        {/*{error && (
+          <li className="sidebar-logout-error">
+            <FormErrorMessage message={error} />
+          </li>
+        )}*/}
         <li>
           <LogOut size={18} />
-          <a href="#">Logout</a>
+          <button onClick={logout} disabled={isPending}>
+            Logout
+          </button>
         </li>
       </ul>
     </div>

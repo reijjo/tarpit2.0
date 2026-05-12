@@ -1,8 +1,8 @@
 import { LatestBet } from "./LatestBet";
 import "./LatestCard.css";
+import { Bet } from "@/lib/types/bets";
 
 import { Card } from "@/components/ui/cards/Card";
-import { Bet } from "@/lib/types/bets";
 
 const latestPlaceholder: Bet[] = [
   {
