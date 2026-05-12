@@ -25,7 +25,7 @@ Navigate to the `client/` folder:
 
 ```bash
 cd client/
-mv .env.example .env  # Configure environment variables
+cp .env.example .env  # Configure environment variables
 bun install
 bun dev
 ```
@@ -74,7 +74,10 @@ Use the same Adminer URL for both databases.
 
 ```env
 NEXT_PUBLIC_DEV_BACKEND=http://localhost:3001
+NEXT_PUBLIC_DEV_FRONTEND=http://localhost:3000
 ```
+
+The frontend reads both values in `client/src/lib/utils/envConfig.ts`.
 
 ### Backend (`rust-server/.env`)
 

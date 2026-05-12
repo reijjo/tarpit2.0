@@ -1,368 +1,168 @@
 # 📖 Frontend Documentation
 
-### Frontend
+## Overview
 
-## 📁 Project Structure
+Current frontend structure and the packages that matter in day-to-day work. This is a curated guide, not a full dependency inventory.
 
-```
+## Project Structure
+
+```text
 src/
-├── app/ # Routes & pages
-├── components/ # Reusable UI
-├── lib/ # Business logic, API layer, schemas, actions
-└── test/ # Test utilities and fixtures
+├── app/ # Routes, pages, route-local UI, and app-wide CSS
+├── components/ # Shared layout and UI components
+├── lib/ # API clients, actions, auth helpers, hooks, schemas, stores, types, utils
+└── test/ # Test setup, fixtures, and helpers
+e2e/ # Playwright specs and helpers
+public/ # Static assets
 ```
 
 ---
 
-## 🖼️ `public/`
+## `public/`
 
 Static assets directory for images, fonts, and other media files.
 
 ---
 
-## 🎯 `src/app/`
+## `src/app/`
 
-### Files
+### Core files
 
-| File            | Purpose                    |
-| --------------- | -------------------------- |
-| `error.tsx`     | Error boundary fallback    |
-| `layout.tsx`    | Root app layout            |
-| `not-found.tsx` | 404 handler                |
-| `(public)/page.tsx` | Home/landing page      |
-| `globals.css`   | App-wide styles & CSS vars |
+| File | Purpose |
+| --- | --- |
+| `error.tsx` | Error boundary fallback |
+| `layout.tsx` | Root app layout |
+| `not-found.tsx` | 404 handler |
+| `(public)/page.tsx` | Home / landing page |
+| `globals.css` | App-wide styles and CSS vars |
 
-<details>
-<summary><strong>🛣️ (app) - Application Routes</strong></summary>
+### Route groups
 
-- **bets/** - Bet tracking interface
-- **dash/** - Dashboard & analytics
-
-</details>
-
-<details>
-<summary><strong>🔐 (auth) - Authentication Routes</strong></summary>
-
-- **login/** - User authentication
-- **register/** - New user signup
-- **verify/** - Email verification
-- **forgot/** - Password reset
-
-</details>
+- `(public)/` - Public landing pages
+- `(auth)/` - Login, register, verify, and forgot-password flows
+- `(app)/` - Bets and dashboard pages
 
 ---
 
-## 🧩 `src/components/`
+## `src/components/`
 
 Shared, reusable components organized by purpose.
 
-### `ui/`
-
-Primitive components: `Button`, `TextInput`, `Divider`
-
 ### `layout/`
 
-App structure: `Navbar`, `Footer`
+App shell and structure components such as `Navbar`, `Footer`, `Sidebar`, and `AppContent`.
+
+### `ui/`
+
+Primitive and reusable UI pieces such as `Button`, `TextInput`, `Divider`, cards, and message components.
 
 ---
 
-## 📚 `src/lib/`
+## `src/lib/`
 
-Business logic layer organized by concern.
+Business logic organized by concern.
 
 | Directory | Purpose |
-| --------- | ------- |
+| --- | --- |
 | `actions/` | Next.js Server Actions |
 | `api/` | Backend API client wrappers |
+| `auth/` | Auth helpers such as `getMe` |
+| `constants/` | Shared constants |
+| `hooks/` | Reusable client hooks |
 | `schemas/` | Zod validation schemas |
+| `stores/` | Zustand stores |
 | `types/` | TypeScript type definitions |
 | `utils/` | Pure utility functions and helpers |
 
----
+### Notes
 
-### `src/lib/actions/`
-
-Next.js Server Actions for form submissions and server-side operations
-
-### `src/lib/api/`
-
-Typed API client functions for communicating with the Rust backend
-
-### `src/lib/schemas/`
-
-Zod validation schemas for all user inputs and API responses
-
-### `src/lib/types/`
-
-TypeScript interfaces and type definitions:
-- `apiResponse.ts` - Standard API response formats
-- `auth.ts` - Authentication related types
-- `RegisterState` / `RegisterUserData` - Register form + payload types
-- `LoginState` / `LoginData` - Login form + payload types
+- `src/lib/actions/` handles form submissions and other server-side flows.
+- `src/lib/api/` contains typed wrappers around Rust backend calls.
+- `src/lib/schemas/` holds validation for forms and request payloads.
+- `src/lib/stores/` currently includes the sidebar UI state store.
 
 ---
 
-## 🧪 `src/test/`
+## `e2e/`
 
-Test utilities, fixtures, and setup files
+Playwright end-to-end tests and helpers.
+
+- Specs live under `client/e2e/**/*.spec.ts`
+- Shared helpers live under `client/e2e/helpers/`
+- Configuration lives in `client/playwright.config.ts`
+- The Playwright config starts both the Rust backend and the Next.js app automatically
+
+Run with:
+
+```bash
+bun test:e2e
+bun test:e2e:ui
+bun test:e2e:headed
+```
 
 ---
 
-## Installed packages
+## `src/test/`
 
-<details>
-<summary><strong>Lucide Icons</strong></summary>
+Shared Vitest setup, fixtures, and utilities.
 
-Icons for the project <https://lucide.dev/>
+- Configuration lives in `client/vitest.config.ts`
+- Setup runs from `src/test/setup/vitest.setup.ts`
+- Unit and component specs use `*.spec.ts` and `*.spec.tsx`
 
-- `bun add lucide-react`
-- Usage:
+Run with:
 
-```tsx
-import { Landmark } from "lucide-react";
-
-function App() {
-  return (
-    <div className="app">
-      <Landmark />
-    </div>
-  );
-}
+```bash
+bun test
+bun test:cover
 ```
 
-</details>
+---
 
-<details>
-<summary><strong>Zod</strong></summary>
+## Installed Packages
 
-Schema validation <https://zod.dev/>
+### App Packages
 
-- `bun add zod`
-- Usage:
+- `next` - App router framework
+- `react` / `react-dom` - UI runtime
+- `lucide-react` - Icons used across the app
+- `recharts` - Dashboard charts and summary visualizations
+- `zod` - Form and payload validation
+- `zustand` - Client-side UI state
 
-```tsx
-import { z } from "zod";
+### Testing Packages
 
-// Define schema
-const userSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-});
+- `vitest` - Unit and component tests
+- `@testing-library/react` - Component rendering and queries
+- `@testing-library/jest-dom` - DOM matchers
+- `@playwright/test` - End-to-end tests
 
-// Validate data
-const result = userSchema.safeParse({
-  email: "user@example.com",
-  password: "password123",
-});
+### Tooling Packages
 
-if (!result.success) {
-  console.error(result.error.errors);
-} else {
-  console.log(result.data); // Validated data
-}
-```
+- `eslint` and `eslint-config-next` - Linting
+- `typescript` and `@types/*` - Type checking
+- `@vitejs/plugin-react` - Vitest React support
+- `@vitest/coverage-v8` - Coverage reporting
+- `babel-plugin-react-compiler` - React compiler support
+- `@trivago/prettier-plugin-sort-imports` - Import sorting
 
-</details>
+---
 
-### Testing
+## Common Scripts
 
-<details>
-<summary><strong>Vitest & testing-library</strong></summary>
-
-For unit tests <https://vitest.dev/>
-
-- `bun add -D vitest @testing-library/react @testing-library/jest-dom @vitejs/plugin-react`
-
-Create `vitest.config.ts` file in the root of the `client/` folder
-
-```ts
-import react from "@vitejs/plugin-react";
-import path from "path";
-
-import { defineConfig } from "vitest/config";
-
-export default defineConfig({
-  plugins: [react()],
-  test: {
-    globals: true,
-    environment: "jsdom",
-    include: ["src/**/*.spec.ts", "src/**/*.spec.tsx"],
-    exclude: ["**/node_modules/**", "**/dist/**"],
-    coverage: {
-      provider: "v8",
-      reporter: ["text", "json", "html"],
-      include: ["src/**/*.{ts,tsx}"],
-      exclude: [
-        "src/**/*.spec.{ts,tsx}",
-        "src/**/*.test.{ts,tsx}",
-        "src/**/*.d.ts",
-        "src/app/**/page.tsx",
-        "src/app/**/layout.tsx",
-        "src/app/**/error.tsx",
-        "src/app/**/not-found.tsx",
-      ],
-    },
-    setupFiles: ["./src/test/setup/vitest.setup.ts"],
-  },
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
-  },
-});
-```
-
-Create `vitest.setup.ts` in `src/test/setup/`
-
-```ts
-import "@testing-library/jest-dom";
-```
-
-Create a testfile for example for footer: `Footer.spec.ts`:
-
-```ts
-import Footer from "./Footer";
-import { render, screen } from "@testing-library/react";
-import { it, expect, describe } from "vitest";
-
-describe("FOOTER", () => {
-  it("renders the footer component", () => {
-    render(<Footer />);
-
-    const footerElement = screen.getByRole("contentinfo");
-    expect(footerElement).toBeInTheDocument();
-  });
-});
-
-```
-
-Add script to `package.json`
+Current package scripts in `client/package.json`:
 
 ```json
 {
-  ...
-  "scripts": {
-    "dev": "bun --bun next dev",
-    "build": "bun --bun next build",
-    "start": "bun --bun next start",
-    "lint": "eslint",
-    "test": "vitest",
-    "test:cover": "vitest run --coverage"
-  },
-  ...
-}
-
-```
-
-Usage:
-
-```bash
-bun run test
-```
-
-- The test should work now.
-
-```bash
-bun run test:cover
-```
-
-- Shows the coverage of tests
-
-</details>
-
-<details>
-<summary><strong>Playwright</strong></summary>
-
-For end-to-end tests <https://playwright.dev/>
-
-- `bun add -D @playwright/test`
-- `bunx playwright install --with-deps`
-
-Check that install was ok `bunx playwright --version`
-
-Create `playwright.config.ts` file in the root of the `client/` folder:
-
-```ts
-import { defineConfig, devices } from "@playwright/test";
-import path from "path";
-
-export default defineConfig({
-  testDir: "./e2e",
-  testMatch: "**/*.spec.ts",
-  fullyParallel: false,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: "html",
-
-  use: {
-    baseURL: "http://localhost:3000",
-    trace: "on-first-retry",
-    screenshot: "only-on-failure",
-  },
-
-  projects: [
-    {
-      name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
-    },
-  ],
-
-  webServer: [
-    {
-      command: "APP_ENV=test cargo run",
-      cwd: path.resolve(__dirname, "../rust-server"),
-      url: "http://127.0.0.1:3001/health",
-      reuseExistingServer: !process.env.CI,
-      timeout: 120000,
-    },
-    {
-      command: "bun --bun next dev",
-      cwd: path.resolve(__dirname),
-      url: "http://127.0.0.1:3000",
-      reuseExistingServer: !process.env.CI,
-      timeout: 30000,
-      env: {
-        PORT: "3000",
-      },
-    },
-  ],
-});
-```
-
-Add the scripts to the `package.json` file:
-
-```json
-{
-  ...
-  "scripts": {
-    "dev": "bun --bun next dev",
-    "build": "bun --bun next build",
-    "start": "bun --bun next start",
-    "lint": "eslint",
-    "test": "vitest",
-    "test:cover": "vitest run --coverage",
-    "test:e2e": "NODE_ENV=test playwright test",
-    "test:e2e:ui": "NODE_ENV=test playwright test --ui",
-    "test:e2e:headed": "NODE_ENV=test playwright test --headed"
-  },
-  ...
+  "dev": "bun --bun next dev",
+  "build": "bun --bun next build",
+  "start": "bun --bun next start",
+  "lint": "eslint",
+  "test": "vitest",
+  "test:cover": "vitest run --coverage",
+  "test:e2e": "NODE_ENV=test playwright test",
+  "test:e2e:ui": "NODE_ENV=test playwright test --ui",
+  "test:e2e:headed": "NODE_ENV=test playwright test --headed"
 }
 ```
 
-Create and example test `example.spec.ts` in the `client/e2e` folder:
-
-```ts
-import { test, expect } from "@playwright/test";
-
-test("homepage has title", async ({ page }) => {
-  await page.goto("/");
-
-  // Expect page to have a heading
-  await expect(page.locator("h1")).toBeVisible();
-});
-```
-
-And run the test with one of the e2e scripts
-
-</details>

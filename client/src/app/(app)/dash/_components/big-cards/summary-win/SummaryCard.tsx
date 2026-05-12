@@ -2,7 +2,7 @@ import "./SummaryCard.css";
 
 import { Card } from "@/components/ui/cards/Card";
 
-const headers = ["at risk", "payout", "profit/loss", "total bets"];
+const headers = ["at risk", "profit/loss", "total bets"];
 const value = 0;
 
 export function SummaryCard() {
@@ -23,12 +23,10 @@ export function SummaryCard() {
             <td className="row-header">Today</td>
             <td>{value.toFixed(2)} €</td>
             <td>{value.toFixed(2)} €</td>
-            <td>{value.toFixed(2)} €</td>
             <td>{value}</td>
           </tr>
           <tr>
             <td className="row-header">Yesterday</td>
-            <td>{value.toFixed(2)} €</td>
             <td>{value.toFixed(2)} €</td>
             <td>{value.toFixed(2)} €</td>
             <td>{value}</td>
@@ -37,12 +35,10 @@ export function SummaryCard() {
             <td className="row-header">last 7 days</td>
             <td>{value.toFixed(2)} €</td>
             <td>{value.toFixed(2)} €</td>
-            <td>{value.toFixed(2)} €</td>
             <td>{value}</td>
           </tr>
           <tr>
             <td className="row-header">last 30 days</td>
-            <td>{value.toFixed(2)} €</td>
             <td>{value.toFixed(2)} €</td>
             <td>{value.toFixed(2)} €</td>
             <td>{value}</td>
