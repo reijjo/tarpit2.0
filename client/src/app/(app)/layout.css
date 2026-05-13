@@ -12,3 +12,9 @@
   grid-template-rows: 0.5fr 2fr 2fr;
   gap: 1rem;
 }
+
+.add-page {
+  display: flex;
+  flex-direction: column;
+  padding-block: 1rem;
+}

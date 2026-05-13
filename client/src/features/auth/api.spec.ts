@@ -1,11 +1,7 @@
-import {
-  checkDuplicateEmail,
-  checkDuplicateUsername,
-  createUser,
-} from "./auth";
+import type { RegisterUserData } from "./types";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { RegisterUserData } from "../types/auth";
+import { checkDuplicateEmail, checkDuplicateUsername, createUser } from "./api";
 
 const jsonResponse = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {

@@ -1,4 +1,4 @@
-import { registerCredentials, registerEmail } from "./auth";
+import { registerCredentials, registerEmail } from "./register";
 import {
   invalidEmailPayloads,
   invalidUsernamePayloads,
@@ -9,7 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createFormData } from "@/test/utils/formData";
 
-import type { RegisterState, RegisterUserData } from "../types/auth";
+import type { RegisterState, RegisterUserData } from "../types";
 
 const { checkDuplicateEmailMock, checkDuplicateUsernameMock, createUserMock } =
   vi.hoisted(() => ({
@@ -20,7 +20,7 @@ const { checkDuplicateEmailMock, checkDuplicateUsernameMock, createUserMock } =
       vi.fn<(credentials: RegisterUserData) => Promise<RegisterState>>(),
   }));
 
-vi.mock("../api/auth", () => ({
+vi.mock("../api", () => ({
   checkDuplicateEmail: checkDuplicateEmailMock,
   checkDuplicateUsername: checkDuplicateUsernameMock,
   createUser: createUserMock,

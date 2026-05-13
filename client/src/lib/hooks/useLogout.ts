@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { loggingOut } from "@/lib/api/auth";
+import { loggingOut } from "@/features/auth/api";
 
 export function useLogout() {
   const router = useRouter();

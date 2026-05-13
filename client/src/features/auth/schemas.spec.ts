@@ -1,4 +1,4 @@
-import { RegisterSchema } from "./auth";
+import { RegisterSchema } from "./schemas";
 import {
   invalidEmailPayloads,
   invalidPasswordCases,
