@@ -1,13 +1,13 @@
-import { ApiResponse } from "../types/apiResponse";
-
-import { config } from "../utils/envConfig";
-
 import type {
   LoginData,
   LoginState,
   RegisterState,
   RegisterUserData,
-} from "../types/auth";
+} from "./types";
+
+import { ApiResponse } from "@/lib/types/apiResponse";
+
+import { config } from "@/lib/utils/envConfig";
 
 const AUTH_URL = `${config.BACKEND_URL}/api/auth`;
 

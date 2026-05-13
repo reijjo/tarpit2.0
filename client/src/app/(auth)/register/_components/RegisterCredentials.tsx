@@ -1,4 +1,4 @@
-import { registerCredentials } from "@/lib/actions/auth";
+import { registerCredentials } from "@/features/auth/actions/register";
 import { useActionState } from "react";
 
 import { Button } from "@/components/ui/button/Button";

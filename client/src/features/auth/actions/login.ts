@@ -1,11 +1,12 @@
-// ----------------------------
+// ---------------------
 // --- Login Actions ---
+// ---------------------
 import z from "zod";
 
-import { loggingIn } from "../api/auth";
+import { loggingIn } from "../api";
 
-import { LoginSchema } from "../schemas/auth";
-import { LoginState, LoginData } from "../types/auth";
+import { LoginSchema } from "../schemas";
+import { LoginState, LoginData } from "../types";
 
 // ----------------------------
 export async function loginUser(

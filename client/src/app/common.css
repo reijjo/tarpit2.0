@@ -14,3 +14,14 @@
   line-height: 1.5;
   font-weight: 500;
 }
+
+.like-h2 {
+  font-size: clamp(1.75rem, 4vw, 2.5rem); /* 28px - 40px */
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}

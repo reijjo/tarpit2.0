@@ -1,4 +1,4 @@
-import { ApiResponse } from "./apiResponse";
+import { ApiResponse } from "@/lib/types/apiResponse";
 
 // Register
 export type RegisterState = ApiResponse & {

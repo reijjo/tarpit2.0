@@ -11,6 +11,10 @@ import {
   YAxis,
 } from "recharts";
 import type { TooltipContentProps } from "recharts";
+import {
+  NameType,
+  ValueType,
+} from "recharts/types/component/DefaultTooltipContent";
 
 import { Card } from "@/components/ui/cards/Card";
 
@@ -75,7 +79,7 @@ function MonthlyTooltip({
   active,
   payload,
   label,
-}: TooltipContentProps<number, string>) {
+}: TooltipContentProps<ValueType, NameType>) {
   if (!active || !payload?.length) return null;
 
   const point = payload[0]?.payload as MonthlyProfitPoint | undefined;
@@ -105,7 +109,7 @@ export function MonthlyCard({ data = buildDefaultData() }: MonthlyCardProps) {
       <h6>monthly</h6>
 
       <div className="monthly-card__chart-shell">
-        <ResponsiveContainer width="100%" height={288}>
+        <ResponsiveContainer width="100%" height={272}>
           <BarChart
             data={chartData}
             barCategoryGap="24%"

@@ -1,6 +1,6 @@
-import { MonthlyLatestCards } from "./_components/big-cards/MonthlyLatestCards";
-import { SummaryWinCards } from "./_components/big-cards/SummaryWinCards";
-import { MiniCards } from "./_components/mini-cards/MiniCards";
+import { MonthlyLatestCards } from "@/features/dashboard/components/big-cards/MonthlyLatestCards";
+import { SummaryWinCards } from "@/features/dashboard/components/big-cards/SummaryWinCards";
+import { MiniCards } from "@/features/dashboard/components/mini-cards/MiniCards";
 
 function DashContent() {
   return (

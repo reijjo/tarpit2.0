@@ -1,5 +1,6 @@
 "use client";
-import { registerEmail } from "@/lib/actions/auth";
+
+import { registerEmail } from "@/features/auth/actions/register";
 import Link from "next/link";
 import { useActionState, useEffect } from "react";
 

@@ -6,11 +6,11 @@ import {
   checkDuplicateUsername,
   createUser,
   resendVerificationEmailRequest,
-} from "../api/auth";
-import { ApiResponse } from "../types/apiResponse";
+} from "../api";
+import { ApiResponse } from "@/lib/types/apiResponse";
 
-import { RegisterSchema } from "../schemas/auth";
-import { RegisterState, RegisterUserData } from "../types/auth";
+import { RegisterSchema } from "../schemas";
+import { RegisterState, RegisterUserData } from "../types";
 
 // ----------------------------
 // --- Registration Actions ---

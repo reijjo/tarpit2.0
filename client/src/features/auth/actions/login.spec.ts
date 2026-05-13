@@ -1,15 +1,15 @@
+import { loginUser } from "./login";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createFormData } from "@/test/utils/formData";
 
-import { loginUser } from "./loginClient";
-import type { LoginState } from "../types/auth";
+import type { LoginState } from "../types";
 
 const { loggingInMock } = vi.hoisted(() => ({
   loggingInMock: vi.fn(),
 }));
 
-vi.mock("../api/auth", () => ({
+vi.mock("../api", () => ({
   loggingIn: loggingInMock,
 }));
 

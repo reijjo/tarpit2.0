@@ -19,13 +19,16 @@ import { useLogout } from "@/lib/hooks/useLogout";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 
 import { Button } from "@/components/ui/button/Button";
-import { FormErrorMessage } from "@/components/ui/messages/FormErrorMessage";
+
+// import { FormErrorMessage } from "@/components/ui/messages/FormErrorMessage";
 
 export default function Sidebar() {
   const { isOpen, toggle, close } = useSidebarStore();
   const isDesktop = useMediaQuery(SIDEBAR_DESKTOP_QUERY);
   const isMobileOpen = !isDesktop && isOpen;
   const { logout, isPending, error } = useLogout();
+
+  console.log("logout error", error);
 
   return (
     <div className="sidebar" data-open={isMobileOpen}>
@@ -60,23 +63,33 @@ export default function Sidebar() {
         </li>
         <li>
           <ChartColumn size={18} />
-          <Link href="/analytics">Analytics</Link>
+          <Link href="/analytics" onClick={close}>
+            Analytics
+          </Link>
         </li>
         <li>
           <Landmark size={18} />
-          <Link href="/deposit">Deposit/Withdraw</Link>
+          <Link href="/deposit" onClick={close}>
+            Deposit/Withdraw
+          </Link>
         </li>
         <li>
           <SquarePen size={18} />
-          <Link href="/add">Add Bet</Link>
+          <Link href="/add" onClick={close}>
+            Add Bet
+          </Link>
         </li>
         <li>
           <ListChecks size={18} />
-          <Link href="/bets">Bets</Link>
+          <Link href="/bets" onClick={close}>
+            Bets
+          </Link>
         </li>
         <li>
           <User size={18} />
-          <Link href="#">Profile</Link>
+          <Link href="/profile" onClick={close}>
+            Profile
+          </Link>
         </li>
         {/*{error && (
           <li className="sidebar-logout-error">
