@@ -8,7 +8,7 @@ use crate::{errors::AppError, types::User};
 // -----------------
 pub async fn find_user_by_email(db: &PgPool, email: &str) -> Result<Option<User>, AppError> {
     sqlx::query_as::<_, User>(
-        "SELECT id, email, username, password, verified, role::text AS role, created_at, updated_at
+        "SELECT id, email, username, password, verified, role, created_at, updated_at
          FROM users
          WHERE email = $1",
     )
@@ -20,7 +20,7 @@ pub async fn find_user_by_email(db: &PgPool, email: &str) -> Result<Option<User>
 
 pub async fn find_user_by_username(db: &PgPool, username: &str) -> Result<Option<User>, AppError> {
     sqlx::query_as::<_, User>(
-        "SELECT id, email, username, password, verified, role::text AS role, created_at, updated_at
+        "SELECT id, email, username, password, verified, role, created_at, updated_at
          FROM users
          WHERE username = $1",
     )
@@ -31,7 +31,7 @@ pub async fn find_user_by_username(db: &PgPool, username: &str) -> Result<Option
 }
 
 pub async fn find_user_by_id(db: &PgPool, id: Uuid) -> Result<Option<PgRow>, AppError> {
-    sqlx::query("SELECT id, email, username, role::text AS role FROM users WHERE id = $1")
+    sqlx::query("SELECT id, email, username, role FROM users WHERE id = $1")
         .bind(id)
         .fetch_optional(db)
         .await

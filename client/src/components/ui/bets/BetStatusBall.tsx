@@ -1,5 +1,5 @@
 import "./BetStatusBall.css";
-import { BetStatus } from "@/lib/types/bets";
+import { BetStatus } from "@/features/bets/schemas";
 
 import { getBetBallClass } from "@/lib/utils/betHelpers";
 

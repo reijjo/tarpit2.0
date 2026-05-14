@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 
 import { ApiResponse } from "../types/apiResponse";
+import type { UserRole } from "@/features/auth/types";
 
 import { config } from "../utils/envConfig";
 
@@ -8,7 +9,7 @@ type MeData = {
   id: string;
   email: string;
   username: string;
-  role: string;
+  role: UserRole;
 };
 
 const ME_URL = `${config.BACKEND_URL}/api/auth/me`;

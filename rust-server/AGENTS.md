@@ -44,10 +44,14 @@
 
 ## Project Layout
 
-- `src/features/` holds the domain modules, including routes, handlers, service logic, queries, and feature-local types.
+- `src/features/` holds the domain modules, including routes, handlers, service logic, queries, token helpers, and feature-local types.
+- `src/features/auth/` includes `handlers/`, `queries.rs`, `routes.rs`, `service.rs`, `tokens/`, and `types.rs`.
+- `src/features/health/` contains the health routes, handlers, and response types.
+- `src/types.rs` holds shared top-level domain types such as `User` and `UserRole`.
+- `src/middleware/auth.rs` is part of the request plumbing alongside the logger and CORS middleware.
 - `src/middleware/` holds Axum middleware and request plumbing.
 - `src/db/` holds connection and query helpers that are shared across features.
 - `src/utils/` holds cross-cutting helpers such as validation, logging, email, tokens, and response helpers.
-- `tests/` holds unit and integration coverage grouped by area.
+- `tests/` holds unit and integration coverage grouped by area, including `api/`, `errors/`, `features/`, and `utils/`.
 - `migrations/` holds SQL migration files.
 - Keep feature-specific logic inside the feature module unless it is clearly shared by more than one feature.

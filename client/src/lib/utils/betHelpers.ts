@@ -1,4 +1,4 @@
-import { BetStatus } from "@/lib/types/bets";
+import { BetStatus } from "@/features/bets/schemas";
 
 export function getBetStatusClass(status: BetStatus): string {
   if (status === "lost" || status === "halflost") return "betstatus-lost";

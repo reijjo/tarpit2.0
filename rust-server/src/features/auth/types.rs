@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use validator::Validate;
 
+use crate::types::UserRole;
 use crate::utils::validators::{validate_email, validate_password, validate_username};
 
 // ----------------
@@ -71,7 +72,7 @@ pub struct MeResponse {
     pub id: String,
     pub email: String,
     pub username: String,
-    pub role: String,
+    pub role: UserRole,
 }
 
 #[derive(Serialize, Debug)]
@@ -83,11 +84,11 @@ pub struct Token {
 #[derive(Serialize, Debug)]
 pub struct LoginResponse {
     pub user_id: String,
-    pub role: String,
+    pub role: UserRole,
 }
 
 pub struct LoginSessionResult {
     pub access_token: String,
     pub user_id: Uuid,
-    pub role: String,
+    pub role: UserRole,
 }
