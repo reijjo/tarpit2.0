@@ -43,9 +43,11 @@
 ## Project Layout
 
 - `src/app/` contains route groups, layouts, pages, and route-local components.
+- `src/app/**/_components/` holds components that are only used inside a single route tree.
 - `src/components/` holds reusable UI and layout pieces.
-- `src/lib/` holds API clients, actions, schemas, stores, types, and client-side helpers.
+- `src/features/` holds feature-owned logic and UI for areas like `auth`, `bets`, and `dashboard`.
+- `src/lib/` holds shared client-side helpers, hooks, stores, types, and utilities.
 - `src/test/` contains shared test setup, fixtures, and utilities.
 - `e2e/` contains Playwright tests and helpers.
 - `public/` holds static assets.
-- Keep route-specific logic close to the route when that makes the code easier to follow; promote only reusable pieces into `src/components/` or `src/lib/`.
+- Keep route-specific logic close to the route when that makes the code easier to follow; promote only reusable pieces into `src/components/`, `src/features/`, or `src/lib/`.

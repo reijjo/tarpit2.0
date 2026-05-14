@@ -3,7 +3,7 @@ use sqlx::Row;
 
 use crate::{
     db::queries::find_user_by_id, errors::AppError, features::auth::types::MeResponse,
-    middleware::auth::AuthUser, state::AppState, utils::api_response::ApiResponse,
+    middleware::auth::AuthUser, state::AppState, types::UserRole, utils::api_response::ApiResponse,
 };
 
 pub async fn me(
@@ -21,7 +21,7 @@ pub async fn me(
             id: row.get::<uuid::Uuid, _>("id").to_string(),
             email: row.get("email"),
             username: row.get("username"),
-            role: row.get("role"),
+            role: row.get::<UserRole, _>("role"),
         }),
     ))
 }

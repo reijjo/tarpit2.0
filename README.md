@@ -188,10 +188,25 @@ cargo install cargo-llvm-cov
 
 ```text
 tarpit2.0/
-├── client/          # Next.js frontend
-├── rust-server/     # Rust + Axum backend
+├── client/          # Next.js frontend with app/, components/, features/, lib/
+├── rust-server/     # Rust + Axum backend with feature-based modules
+├── DATABASE.md      # Local PostgreSQL and migration setup
 └── README.md
 ```
+
+## Frontend Layout
+
+- `client/src/app/` keeps route entrypoints, layouts, and route-local `_components/`.
+- `client/src/features/` holds feature-owned logic and UI, such as `auth`, `bets`, and `dashboard`.
+- `client/src/components/` holds shared layout and reusable UI primitives.
+- `client/src/lib/` holds shared client-side helpers, hooks, stores, types, and utils.
+
+## Backend Layout
+
+- `rust-server/src/features/` holds the domain modules for auth and health.
+- `rust-server/src/db/` contains shared database connection and query helpers.
+- `rust-server/src/middleware/` contains logging, CORS, and auth middleware.
+- `rust-server/src/utils/` contains shared utilities such as validation, email, passwords, and tracing.
 
 ## Just for me (React 19 stuff)
 

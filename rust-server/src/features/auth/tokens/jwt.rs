@@ -3,17 +3,21 @@ use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode}
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{config::Config, errors::AppError};
+use crate::{config::Config, errors::AppError, types::UserRole};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AccessClaims {
     pub sub: Uuid,
-    pub role: String,
+    pub role: UserRole,
     pub exp: i64,
     pub iat: i64,
 }
 
-pub fn sign_access_token(config: &Config, user_id: Uuid, role: String) -> Result<String, AppError> {
+pub fn sign_access_token(
+    config: &Config,
+    user_id: Uuid,
+    role: UserRole,
+) -> Result<String, AppError> {
     let now = Utc::now();
     let exp = now + Duration::seconds(config.jwt_access_ttl_seconds);
 

@@ -79,8 +79,8 @@ pub async fn login_and_create_session(
         return Err(AppError::forbidden("Account not verified"));
     }
 
-    let role = user.role.clone();
-    let access_token = sign_access_token(config, user.id, role.clone())?;
+    let role = user.role;
+    let access_token = sign_access_token(config, user.id, role)?;
 
     Ok(LoginSessionResult {
         access_token,

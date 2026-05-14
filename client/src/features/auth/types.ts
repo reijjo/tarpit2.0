@@ -1,4 +1,8 @@
 import { ApiResponse } from "@/lib/types/apiResponse";
+import { z } from "zod";
+
+export const userRoleSchema = z.enum(["GUEST", "PAID", "BOSS"]);
+export type UserRole = z.infer<typeof userRoleSchema>;
 
 // Register
 export type RegisterState = ApiResponse & {

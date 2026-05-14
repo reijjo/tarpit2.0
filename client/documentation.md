@@ -1,4 +1,4 @@
-# 📖 Frontend Documentation
+# Frontend Documentation
 
 ## Overview
 
@@ -8,13 +8,21 @@ Current frontend structure and the packages that matter in day-to-day work. This
 
 ```text
 src/
-├── app/ # Routes, pages, route-local UI, and app-wide CSS
-├── components/ # Shared layout and UI components
-├── lib/ # API clients, actions, auth helpers, hooks, schemas, stores, types, utils
+├── app/ # Routes, layouts, page entrypoints, route-local UI, and app-wide CSS
+├── components/ # Shared layout and reusable UI components
+├── features/ # Domain logic and feature-owned UI
+├── lib/ # API clients, auth helpers, hooks, schemas, stores, types, utils
 └── test/ # Test setup, fixtures, and helpers
 e2e/ # Playwright specs and helpers
 public/ # Static assets
 ```
+
+The current split is:
+
+- `src/app/` keeps route composition, layouts, and thin page entrypoints.
+- `src/app/**/_components/` holds route-local components that are only used by a single route tree.
+- `src/features/` holds reusable business logic and feature UI that would become awkward inside a single page tree.
+- `src/components/` holds shared UI and layout primitives that are not domain-specific.
 
 ---
 
@@ -33,7 +41,6 @@ Static assets directory for images, fonts, and other media files.
 | `error.tsx` | Error boundary fallback |
 | `layout.tsx` | Root app layout |
 | `not-found.tsx` | 404 handler |
-| `(public)/page.tsx` | Home / landing page |
 | `globals.css` | App-wide styles and CSS vars |
 
 ### Route groups
@@ -41,6 +48,30 @@ Static assets directory for images, fonts, and other media files.
 - `(public)/` - Public landing pages
 - `(auth)/` - Login, register, verify, and forgot-password flows
 - `(app)/` - Bets and dashboard pages
+
+### Notes
+
+- Public and auth pages keep route-local components under `_components/` next to the page.
+- `src/app/(public)/_components/features/` contains the landing-page feature blocks.
+- `src/app/(app)/` stays intentionally thin and delegates page logic to `src/features/`.
+
+---
+
+## `src/features/`
+
+Feature code is grouped by product area.
+
+| Directory | Purpose |
+| --- | --- |
+| `auth/` | Auth API calls, server actions, validation schemas, and auth types |
+| `bets/` | Bet-related constants, schemas, and types |
+| `dashboard/` | Dashboard cards and feature UI |
+
+### Notes
+
+- `src/features/auth/` is the main home for auth behavior used by login and register flows.
+- `src/features/dashboard/` contains the reusable dashboard sections rendered by the app dashboard page.
+- `src/features/bets/` holds the domain types and validation used around bet entry and display.
 
 ---
 
@@ -60,26 +91,22 @@ Primitive and reusable UI pieces such as `Button`, `TextInput`, `Divider`, cards
 
 ## `src/lib/`
 
-Business logic organized by concern.
+Support code organized by concern.
 
 | Directory | Purpose |
 | --- | --- |
-| `actions/` | Next.js Server Actions |
-| `api/` | Backend API client wrappers |
-| `auth/` | Auth helpers such as `getMe` |
+| `auth/` | Session helpers such as `getMe` |
 | `constants/` | Shared constants |
 | `hooks/` | Reusable client hooks |
-| `schemas/` | Zod validation schemas |
 | `stores/` | Zustand stores |
 | `types/` | TypeScript type definitions |
 | `utils/` | Pure utility functions and helpers |
 
 ### Notes
 
-- `src/lib/actions/` handles form submissions and other server-side flows.
-- `src/lib/api/` contains typed wrappers around Rust backend calls.
-- `src/lib/schemas/` holds validation for forms and request payloads.
+- `src/lib/auth/` contains auth-session helpers used across the app.
 - `src/lib/stores/` currently includes the sidebar UI state store.
+- `src/lib/utils/envConfig.ts` is the central place for frontend environment access.
 
 ---
 
@@ -165,4 +192,3 @@ Current package scripts in `client/package.json`:
   "test:e2e:headed": "NODE_ENV=test playwright test --headed"
 }
 ```
-

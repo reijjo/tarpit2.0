@@ -8,12 +8,13 @@ use crate::{
     errors::AppError,
     features::auth::tokens::{cookies::ACCESS_COOKIE, jwt::verify_access_token},
     state::AppState,
+    types::UserRole,
 };
 
 #[derive(Debug)]
 pub struct AuthUser {
     pub user_id: Uuid,
-    pub role: String,
+    pub role: UserRole,
 }
 
 fn read_cookie_value(cookie_header: &str, target: &str) -> Option<String> {
@@ -54,8 +55,8 @@ impl FromRequestParts<AppState> for AuthUser {
 }
 
 #[allow(dead_code)]
-pub fn require_role(auth: &AuthUser, allowed: &[&str]) -> Result<(), AppError> {
-    if allowed.iter().any(|r| *r == auth.role) {
+pub fn require_role(auth: &AuthUser, allowed: &[UserRole]) -> Result<(), AppError> {
+    if allowed.contains(&auth.role) {
         Ok(())
     } else {
         Err(AppError::forbidden("Insufficient role"))
