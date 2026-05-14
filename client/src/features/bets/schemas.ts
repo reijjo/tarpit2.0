@@ -37,17 +37,17 @@ export const betDetailsSchema = z.object({
   id: z.number(),
   bet_id: z.number(),
   date: z.string(),
-  homeTeam: z.string().trim().min(1).max(50, "Max 50 characters").optional(),
-  awayTeam: z.string().trim().min(1).max(50, "Max 50 characters").optional(),
+  homeTeam: z.string().trim().max(50, "Max 50 characters").optional(),
+  awayTeam: z.string().trim().max(50, "Max 50 characters").optional(),
   selection: z.string().trim().min(1).max(50, "Max 50 characters"),
   odds: z.number().positive(),
   homeScore: z.number().optional(),
   awayScore: z.number().optional(),
   betBuilderSelection: z
-    .array(z.string().trim().min(1).max(50, "Max 50 characters"))
+    .array(z.string().trim().max(50, "Max 50 characters"))
     .optional(),
   betBuilderScore: z
-    .array(z.string().trim().min(1).max(50, "Max 50 characters"))
+    .array(z.string().trim().max(50, "Max 50 characters"))
     .optional(),
   freeBet: z.boolean().default(false),
   liveBet: z.boolean().default(false),
@@ -64,7 +64,7 @@ export const betSchema = z.object({
   bookmaker: z.string().trim().min(1).max(30, "Max 30 characters"),
   tipper: z.string().trim().min(1).max(30, "Max 30 characters"),
   sport: z.string().trim().min(1).max(50, "Max 50 characters"),
-  notes: z.string().trim().min(1).max(500, "Max 500 characters").optional(),
+  notes: z.string().trim().max(500, "Max 500 characters").optional(),
   betFinalType: betTypeSchema,
   betFinalOdds: z.number().positive(),
   status: betStatusSchema,
