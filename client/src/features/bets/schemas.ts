@@ -37,16 +37,20 @@ export const betDetailsSchema = z.object({
   id: z.number(),
   bet_id: z.number(),
   date: z.string(),
-  homeTeam: z.string().optional(),
-  awayTeam: z.string().optional(),
-  selection: z.string(),
-  odds: z.number(),
+  homeTeam: z.string().trim().max(50, "Max 50 characters").optional(),
+  awayTeam: z.string().trim().max(50, "Max 50 characters").optional(),
+  selection: z.string().trim().min(1).max(50, "Max 50 characters"),
+  odds: z.number().positive(),
   homeScore: z.number().optional(),
   awayScore: z.number().optional(),
-  betBuilderSelection: z.array(z.string()).optional(),
-  betBuilderScore: z.array(z.string()).optional(),
-  freeBet: z.boolean(),
-  liveBet: z.boolean(),
+  betBuilderSelection: z
+    .array(z.string().trim().max(50, "Max 50 characters"))
+    .optional(),
+  betBuilderScore: z
+    .array(z.string().trim().max(50, "Max 50 characters"))
+    .optional(),
+  freeBet: z.boolean().default(false),
+  liveBet: z.boolean().default(false),
   betType: betTypeSchema,
 });
 
@@ -56,15 +60,17 @@ export type BetDetails = z.infer<typeof betDetailsSchema>;
 export const betSchema = z.object({
   id: z.number(),
   user_id: z.uuid(),
-  stake: z.number(),
-  bookmaker: z.string(),
-  tipper: z.string(),
-  sport: z.string(),
-  notes: z.string().optional(),
+  stake: z.number().positive(),
+  bookmaker: z.string().trim().min(1).max(30, "Max 30 characters"),
+  tipper: z.string().trim().min(1).max(30, "Max 30 characters"),
+  sport: z.string().trim().min(1).max(50, "Max 50 characters"),
+  notes: z.string().trim().max(500, "Max 500 characters").optional(),
   betFinalType: betTypeSchema,
-  betFinalOdds: z.number(),
+  betFinalOdds: z.number().positive(),
   status: betStatusSchema,
-  betDetails: z.array(betDetailsSchema),
+  betDetails: z
+    .array(betDetailsSchema)
+    .min(1, "At least one bet detail is required"),
 });
 
 export type Bet = z.infer<typeof betSchema>;
