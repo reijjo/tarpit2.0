@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { Activity } from "react";
 
 import { useLogout } from "@/lib/hooks/useLogout";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
@@ -24,14 +23,11 @@ import { Button } from "@/components/ui/button/Button";
 
 export default function Sidebar() {
   const { isOpen, toggle, close } = useSidebarStore();
+  const { logout, isPending } = useLogout();
   const isDesktop = useMediaQuery(SIDEBAR_DESKTOP_QUERY);
-  const isMobileOpen = !isDesktop && isOpen;
-  const { logout, isPending, error } = useLogout();
-
-  console.log("logout error", error);
 
   return (
-    <div className="sidebar" data-open={isMobileOpen}>
+    <div className="sidebar" data-open={isOpen}>
       <div className="sidebar-top">
         <Link href="/dash" className="sidebar-logo">
           <Image
@@ -43,8 +39,9 @@ export default function Sidebar() {
           />
           Tärpit
         </Link>
-        <Activity mode={isDesktop ? "hidden" : "visible"}>
+        {!isDesktop && (
           <Button
+            className="sidebar-close-button"
             variant="outline"
             size="icon"
             onClick={toggle}
@@ -52,7 +49,7 @@ export default function Sidebar() {
           >
             <X size={20} />
           </Button>
-        </Activity>
+        )}
       </div>
       <ul className="sidebar-links-list">
         <li>
@@ -75,7 +72,7 @@ export default function Sidebar() {
         </li>
         <li>
           <SquarePen size={18} />
-          <Link href="/add" onClick={close}>
+          <Link href="/bets/add" onClick={close}>
             Add Bet
           </Link>
         </li>

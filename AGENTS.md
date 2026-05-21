@@ -32,6 +32,7 @@
 - You may include small illustrative code snippets if helpful
 - Focus on structure, decisions, and trade-offs
 - Ask for approval before implementation
+- When proposing a change, include concise code examples of the intended edits before requesting approval
 
 ### Execution Mode
 

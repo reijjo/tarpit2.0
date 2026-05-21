@@ -45,6 +45,10 @@
   padding-inline: 1rem;
 }
 
+.sidebar-close-button {
+  flex-shrink: 0;
+}
+
 .sidebar-logo {
   display: flex;
   align-items: center;
@@ -56,6 +60,12 @@
 
   &:hover {
     color: var(--accent-xxlight);
+  }
+}
+
+@media screen and (min-width: 1251px) {
+  .sidebar-close-button {
+    display: none;
   }
 }
 

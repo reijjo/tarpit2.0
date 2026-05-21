@@ -1,4 +1,4 @@
-.text-input {
+.date-input {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
@@ -9,9 +9,7 @@
     padding-left: 0.25rem;
   }
 
-  & input[type="text"],
-  & input[type="email"],
-  & input[type="password"] {
+  & input[type="date"] {
     width: 100%;
     font-family: inherit;
     font-size: 0.925rem;
@@ -61,9 +59,4 @@
     border-style: dashed;
     background: rgb(from var(--primary-100) r g b / 70%);
   }
-}
-
-.label-container {
-  display: flex;
-  gap: 0.5rem;
 }
