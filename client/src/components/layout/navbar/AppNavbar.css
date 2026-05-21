@@ -25,6 +25,12 @@
   height: 100%;
 }
 
+@media screen and (min-width: 1251px) {
+  .app-nav-toggle {
+    display: none;
+  }
+}
+
 .app-nav-buttons {
   display: flex;
   justify-content: center;

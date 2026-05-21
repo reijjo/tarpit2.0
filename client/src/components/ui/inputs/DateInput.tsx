@@ -1,34 +1,27 @@
-import "./TextInput.css";
+import "./DateInput.css";
 import { CircleX } from "lucide-react";
 import { InputHTMLAttributes } from "react";
 
-type TextInputProps = {
-  label?: string;
+type DateInputProps = {
+  label: string;
   name: string;
   id: string;
-  type?: string;
-  errors: string[];
   className?: string;
-  optional?: boolean;
+  errors: string[];
 } & InputHTMLAttributes<HTMLInputElement>;
 
-export const TextInput = ({
+export const DateInput = ({
   label,
   name,
   id,
-  type = "text",
   className = "",
-  optional = false,
   errors,
   ...rest
-}: TextInputProps) => {
+}: DateInputProps) => {
   return (
-    <div className={`${className} text-input`}>
-      <div className="label-container">
-        <label htmlFor={id}>{label}</label>
-        {optional && <p className="optional-field">(optional)</p>}
-      </div>
-      <input {...rest} type={type} name={name} id={id} />
+    <div className={`date-input ${className}`}>
+      <label htmlFor={id}>{label}</label>
+      <input {...rest} type="date" name={name} id={id} />
       {errors.length > 0 && (
         <div className="form-error-messages">
           {errors.map((error, index) => (

@@ -18,7 +18,7 @@ export default function HeroSection() {
             </p>
           </div>
           <div className="hero-buttons">
-            <LinkButton href="/register" size="lg">
+            <LinkButton href="/register" size="xl">
               Sign up here!
             </LinkButton>
           </div>

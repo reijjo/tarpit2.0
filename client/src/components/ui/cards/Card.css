@@ -11,6 +11,7 @@
   transition: box-shadow 0.25s ease;
 
   &:hover {
+    border-color: var(--primary-light);
     box-shadow:
       inset 2px 2px 8px rgb(from var(--primary-light) r g b / 50%),
       inset -2px -2px 8px rgb(from var(--primary-xxdark) r g b / 50%),
