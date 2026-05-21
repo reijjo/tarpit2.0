@@ -3,7 +3,7 @@ import { CircleX } from "lucide-react";
 import { InputHTMLAttributes } from "react";
 
 type DateInputProps = {
-  label?: string;
+  label: string;
   name: string;
   id: string;
   className?: string;

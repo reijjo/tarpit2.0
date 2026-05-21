@@ -25,6 +25,7 @@ export default function BetDetailsForm() {
             errors={[]}
             placeholder="Home Team"
             className="grow"
+            aria-label="Home team"
           />
           <div>-</div>
           <TextInput
@@ -33,6 +34,7 @@ export default function BetDetailsForm() {
             errors={[]}
             placeholder="Away Team"
             className="grow"
+            label="Away team"
           />
         </div>
       </div>
