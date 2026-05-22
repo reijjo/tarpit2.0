@@ -2,8 +2,13 @@ import "./AddBetForm.css";
 import "./BetDetailsForm.css";
 
 import { Button } from "@/components/ui/button/Button";
+import { Checkbox } from "@/components/ui/inputs/Checkbox";
 import { DateInput } from "@/components/ui/inputs/DateInput";
+import { SelectInput } from "@/components/ui/inputs/SelectInput";
 import { TextInput } from "@/components/ui/inputs/TextInput";
+
+import { BET_TYPE_LABELS } from "../../constants";
+import { betTypeSchema } from "../../schemas";
 
 export default function BetDetailsForm() {
   const today = new Date().toISOString().split("T")[0];
@@ -34,12 +39,28 @@ export default function BetDetailsForm() {
             errors={[]}
             placeholder="Away Team"
             className="grow"
-            label="Away team"
+            aria-label="Away team"
           />
         </div>
       </div>
-      <div className="bet-form-card bet-type-card">bettype</div>
-      <div className="bet-form-card free-card">free/live</div>
+      <div className="bet-form-card bet-type-card">
+        <SelectInput
+          label="Bet Type"
+          id="betType"
+          name="betType"
+          defaultValue={betTypeSchema.enum.single}
+        >
+          {Object.entries(BET_TYPE_LABELS).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </SelectInput>
+      </div>
+      <div className="bet-form-card free-card">
+        <Checkbox label="Free Bet" id="freeBet" name="freeBet" />
+        <Checkbox label="Live Bet" id="liveBet" name="liveBet" />
+      </div>
       <div className="bet-form-card selection-card">
         <TextInput
           name="selection"

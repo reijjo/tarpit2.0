@@ -1,0 +1,48 @@
+.select-input {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+
+  & label {
+    font-size: 0.925rem;
+    text-transform: capitalize;
+    padding-left: 0.25rem;
+  }
+
+  & select {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.925rem;
+    color: var(--text-dark);
+    border-radius: 8px;
+    border: 1px solid rgb(from var(--primary-300) r g b / 55%);
+    background: var(--primary-50);
+    padding: 0.25rem 0.75rem;
+    height: 2.5rem;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      background 0.2s ease;
+  }
+
+  & select:hover {
+    border-color: var(--primary-500);
+  }
+
+  & select:focus-visible {
+    outline: none;
+    border-color: var(--info-400);
+    box-shadow: 0 0 0 3px rgb(from var(--info-500) r g b / 25%);
+  }
+
+  & select:invalid {
+    border-color: var(--error-500);
+    box-shadow: 0 0 0 3px rgb(from var(--error-500) r g b / 20%);
+  }
+
+  & select:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: rgb(from var(--primary-100) r g b / 85%);
+  }
+}

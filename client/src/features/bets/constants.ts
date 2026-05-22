@@ -23,5 +23,5 @@ export const BET_TYPE_LABELS: Record<BetType, string> = {
   moniveto: "Multiple Scores",
   tulosveto: "Correct Score",
   tuplaus: "Ladder Challenge",
-  props: "Props",
+  props: "Player Props",
 };
