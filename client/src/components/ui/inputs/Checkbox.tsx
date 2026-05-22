@@ -6,7 +6,7 @@ type CheckboxProps = {
   id: string;
   name: string;
   className?: string;
-} & InputHTMLAttributes<HTMLInputElement>;
+} & Omit<InputHTMLAttributes<HTMLInputElement>, "type">;
 
 export const Checkbox = ({
   label,

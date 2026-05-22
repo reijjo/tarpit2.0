@@ -8,6 +8,7 @@ import { SelectInput } from "@/components/ui/inputs/SelectInput";
 import { TextInput } from "@/components/ui/inputs/TextInput";
 
 import { BET_TYPE_LABELS } from "../../constants";
+import { betTypeSchema } from "../../schemas";
 
 export default function BetDetailsForm() {
   const today = new Date().toISOString().split("T")[0];
@@ -47,7 +48,7 @@ export default function BetDetailsForm() {
           label="Bet Type"
           id="betType"
           name="betType"
-          defaultValue={BET_TYPE_LABELS.single}
+          defaultValue={betTypeSchema.enum.single}
         >
           {Object.entries(BET_TYPE_LABELS).map(([value, label]) => (
             <option key={value} value={value}>
