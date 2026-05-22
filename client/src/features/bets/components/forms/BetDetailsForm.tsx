@@ -15,7 +15,7 @@ export default function BetDetailsForm() {
   console.log("today", today);
 
   return (
-    <form className="add-bet-form" action={formAction}>
+    <form className="add-bet-form">
       <h2>Bet details</h2>
       <div className="bet-form-card match-card">
         <div className="match-label">
