@@ -33,14 +33,16 @@ export const betTypeSchema = z.enum([
 export type BetType = z.infer<typeof betTypeSchema>;
 
 // Bet details
-export const betDetailsSchema = z.object({
-  id: z.number(),
-  bet_id: z.number(),
+export const betDetailsBaseSchema = z.object({
   date: z.string(),
   homeTeam: z.string().trim().max(50, "Max 50 characters").optional(),
   awayTeam: z.string().trim().max(50, "Max 50 characters").optional(),
-  selection: z.string().trim().min(1).max(50, "Max 50 characters"),
-  odds: z.number().positive(),
+  selection: z
+    .string()
+    .trim()
+    .min(1, "Selection is required")
+    .max(50, "Max 50 characters"),
+  odds: z.coerce.number("Not a number").positive("Can't be empty"),
   homeScore: z.number().optional(),
   awayScore: z.number().optional(),
   betBuilderSelection: z
@@ -52,6 +54,13 @@ export const betDetailsSchema = z.object({
   freeBet: z.boolean().default(false),
   liveBet: z.boolean().default(false),
   betType: betTypeSchema,
+});
+
+export type BetDetailsFormSchema = z.infer<typeof betDetailsBaseSchema>;
+
+export const betDetailsSchema = betDetailsBaseSchema.extend({
+  id: z.number(),
+  bet_id: z.number(),
 });
 
 export type BetDetails = z.infer<typeof betDetailsSchema>;
