@@ -2,7 +2,7 @@
 import "./AddBetForm.css";
 import "./BetDetailsForm.css";
 import { useState } from "react";
-import z from "zod";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button/Button";
 import { Checkbox } from "@/components/ui/inputs/Checkbox";
