@@ -1,4 +1,5 @@
 import { BetStatus, BetType } from "./schemas";
+import { BetDetailsFormValues, BetDetailsWithTempId } from "./types";
 
 export const BET_STATUS_LABELS: Record<BetStatus, string> = {
   won: "Won",
@@ -24,4 +25,20 @@ export const BET_TYPE_LABELS: Record<BetType, string> = {
   tulosveto: "Correct Score",
   tuplaus: "Ladder Challenge",
   props: "Player Props",
+};
+
+export const INITIAL_BET_DETAILS: BetDetailsWithTempId = {
+  temp_id: "",
+  date: new Date().toISOString().split("T")[0],
+  homeTeam: "",
+  awayTeam: "",
+  selection: "",
+  odds: 0,
+  homeScore: 0,
+  awayScore: 0,
+  betBuilderSelection: [],
+  betBuilderScore: [],
+  freeBet: false,
+  liveBet: false,
+  betType: "single",
 };
