@@ -25,6 +25,8 @@
   border-radius: 0.5rem;
   padding: 1rem;
   box-shadow: var(--box-shadow-s);
+  min-height: 6.5rem;
+  height: max-content;
   background: linear-gradient(
     to bottom right,
     var(--primary-xdark),

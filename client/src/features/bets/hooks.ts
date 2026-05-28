@@ -9,6 +9,12 @@ export function useBetFormDraft<T>(initial: T) {
   ) => {
     const { name, value } = e.target;
     setDraft((prev) => ({ ...prev, [name]: value }));
+    setFieldErrors((prev) => {
+      if (name === "selection") {
+        return { ...prev, [name]: [] };
+      }
+      return prev;
+    });
   };
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {

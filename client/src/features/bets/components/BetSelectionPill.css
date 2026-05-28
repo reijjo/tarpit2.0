@@ -1,0 +1,27 @@
+.bet-selection-pill {
+  background-color: var(--primary-xxlight);
+  padding: 0.25rem 1rem;
+  border: 1px solid var(--primary-xxdark);
+  border-radius: 32px;
+  color: var(--primary-xxdark);
+  font-size: 0.925rem;
+  width: max-content;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid yellow;
+}
+
+.remove-bet-selection {
+  background: none;
+  border: none;
+  color: var(--primary-xxdark);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+
+  &:hover {
+    transform: scale(1.125);
+  }
+}
