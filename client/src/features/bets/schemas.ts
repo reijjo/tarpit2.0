@@ -42,7 +42,12 @@ export const betDetailsBaseSchema = z.object({
     .trim()
     .min(1, "Selection is required")
     .max(50, "Max 50 characters"),
-  odds: z.coerce.number("Not a number").positive("Can't be empty"),
+  odds: z.preprocess((value) => {
+    if (typeof value === "string") {
+      return value.replace(",", ".").trim();
+    }
+    return value;
+  }, z.coerce.number("Not a number").positive("Can't be empty")),
   homeScore: z.number().optional(),
   awayScore: z.number().optional(),
   betBuilderSelection: z

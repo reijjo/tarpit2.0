@@ -1,5 +1,5 @@
 import { BetStatus, BetType } from "./schemas";
-import { BetDetailsFormValues, BetDetailsWithTempId } from "./types";
+import { BetDetailsWithTempId } from "./types";
 
 export const BET_STATUS_LABELS: Record<BetStatus, string> = {
   won: "Won",
