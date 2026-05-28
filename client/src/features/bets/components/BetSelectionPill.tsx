@@ -16,7 +16,7 @@ export const BetSelectionPill = ({
     <div className="bet-selection-pill">
       <p>{selection}</p>
       {betType === "betbuilder" && (
-        <button className="remove-bet-selection">
+        <button type="button" className="remove-bet-selection">
           <X size={14} strokeWidth={3} />
         </button>
       )}

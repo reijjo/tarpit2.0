@@ -5,9 +5,7 @@ type FreeLiveCardProps = {
     freeBet: boolean;
     liveBet: boolean;
   };
-  handleCheckboxChange: (
-    e: React.ChangeEvent<HTMLInputElement, Element>,
-  ) => void;
+  handleCheckboxChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
 export const FreeLiveCard = ({
