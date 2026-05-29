@@ -20,6 +20,38 @@
   }
 }
 
+.add-bet-form-buttons {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  justify-content: flex-end;
+  grid-column: 1 / -1;
+}
+
+@media screen and (width < 900px) {
+  .add-bet-form {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media screen and (width < 680px) {
+  .add-bet-form {
+    grid-template-columns: 1fr;
+  }
+
+  .add-bet-form-buttons {
+    & button {
+      width: 100%;
+    }
+  }
+}
+
+@media screen and (width < 440px) {
+  .add-bet-form-buttons {
+    flex-direction: column-reverse;
+  }
+}
+
 .bet-form-card {
   border: 1px solid rgb(from var(--primary-base) r g b / 25%);
   border-radius: 0.5rem;

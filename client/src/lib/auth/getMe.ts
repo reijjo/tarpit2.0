@@ -1,7 +1,7 @@
+import type { UserRole } from "@/features/auth/types";
 import { cookies } from "next/headers";
 
 import { ApiResponse } from "../types/apiResponse";
-import type { UserRole } from "@/features/auth/types";
 
 import { config } from "../utils/envConfig";
 
