@@ -39,10 +39,72 @@
   gap: 0.5rem;
 }
 
-.add-bet-form-buttons {
+.add-selection-button {
   display: flex;
-  gap: 1rem;
-  width: 100%;
-  justify-content: flex-end;
-  grid-column: 1 / -1;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Grid areas on smaller screens */
+@media screen and (width < 900px) {
+  .match-card {
+    grid-column: 1 / 3;
+    grid-row: 2 / 3;
+  }
+
+  .bet-type-card {
+    grid-column: 3 / 4;
+    grid-row: 2 / 3;
+  }
+
+  .selection-card {
+    grid-column: 1 / -1;
+    grid-row: 3 / 4;
+  }
+
+  .odds-card {
+    grid-column: 1 / 2;
+    grid-row: 4 / 5;
+  }
+
+  .date-card {
+    grid-column: 2 / 3;
+    grid-row: 4 / 5;
+  }
+
+  .free-card {
+    grid-column: 3 / 4;
+    grid-row: 4 / 5;
+  }
+}
+
+@media screen and (width < 680px) {
+  .match-card {
+    grid-column: 1 / -1;
+  }
+
+  .bet-type-card {
+    grid-column: 1 / -1;
+    grid-row: 5 / 6;
+  }
+
+  .selection-card {
+    grid-column: 1 / -1;
+    grid-row: 3 / 4;
+  }
+
+  .odds-card {
+    grid-row: 4 / 5;
+  }
+
+  .date-card {
+    grid-column: 1 / -1;
+    grid-row: 6 / 7;
+  }
+
+  .free-card {
+    grid-column: 1 / -1;
+    grid-row: 7 / 8;
+  }
 }

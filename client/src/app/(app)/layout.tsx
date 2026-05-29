@@ -1,25 +1,45 @@
 import "./layout.css";
 import { getMe } from "@/lib/auth/getMe";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 import AppContent from "@/components/layout/app-content/AppContent";
 
-export default async function AppLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const me = await getMe();
+import { Loading } from "@/components/ui/fallback/Loading";
 
-  console.log("AppLayout - getMe response:", me);
+export const dynamic = "force-dynamic"; // ← add this
 
-  if (!me.success) {
-    return redirect("/login");
+async function ProtectedApp({ children }: { children: React.ReactNode }) {
+  let me: Awaited<ReturnType<typeof getMe>>;
+
+  try {
+    me = await getMe();
+  } catch (err) {
+    console.log("me error: ", err);
+    redirect("/login");
   }
 
+  console.log("ME?: ", me);
+
+  if (!me.success) {
+    redirect("/login");
+  }
+
+  return <AppContent>{children}</AppContent>;
+}
+
+export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <main className="app-layout">
-      <AppContent>{children}</AppContent>
+      <Suspense
+        fallback={
+          <div className="app-loading-screen">
+            <Loading text="Loading app" />
+          </div>
+        }
+      >
+        <ProtectedApp>{children}</ProtectedApp>
+      </Suspense>
     </main>
   );
 }

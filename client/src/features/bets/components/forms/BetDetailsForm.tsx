@@ -7,7 +7,7 @@ import { FreeLiveCard } from "./cards/FreeLiveCard";
 import { MatchCard } from "./cards/MatchCard";
 import { OddsCard } from "./cards/OddsCard";
 import { SelectionCard } from "./cards/SelectionCard";
-import { useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button/Button";
@@ -17,8 +17,15 @@ import { useBetFormDraft } from "../../hooks";
 import { BetDetailsFormValues, BetDetailsWithTempId } from "../../types";
 import { parseBetDetailsDraft } from "../../utils";
 
-export default function BetDetailsForm() {
-  const [betDetails, setBetDetails] = useState<BetDetailsWithTempId[]>([]);
+type BetDetailsFormProps = {
+  betDetails: BetDetailsWithTempId[];
+  setBetDetails: Dispatch<SetStateAction<BetDetailsWithTempId[]>>;
+};
+
+export default function BetDetailsForm({
+  betDetails,
+  setBetDetails,
+}: BetDetailsFormProps) {
   const {
     draft,
     setDraft,
@@ -28,6 +35,7 @@ export default function BetDetailsForm() {
     handleCheckboxChange,
   } = useBetFormDraft(INITIAL_BET_DETAILS);
 
+  // Adds the bet details to parlay with temp id
   const addDetailsToParlay = (draft: BetDetailsFormValues) => {
     const result = parseBetDetailsDraft(draft);
     if (!result.success) {
@@ -75,13 +83,15 @@ export default function BetDetailsForm() {
         handleChange={handleChange}
       />
       <div className="add-bet-form-buttons">
-        <Button size="md">Add to betslip</Button>
+        <Button size="md">Next</Button>
         <Button
           size="md"
           variant="outline"
+          className="add-selection-button"
           onClick={() => addDetailsToParlay(draft)}
         >
-          Add to parlay
+          <p>+</p>
+          <p>Add Selection</p>
         </Button>
       </div>
     </form>
