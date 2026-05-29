@@ -10,7 +10,14 @@ import { Loading } from "@/components/ui/fallback/Loading";
 export const dynamic = "force-dynamic"; // ← add this
 
 async function ProtectedApp({ children }: { children: React.ReactNode }) {
-  const me = await getMe();
+  let me: Awaited<ReturnType<typeof getMe>>;
+
+  try {
+    me = await getMe();
+  } catch (err) {
+    console.log("me error: ", err);
+    redirect("/login");
+  }
 
   console.log("ME?: ", me);
 
