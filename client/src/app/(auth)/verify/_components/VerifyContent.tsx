@@ -1,6 +1,6 @@
 import ResendButton from "./ResendButton";
 
-import { verifyAccount } from "@/lib/api/auth";
+import { verifyAccount } from "@/features/auth/api";
 
 import { LinkButton } from "@/components/ui/button/LinkButton";
 
