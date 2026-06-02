@@ -3,7 +3,6 @@ import "./layout.css";
 import { BetDetailsWithTempId } from "@/features/bets/types";
 import { useState } from "react";
 
-import BetDetailsDraft from "@/features/bets/components/BetDetailsDraft";
 import BetDetailsForm from "@/features/bets/components/forms/BetDetailsForm";
 
 export default function AddPage() {
@@ -13,7 +12,6 @@ export default function AddPage() {
     <div className="add-page wrapper">
       <h1 className="like-h2 uppercase">Add bet</h1>
       <BetDetailsForm betDetails={betDetails} setBetDetails={setBetDetails} />
-      <BetDetailsDraft />
     </div>
   );
 }

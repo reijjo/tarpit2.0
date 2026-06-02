@@ -1,4 +1,4 @@
-import { BET_TYPE_LABELS } from "@/features/bets/constants";
+import { BET_DETAILS_TYPE_LABELS } from "@/features/bets/constants";
 import { BetDetailsFormValues } from "@/features/bets/types";
 
 import { SelectInput } from "@/components/ui/inputs/SelectInput";
@@ -9,6 +9,7 @@ type BetTypeCardProps = {
 };
 
 export const BetTypeCard = ({ draft, handleChange }: BetTypeCardProps) => {
+  console.log("type", draft.betType);
   return (
     <div className="bet-form-card bet-type-card">
       <SelectInput
@@ -18,7 +19,7 @@ export const BetTypeCard = ({ draft, handleChange }: BetTypeCardProps) => {
         onChange={handleChange}
         value={draft.betType}
       >
-        {Object.entries(BET_TYPE_LABELS).map(([value, label]) => (
+        {Object.entries(BET_DETAILS_TYPE_LABELS).map(([value, label]) => (
           <option key={value} value={value}>
             {label}
           </option>
