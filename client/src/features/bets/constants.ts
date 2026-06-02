@@ -25,7 +25,31 @@ export const BET_TYPE_LABELS: Record<BetType, string> = {
   tulosveto: "Correct Score",
   tuplaus: "Ladder Challenge",
   props: "Player Props",
+  result: "Result",
 };
+
+export const BET_DETAILS_TYPE_LABELS = {
+  result: BET_TYPE_LABELS.result,
+  over: BET_TYPE_LABELS.over,
+  under: BET_TYPE_LABELS.under,
+  btts: BET_TYPE_LABELS.btts,
+  tulosveto: BET_TYPE_LABELS.tulosveto,
+  betbuilder: BET_TYPE_LABELS.betbuilder,
+  props: BET_TYPE_LABELS.props,
+  tuplaus: BET_TYPE_LABELS.tuplaus,
+  other: BET_TYPE_LABELS.other,
+} satisfies Pick<
+  typeof BET_TYPE_LABELS,
+  | "result"
+  | "over"
+  | "under"
+  | "btts"
+  | "tulosveto"
+  | "betbuilder"
+  | "props"
+  | "tuplaus"
+  | "other"
+>;
 
 export const INITIAL_BET_DETAILS: BetDetailsWithTempId = {
   temp_id: "",
@@ -40,5 +64,5 @@ export const INITIAL_BET_DETAILS: BetDetailsWithTempId = {
   betBuilderScore: [],
   freeBet: false,
   liveBet: false,
-  betType: "single",
+  betType: "result",
 };

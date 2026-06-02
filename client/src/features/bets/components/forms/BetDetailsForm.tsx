@@ -16,6 +16,7 @@ import { INITIAL_BET_DETAILS } from "../../constants";
 import { useBetFormDraft } from "../../hooks";
 import { BetDetailsFormValues, BetDetailsWithTempId } from "../../types";
 import { parseBetDetailsDraft } from "../../utils";
+import BetDetailsDraft from "../BetDetailsDraft";
 
 type BetDetailsFormProps = {
   betDetails: BetDetailsWithTempId[];
@@ -55,8 +56,6 @@ export default function BetDetailsForm({
     setDraft(INITIAL_BET_DETAILS);
   };
 
-  console.log("betDetails", betDetails);
-
   return (
     <form className="add-bet-form">
       <h2>Bet details</h2>
@@ -82,6 +81,7 @@ export default function BetDetailsForm({
         draft={draft}
         handleChange={handleChange}
       />
+      {betDetails.length > 0 && <BetDetailsDraft details={betDetails} />}
       <div className="add-bet-form-buttons">
         <Button size="md">Next</Button>
         <Button

@@ -28,6 +28,7 @@ export const betTypeSchema = z.enum([
   "tulosveto",
   "tuplaus",
   "props",
+  "result",
 ]);
 
 export type BetType = z.infer<typeof betTypeSchema>;
