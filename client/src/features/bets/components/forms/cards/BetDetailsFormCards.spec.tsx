@@ -1,12 +1,11 @@
-import { BET_TYPE_LABELS } from "@/features/bets/constants";
-import { BetType } from "@/features/bets/schemas";
-
-import { MatchCard } from "./MatchCard";
 import { BetTypeCard } from "./BetTypeCard";
 import { DateCard } from "./DateCard";
 import { FreeLiveCard } from "./FreeLiveCard";
+import { MatchCard } from "./MatchCard";
 import { OddsCard } from "./OddsCard";
 import { SelectionCard } from "./SelectionCard";
+import { BET_TYPE_LABELS } from "@/features/bets/constants";
+import { BetType } from "@/features/bets/schemas";
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
@@ -64,10 +63,7 @@ function FreeLiveCardWrapper() {
   };
 
   return (
-    <FreeLiveCard
-      draft={draft}
-      handleCheckboxChange={handleCheckboxChange}
-    />
+    <FreeLiveCard draft={draft} handleCheckboxChange={handleCheckboxChange} />
   );
 }
 
@@ -89,11 +85,7 @@ function SelectionCardWrapper() {
   };
 
   return (
-    <SelectionCard
-      draft={draft}
-      fieldErrors={{}}
-      handleChange={handleChange}
-    />
+    <SelectionCard draft={draft} fieldErrors={{}} handleChange={handleChange} />
   );
 }
 
@@ -178,9 +170,13 @@ describe("BETDETAILSFORMCARDS", () => {
     it("renders bet type options and updates selection", async () => {
       const select = screen.getByLabelText(/bet type/i);
 
-      expect(select).toHaveValue("single");
-      expect(screen.getByRole("option", { name: BET_TYPE_LABELS.single })).toBeInTheDocument();
-      expect(screen.getByRole("option", { name: BET_TYPE_LABELS.betbuilder })).toBeInTheDocument();
+      expect(select).toHaveValue("result");
+      expect(
+        screen.getByRole("option", { name: BET_TYPE_LABELS.result }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("option", { name: BET_TYPE_LABELS.betbuilder }),
+      ).toBeInTheDocument();
 
       await user.selectOptions(select, "betbuilder");
 
