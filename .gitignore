@@ -155,3 +155,4 @@ CLAUDE.md
 **/*.test.js
 testcoverage/
 .DS_Store
+.zed
