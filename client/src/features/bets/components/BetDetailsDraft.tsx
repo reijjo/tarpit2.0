@@ -20,7 +20,7 @@ export default function BetDetailsDraft({ details }: BetDetailsDraftProps) {
           >
             <div className="details-draft-selection-odds">
               <p className="details-draft-selection">{d.selection}</p>
-              <p className="details-draft-odds">{d.odds}</p>
+              <p className="details-draft-odds">{d.odds.toFixed(2)}</p>
             </div>
             <p className="details-draft-type">{d.betType}</p>
             <p className="details-draft-match">
