@@ -36,8 +36,8 @@ export type BetType = z.infer<typeof betTypeSchema>;
 // Bet details
 export const betDetailsBaseSchema = z.object({
   date: z.string(),
-  homeTeam: z.string().trim().max(50, "Max 50 characters").optional(),
-  awayTeam: z.string().trim().max(50, "Max 50 characters").optional(),
+  homeTeam: z.string().trim().max(30, "Max 30 characters").optional(),
+  awayTeam: z.string().trim().max(30, "Max 30 characters").optional(),
   selection: z
     .string()
     .trim()
