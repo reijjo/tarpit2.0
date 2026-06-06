@@ -13,19 +13,25 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button/Button";
 
 import { INITIAL_BET_DETAILS } from "../../constants";
-import { useBetFormDraft } from "../../hooks";
+import { BetDetailsFormDraft } from "../../hooks";
 import { BetDetailsFormValues, BetDetailsWithTempId } from "../../types";
-import { parseBetDetailsDraft } from "../../utils";
+import { normalizeMatchTeams, parseBetDetailsDraft } from "../../utils";
 import BetDetailsDraft from "../BetDetailsDraft";
 
 type BetDetailsFormProps = {
   betDetails: BetDetailsWithTempId[];
   setBetDetails: Dispatch<SetStateAction<BetDetailsWithTempId[]>>;
+  setStep: Dispatch<SetStateAction<1 | 2>>;
+  betDetailsFormDraft: BetDetailsFormDraft;
+  onEdit: (detail: BetDetailsWithTempId) => void;
 };
 
 export default function BetDetailsForm({
   betDetails,
   setBetDetails,
+  setStep,
+  betDetailsFormDraft,
+  onEdit,
 }: BetDetailsFormProps) {
   const {
     draft,
@@ -34,10 +40,10 @@ export default function BetDetailsForm({
     setFieldErrors,
     handleChange,
     handleCheckboxChange,
-  } = useBetFormDraft(INITIAL_BET_DETAILS);
+  } = betDetailsFormDraft;
 
   // Adds the bet details to parlay with temp id
-  const addDetailsToParlay = (draft: BetDetailsFormValues) => {
+  const addBetDetails = (draft: BetDetailsFormValues, nextStep?: boolean) => {
     const result = parseBetDetailsDraft(draft);
     if (!result.success) {
       const { fieldErrors } = z.flattenError(result.error);
@@ -45,19 +51,36 @@ export default function BetDetailsForm({
       return;
     }
 
+    const teams = normalizeMatchTeams(
+      result.data.homeTeam,
+      result.data.awayTeam,
+    );
+
     setFieldErrors({});
     setBetDetails((prev) => [
       ...prev,
       {
         ...result.data,
+        ...teams,
         temp_id: crypto.randomUUID(),
       },
     ]);
     setDraft(INITIAL_BET_DETAILS);
+    if (nextStep) setStep(2);
+  };
+
+  const handleNextButton = () => {
+    const hasMinimumDraftContent = draft.selection && draft.odds;
+
+    if (hasMinimumDraftContent) {
+      addBetDetails(draft, true);
+    } else if (betDetails.length > 0) {
+      setStep(2);
+    }
   };
 
   return (
-    <form className="add-bet-form">
+    <form className="add-bet-form" action={handleNextButton}>
       <h2>Bet details</h2>
       <MatchCard
         draft={draft}
@@ -81,14 +104,22 @@ export default function BetDetailsForm({
         draft={draft}
         handleChange={handleChange}
       />
-      {betDetails.length > 0 && <BetDetailsDraft details={betDetails} />}
+      {betDetails.length > 0 && (
+        <BetDetailsDraft
+          details={betDetails}
+          setBetDetails={setBetDetails}
+          onEdit={onEdit}
+        />
+      )}
       <div className="add-bet-form-buttons">
-        <Button size="md">Next</Button>
+        <Button size="md" type="submit">
+          Next
+        </Button>
         <Button
           size="md"
           variant="outline"
           className="add-selection-button"
-          onClick={() => addDetailsToParlay(draft)}
+          onClick={() => addBetDetails(draft)}
         >
           <p>+</p>
           <p>Add Selection</p>

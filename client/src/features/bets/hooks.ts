@@ -1,3 +1,4 @@
+import { BetDetailsFormValues } from "./types";
 import { useState } from "react";
 
 export function useBetFormDraft<T>(initial: T) {
@@ -31,3 +32,7 @@ export function useBetFormDraft<T>(initial: T) {
     handleCheckboxChange,
   };
 }
+
+export type BetDetailsFormDraft = ReturnType<
+  typeof useBetFormDraft<BetDetailsFormValues>
+>;

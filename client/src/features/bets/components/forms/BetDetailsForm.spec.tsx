@@ -2,16 +2,9 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 
 import { INITIAL_BET_DETAILS } from "../../constants";
-import { useBetFormDraft } from "../../hooks";
 import { BetDetailsWithTempId } from "../../types";
 
 import BetDetailsForm from "./BetDetailsForm";
-
-vi.mock("../../hooks", () => ({
-  useBetFormDraft: vi.fn(),
-}));
-
-const mockedUseBetFormDraft = vi.mocked(useBetFormDraft);
 
 function renderForm(
   draft: BetDetailsWithTempId,
@@ -22,20 +15,25 @@ function renderForm(
   const setBetDetails = vi.fn();
   const setDraft = vi.fn();
   const setFieldErrors = vi.fn();
+  const setStep = vi.fn();
+  const onEdit = vi.fn();
 
-  mockedUseBetFormDraft.mockReturnValue({
+  const betDetailsFormDraft = {
     draft,
     setDraft,
     fieldErrors: {},
     setFieldErrors,
     handleChange: vi.fn(),
     handleCheckboxChange: vi.fn(),
-  });
+  };
 
   render(
     <BetDetailsForm
       betDetails={overrides?.betDetails ?? []}
       setBetDetails={setBetDetails}
+      setStep={setStep}
+      betDetailsFormDraft={betDetailsFormDraft}
+      onEdit={onEdit}
     />,
   );
 
@@ -43,6 +41,8 @@ function renderForm(
     setBetDetails,
     setDraft,
     setFieldErrors,
+    setStep,
+    onEdit,
   };
 }
 
@@ -51,7 +51,6 @@ describe("BETDETAILSFORM", () => {
   let consoleLogSpy: ReturnType<typeof vi.spyOn> | undefined;
 
   beforeEach(() => {
-    mockedUseBetFormDraft.mockReset();
     consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
     randomUUIDSpy = vi.spyOn(crypto, "randomUUID").mockReturnValue(
       "temp-id-123",
