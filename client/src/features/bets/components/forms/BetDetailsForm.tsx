@@ -74,8 +74,6 @@ export default function BetDetailsForm({
     const hasValues =
       !!draft.homeTeam || !!draft.awayTeam || !!draft.selection || !!draft.odds;
 
-    console.log("hasvalues", hasValues);
-
     if (!hasValues && betDetails.length > 0) {
       setStep(2);
     } else {
