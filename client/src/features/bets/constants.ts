@@ -1,5 +1,5 @@
 import { BetStatus, BetType } from "./schemas";
-import { BetDetailsWithTempId } from "./types";
+import { BetDetailsWithTempId, BetFormValues } from "./types";
 
 export const BET_STATUS_LABELS: Record<BetStatus, string> = {
   won: "Won",
@@ -65,4 +65,16 @@ export const INITIAL_BET_DETAILS: BetDetailsWithTempId = {
   freeBet: false,
   liveBet: false,
   betType: "result",
+};
+
+export const INITIAL_BET: BetFormValues = {
+  stake: 0,
+  bookmaker: "",
+  tipper: "",
+  sport: "",
+  notes: "",
+  betFinalType: "result",
+  betFinalOdds: 0,
+  status: "pending",
+  betDetails: [],
 };

@@ -1,3 +1,4 @@
+import { AuthHydration } from "./AuthHydration";
 import "./layout.css";
 import { getMe } from "@/lib/auth/getMe";
 import { redirect } from "next/navigation";
@@ -21,11 +22,16 @@ async function ProtectedApp({ children }: { children: React.ReactNode }) {
 
   console.log("ME?: ", me);
 
-  if (!me.success) {
+  if (!me.success || !me.data) {
     redirect("/login");
   }
 
-  return <AppContent>{children}</AppContent>;
+  return (
+    <>
+      <AuthHydration me={me.data} />
+      <AppContent>{children}</AppContent>
+    </>
+  );
 }
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {

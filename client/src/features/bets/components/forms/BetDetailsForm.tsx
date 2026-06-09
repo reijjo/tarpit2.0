@@ -45,6 +45,8 @@ export default function BetDetailsForm({
   // Adds the bet details to parlay with temp id
   const addBetDetails = (draft: BetDetailsFormValues, nextStep?: boolean) => {
     const result = parseBetDetailsDraft(draft);
+    console.log("resut", result);
+
     if (!result.success) {
       const { fieldErrors } = z.flattenError(result.error);
       setFieldErrors(fieldErrors);
@@ -70,13 +72,14 @@ export default function BetDetailsForm({
   };
 
   const handleNextButton = () => {
-    const hasMinimumDraftContent = draft.selection && draft.odds;
+    const hasMinimumDraftContent = !!draft.selection || !!draft.odds;
 
-    if (hasMinimumDraftContent) {
+    if (hasMinimumDraftContent || betDetails.length === 0) {
       addBetDetails(draft, true);
-    } else if (betDetails.length > 0) {
-      setStep(2);
+      return;
     }
+
+    setStep(2);
   };
 
   return (

@@ -1,16 +1,10 @@
-import type { UserRole } from "@/features/auth/types";
 import { cookies } from "next/headers";
 
 import { ApiResponse } from "../types/apiResponse";
 
 import { config } from "../utils/envConfig";
 
-type MeData = {
-  id: string;
-  email: string;
-  username: string;
-  role: UserRole;
-};
+import { MeData } from "../types/userTypes";
 
 const ME_URL = `${config.BACKEND_URL}/api/auth/me`;
 
