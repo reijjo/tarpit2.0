@@ -32,7 +32,7 @@ export const SelectionCard = ({
         onChange={handleChange}
         value={draft.selection ?? ""}
       />
-      {draft.selection.length > 0 && (
+      {draft.selection.trim().length > 0 && (
         <BetSelectionPill selection={draft.selection} betType={draft.betType} />
       )}
     </div>

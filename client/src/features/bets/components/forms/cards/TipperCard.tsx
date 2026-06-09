@@ -19,9 +19,6 @@ export const TipperCard = ({
 }: TipperCardProps) => {
   const me = useAuthStore((state) => state.me);
 
-  console.log("tipper draft", draft, "errors", fieldErrors);
-  console.log("tipper me", me);
-
   return (
     <div className="bet-form-card">
       <TextInput
@@ -29,7 +26,7 @@ export const TipperCard = ({
         name="tipper"
         id="tipper"
         errors={fieldErrors.tipper ?? []}
-        placeholder={me?.username}
+        placeholder="Tipper name"
         aria-label="tipper"
         value={draft.tipper ?? me?.username}
         onChange={handleChange}

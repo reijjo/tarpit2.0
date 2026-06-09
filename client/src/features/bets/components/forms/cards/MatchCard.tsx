@@ -32,7 +32,7 @@ export const MatchCard = ({
           className="grow"
           aria-label="Home team"
           onChange={handleChange}
-          value={draft.homeTeam ?? ""}
+          value={draft.homeTeam?.trim() ?? ""}
         />
         <div>-</div>
         <TextInput
@@ -43,7 +43,7 @@ export const MatchCard = ({
           className="grow"
           aria-label="Away team"
           onChange={handleChange}
-          value={draft.awayTeam ?? ""}
+          value={draft.awayTeam?.trim() ?? ""}
         />
       </div>
     </div>

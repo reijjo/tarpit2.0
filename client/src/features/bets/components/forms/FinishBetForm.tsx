@@ -7,7 +7,7 @@ import { SportLeagueCard } from "./cards/SportLeagueCard";
 // import { StakeCard } from "./cards/StakeCard";
 import { TipperCard } from "./cards/TipperCard";
 import { ArrowLeft } from "lucide-react";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect } from "react";
 
 import { Button } from "@/components/ui/button/Button";
 
@@ -31,6 +31,10 @@ export default function FinishBetForm({
 }: FinishBetFormProps) {
   const { draft, fieldErrors, handleChange } =
     useBetFormDraft<BetFormValues>(INITIAL_BET);
+
+  useEffect(() => {
+    if (betDetails.length === 0) goBack();
+  }, [betDetails.length, goBack]);
 
   return (
     <form className="add-bet-form">
