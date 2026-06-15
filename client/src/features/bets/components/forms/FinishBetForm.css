@@ -4,3 +4,27 @@
   gap: 0.5rem;
   justify-content: center;
 }
+
+/* Cards */
+.tipper-card {
+  & input::placeholder {
+    text-transform: capitalize;
+  }
+}
+
+.stake-card {
+  display: flex;
+  width: 100%;
+
+  & div {
+    width: 100%;
+    margin-left: auto;
+    & input {
+      text-align: right;
+    }
+
+    /*@media screen and (width < 680px) {
+      width: 100%;
+    }*/
+  }
+}

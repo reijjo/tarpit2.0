@@ -7,6 +7,7 @@
 - Prioritize security: validate inputs, avoid unsafe patterns, and avoid exposing secrets.
 - Challenge bad ideas — suggest better alternatives when needed.
 - Explain code and reasoning clearly (act as a tutor).
+- DO NOT GUESS! Ask or double check yourself but never guess or assume something without validating it first
 
 ## Workflow
 

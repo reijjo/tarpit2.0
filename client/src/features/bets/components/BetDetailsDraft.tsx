@@ -8,16 +8,20 @@ type BetDetailsDraftProps = {
   details: BetDetailsWithTempId[];
   setBetDetails: Dispatch<SetStateAction<BetDetailsWithTempId[]>>;
   onEdit: (detail: BetDetailsWithTempId) => void;
+  disabled?: boolean;
 };
 
 export default function BetDetailsDraft({
   details,
   setBetDetails,
   onEdit,
+  disabled,
 }: BetDetailsDraftProps) {
   const removeDetail = (id: string) => {
     setBetDetails((prev) => prev.filter((d) => d.temp_id !== id));
   };
+
+  console.log("disabled", disabled);
 
   return (
     <section className="details-draft">
@@ -40,6 +44,7 @@ export default function BetDetailsDraft({
                 type="button"
                 className="details-draft-modify"
                 onClick={() => onEdit(d)}
+                disabled={disabled}
               >
                 <PencilLine size={14} />
                 <p>Edit</p>
@@ -52,6 +57,7 @@ export default function BetDetailsDraft({
             className="remove-bet-details"
             aria-label={`Remove ${d.selection}`}
             onClick={() => removeDetail(d.temp_id)}
+            disabled={disabled}
           >
             <X size={12} strokeWidth={3} />
           </button>
