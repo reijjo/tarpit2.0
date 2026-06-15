@@ -1,8 +1,9 @@
+import { InputSuffix } from "./InputSuffix";
 import "./TextInput.css";
 import { CircleX } from "lucide-react";
-import { InputHTMLAttributes } from "react";
+import { InputHTMLAttributes, ReactNode } from "react";
 
-type TextInputProps = {
+type PrefixSuffixTextInputProps = {
   label?: string;
   name: string;
   id: string;
@@ -10,9 +11,11 @@ type TextInputProps = {
   errors: string[];
   className?: string;
   optional?: boolean;
+  prefix?: string;
+  suffix?: ReactNode;
 } & InputHTMLAttributes<HTMLInputElement>;
 
-export const TextInput = ({
+export const PrefixSuffixTextInput = ({
   label,
   name,
   id,
@@ -20,15 +23,25 @@ export const TextInput = ({
   className = "",
   optional = false,
   errors,
+  prefix,
+  suffix,
   ...rest
-}: TextInputProps) => {
+}: PrefixSuffixTextInputProps) => {
   return (
     <div className={`text-input ${className}`}>
       <div className="label-container">
         <label htmlFor={id}>{label}</label>
         {optional && <p className="optional-field">(optional)</p>}
       </div>
-      <input {...rest} type={type} name={name} id={id} />
+      <div className="prefix-suffix-input-container">
+        {prefix && (
+          <div className="input-prefix">
+            <p>{prefix}x</p>
+          </div>
+        )}
+        <input {...rest} type={type} name={name} id={id} />
+        {suffix && <InputSuffix>{suffix}</InputSuffix>}
+      </div>
       {errors.length > 0 && (
         <div className="form-error-messages">
           {errors.map((error, index) => (

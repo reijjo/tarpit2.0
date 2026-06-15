@@ -67,3 +67,36 @@
   display: flex;
   gap: 0.5rem;
 }
+
+.prefix-suffix-input-container {
+  display: flex;
+  height: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+
+  & input[type="text"] {
+    border-radius: 0;
+  }
+}
+
+.input-prefix,
+.input-suffix {
+  display: flex;
+  height: 2.5rem;
+  justify-content: center;
+  align-items: center;
+  padding-inline: 1rem;
+  width: max-content;
+  flex: 0;
+  z-index: 1;
+  background-color: var(--primary-xlight);
+  color: var(--primary-xdark);
+  border-right: 1px solid var(--primary-xdark);
+  font-weight: 500;
+}
+
+.input-suffix {
+  border-right: 0;
+  border-left: 1px solid var(--primary-xdark);
+  padding-inline: 0.75rem;
+}
