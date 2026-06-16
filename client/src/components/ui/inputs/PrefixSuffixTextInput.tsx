@@ -11,7 +11,7 @@ type PrefixSuffixTextInputProps = {
   errors: string[];
   className?: string;
   optional?: boolean;
-  prefix?: string;
+  prefix?: string | number;
   suffix?: ReactNode;
 } & InputHTMLAttributes<HTMLInputElement>;
 

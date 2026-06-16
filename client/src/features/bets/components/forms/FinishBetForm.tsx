@@ -73,7 +73,7 @@ export default function FinishBetForm({
         </div>
       </Activity>
       <Activity mode={finishBet ? "visible" : "hidden"}>
-        <FinishBet setFinishBet={setFinishBet} />
+        <FinishBet setFinishBet={setFinishBet} details={betDetails} />
       </Activity>
     </form>
   );

@@ -21,8 +21,6 @@ export default function BetDetailsDraft({
     setBetDetails((prev) => prev.filter((d) => d.temp_id !== id));
   };
 
-  console.log("disabled", disabled);
-
   return (
     <section className="details-draft">
       {details.map((d) => (

@@ -1,4 +1,5 @@
 import { BetStatus } from "@/features/bets/schemas";
+import { BetDetailsWithTempId } from "@/features/bets/types";
 
 export function getBetStatusClass(status: BetStatus): string {
   if (status === "lost" || status === "halflost") return "betstatus-lost";
@@ -13,3 +14,8 @@ export function getBetBallClass(status: BetStatus): string {
   if (status === "void") return "bet-ball-void";
   return "bet-ball-pending";
 }
+
+// Bet parsers
+export const getFinalOdds = (odds: BetDetailsWithTempId[]): number => {
+  return odds.reduce((acc, value) => acc * value.odds, 1);
+};
