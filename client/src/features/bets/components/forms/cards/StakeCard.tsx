@@ -1,8 +1,14 @@
+import { BetDetailsWithTempId } from "@/features/bets/types";
+
+import { getFinalOdds } from "@/lib/utils/betHelpers";
+
 import { PrefixSuffixTextInput } from "@/components/ui/inputs/PrefixSuffixTextInput";
 
-type StakeCardProps = { test?: string };
+type StakeCardProps = { details: BetDetailsWithTempId[] };
 
-export const StakeCard = ({}: StakeCardProps) => {
+export const StakeCard = ({ details }: StakeCardProps) => {
+  console.log("details", details);
+  const finalOdds = getFinalOdds(details);
   return (
     <div className="stake-card">
       <PrefixSuffixTextInput
@@ -11,7 +17,7 @@ export const StakeCard = ({}: StakeCardProps) => {
         id="stake"
         errors={[]}
         placeholder="10"
-        prefix="3.40"
+        prefix={finalOdds.toFixed(2)}
         suffix="€"
       />
     </div>
